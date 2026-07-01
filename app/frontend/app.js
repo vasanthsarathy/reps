@@ -87,6 +87,51 @@ async function submitCode() {
 function wire() {
   $("#run-btn").onclick = runCode;
   $("#submit-btn").onclick = submitCode;
+  wireTimer();
+}
+
+let timer = { total: 20 * 60, remaining: 20 * 60, id: null, startedAt: null, elapsedMs: 0 };
+
+function fmt(sec) {
+  const s = Math.max(0, Math.abs(sec));
+  const m = Math.floor(s / 60), r = s % 60;
+  return (sec < 0 ? "-" : "") + String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
+}
+function paintTimer() {
+  const d = $("#timer-display");
+  d.textContent = fmt(timer.remaining);
+  d.classList.toggle("overtime", timer.remaining < 0);
+}
+function tickTimer() {
+  timer.remaining -= 1;
+  timer.elapsedMs += 1000;
+  paintTimer();
+}
+function startTimer() {
+  if (timer.id) return;
+  timer.startedAt = Date.now();
+  timer.id = setInterval(tickTimer, 1000);
+}
+function pauseTimer() { clearInterval(timer.id); timer.id = null; }
+function resetTimer() {
+  pauseTimer();
+  timer.total = (parseInt($("#timer-minutes").value, 10) || 20) * 60;
+  timer.remaining = timer.total; timer.elapsedMs = 0;
+  paintTimer();
+}
+function getElapsedMs() { return timer.elapsedMs; }
+function getNotes() {
+  const notes = {};
+  document.querySelectorAll("#notes textarea[data-note]").forEach((t) => notes[t.dataset.note] = t.value);
+  return notes;
+}
+function clearNotes() { document.querySelectorAll("#notes textarea[data-note]").forEach((t) => t.value = ""); }
+
+function wireTimer() {
+  $("#timer-start").onclick = startTimer;
+  $("#timer-pause").onclick = pauseTimer;
+  $("#timer-reset").onclick = resetTimer;
+  $("#timer-minutes").onchange = resetTimer;
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
