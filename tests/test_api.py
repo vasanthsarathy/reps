@@ -54,3 +54,30 @@ def test_attempt_persists_and_returns_next(client):
 
 def test_next_endpoint(client):
     assert client.get("/api/next").json()["reason"] in {"review", "new", "done"}
+
+
+def test_get_config_returns_defaults(client):
+    r = client.get("/api/config")
+    assert r.status_code == 200
+    cfg = r.json()
+    assert cfg["starting_ease"] == 2.5
+    assert cfg["daily_new"] == 2
+    assert "target_minutes" in cfg
+
+
+def test_post_config_persists_merge(client):
+    from app import config
+    # POST with {"daily_new": 5}
+    r = client.post("/api/config", json={"daily_new": 5})
+    assert r.status_code == 200
+    merged = r.json()
+    assert merged["daily_new"] == 5
+    assert merged["starting_ease"] == 2.5  # default still present
+    # Verify GET returns the persisted value
+    r2 = client.get("/api/config")
+    assert r2.json()["daily_new"] == 5
+    # Verify the file was written to CONFIG_PATH
+    assert config.CONFIG_PATH.exists()
+    import json
+    saved = json.loads(config.CONFIG_PATH.read_text(encoding="utf-8"))
+    assert saved["daily_new"] == 5

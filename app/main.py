@@ -1,6 +1,5 @@
 from __future__ import annotations
 from datetime import datetime
-from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
