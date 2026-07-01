@@ -87,6 +87,11 @@ async function submitCode() {
 function wire() {
   $("#run-btn").onclick = runCode;
   $("#submit-btn").onclick = submitCode;
+  $("#mark-clean").onclick = markCleanIfSolved;
+  $("#next-btn").onclick = goNext;
+  $("#solution-block").addEventListener("toggle", (e) => {
+    if (e.target.open && currentProblem) { aided = true; finishAttempt("peeked"); }
+  });
   wireTimer();
 }
 
@@ -132,6 +137,35 @@ function wireTimer() {
   $("#timer-pause").onclick = pauseTimer;
   $("#timer-reset").onclick = resetTimer;
   $("#timer-minutes").onchange = resetTimer;
+}
+
+async function finishAttempt(result) {
+  if (!currentProblem) return;
+  pauseTimer();
+  const body = {
+    slug: currentProblem.slug, code: editor.getValue(),
+    elapsed_ms: getElapsedMs(), result, notes: getNotes(),
+  };
+  const res = await post("/attempt", body);
+  const n = res.next;
+  const msg = n.recommended
+    ? `Logged "${result}". Next up: ${n.recommended} (${n.reason}).`
+    : `Logged "${result}". Nothing due — you're clear.`;
+  if (confirm(msg + "\n\nLoad next problem now?") && n.recommended) {
+    clearNotes(); resetTimer(); loadProblem(n.recommended);
+  }
+}
+
+async function goNext() {
+  const n = await api("/next");
+  if (!n.recommended) { alert("Nothing due right now. Add problems or come back later."); return; }
+  clearNotes(); resetTimer(); loadProblem(n.recommended);
+}
+
+function markCleanIfSolved() {
+  if (window._lastAllPassed && !aided) finishAttempt("clean");
+  else if (aided) finishAttempt("peeked");
+  else alert("Submit first and pass all tests before logging a clean solve.");
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
