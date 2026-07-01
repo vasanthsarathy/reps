@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>reps — coding gym</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header id="topbar">
+    <span id="brand">reps</span>
+    <span id="problem-title">—</span>
+    <span id="timer-wrap">
+      <input id="timer-minutes" type="number" min="1" max="120" value="20" />
+      <button id="timer-start">Start</button>
+      <button id="timer-pause">Pause</button>
+      <button id="timer-reset">Reset</button>
+      <span id="timer-display">20:00</span>
+    </span>
+    <button id="next-btn">What's next?</button>
+  </header>
+
+  <main id="columns">
+    <section id="col-problem">
+      <div id="problem-desc"></div>
+      <div id="hints"></div>
+      <details id="solution-block"><summary>Show solution (marks as peeked)</summary>
+        <div id="solutions"></div>
+      </details>
+    </section>
+
+    <section id="col-editor">
+      <textarea id="code"></textarea>
+      <div id="editor-actions">
+        <button id="run-btn">Run</button>
+        <button id="submit-btn">Submit</button>
+        <button id="mark-clean" title="Log this as solved unaided">I solved it (clean)</button>
+      </div>
+    </section>
+
+    <section id="col-results">
+      <div id="results"></div>
+      <div id="notes">
+        <h3>R.E.P.S. notes</h3>
+        <label>Restate<textarea data-note="restate"></textarea></label>
+        <label>Examples<textarea data-note="examples"></textarea></label>
+        <label>Plan<textarea data-note="plan"></textarea></label>
+        <label>Step &amp; speak<textarea data-note="step"></textarea></label>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
