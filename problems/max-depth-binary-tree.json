@@ -1,0 +1,22 @@
+{
+  "slug": "max-depth-binary-tree",
+  "title": "Maximum Depth of Binary Tree",
+  "difficulty": "Easy",
+  "concepts": ["trees", "recursion"],
+  "source": "Blind75",
+  "description": "A binary tree is given as a level-order list where `null` marks a missing child (the root is `values[0]`, and subsequent entries fill in children level by level, skipping subtrees under a `null`). Return the number of nodes on the longest path from the root down to a leaf (an empty tree has depth `0`).\n\n**Example**\n\n```\nvalues = [3, 9, 20, null, null, 15, 7]  ->  3\n```",
+  "entry_point": "max_depth",
+  "starter_code": "def max_depth(values):\n    # values: level-order list with None for missing nodes.\n    # Return the tree's maximum depth.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[3, 9, 20, null, null, 15, 7]], "expected": 3},
+    {"args": [[1, null, 2]], "expected": 2},
+    {"args": [[]], "expected": 0},
+    {"args": [[1]], "expected": 1},
+    {"args": [[1, 2, 3, 4]], "expected": 3}
+  ],
+  "hints": ["Rebuild the tree from the level-order list with a queue, same as deserializing for any other tree problem.", "Depth of a node is 1 + the larger of its two subtrees' depths; an empty subtree has depth 0."],
+  "solutions": [
+    {"name": "Build tree, recursive depth", "explanation": "Reconstruct actual nodes from the level-order list with a queue-based build. Then compute depth recursively: an empty node has depth 0, and any other node's depth is 1 plus the max depth of its two children.", "code": "class _Node:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n\n\ndef _build(values):\n    if not values or values[0] is None:\n        return None\n    root = _Node(values[0])\n    queue = [root]\n    i = 1\n    while queue and i < len(values):\n        node = queue.pop(0)\n        if i < len(values):\n            v = values[i]\n            i += 1\n            if v is not None:\n                node.left = _Node(v)\n                queue.append(node.left)\n        if i < len(values):\n            v = values[i]\n            i += 1\n            if v is not None:\n                node.right = _Node(v)\n                queue.append(node.right)\n    return root\n\n\ndef _depth(node):\n    if node is None:\n        return 0\n    return 1 + max(_depth(node.left), _depth(node.right))\n\n\ndef max_depth(values):\n    return _depth(_build(values))\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

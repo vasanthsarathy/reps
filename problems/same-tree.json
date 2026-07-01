@@ -1,0 +1,22 @@
+{
+  "slug": "same-tree",
+  "title": "Same Tree",
+  "difficulty": "Easy",
+  "concepts": ["trees", "recursion"],
+  "source": "Blind75",
+  "description": "Two binary trees are each given as a level-order list where `null` marks a missing child (root first, children filled in level by level, skipping subtrees under a `null`). Return `true` if the two trees have identical structure and identical node values, `false` otherwise.\n\n**Example**\n\n```\np = [1, 2, 3], q = [1, 2, 3]  ->  true\np = [1, 2], q = [1, null, 2]  ->  false\n```",
+  "entry_point": "is_same_tree",
+  "starter_code": "def is_same_tree(p, q):\n    # p, q: level-order lists with None for missing nodes.\n    # Return True if the two trees are structurally identical with equal values.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 3], [1, 2, 3]], "expected": true},
+    {"args": [[1, 2], [1, null, 2]], "expected": false},
+    {"args": [[1, 2, 1], [1, 1, 2]], "expected": false},
+    {"args": [[], []], "expected": true},
+    {"args": [[1], []], "expected": false}
+  ],
+  "hints": ["Rebuild both trees from their level-order lists.", "Compare recursively: two empty nodes match; one empty and one not never match; otherwise values must match and both child pairs must recursively match."],
+  "solutions": [
+    {"name": "Build both trees, recursive compare", "explanation": "Reconstruct real node structures for both lists. Then recursively compare: if both nodes are None they match; if only one is None they don't; otherwise the values must be equal and both the left and right subtrees must recursively match.", "code": "class _Node:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n\n\ndef _build(values):\n    if not values or values[0] is None:\n        return None\n    root = _Node(values[0])\n    queue = [root]\n    i = 1\n    while queue and i < len(values):\n        node = queue.pop(0)\n        if i < len(values):\n            v = values[i]\n            i += 1\n            if v is not None:\n                node.left = _Node(v)\n                queue.append(node.left)\n        if i < len(values):\n            v = values[i]\n            i += 1\n            if v is not None:\n                node.right = _Node(v)\n                queue.append(node.right)\n    return root\n\n\ndef _same(a, b):\n    if a is None and b is None:\n        return True\n    if a is None or b is None:\n        return False\n    return a.val == b.val and _same(a.left, b.left) and _same(a.right, b.right)\n\n\ndef is_same_tree(p, q):\n    return _same(_build(p), _build(q))\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

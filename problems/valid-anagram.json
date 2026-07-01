@@ -1,0 +1,22 @@
+{
+  "slug": "valid-anagram",
+  "title": "Valid Anagram",
+  "difficulty": "Easy",
+  "concepts": ["hashing", "strings"],
+  "source": "Blind75",
+  "description": "Given two strings `s` and `t`, return `true` if `t` is an anagram of `s` (uses exactly the same letters, each the same number of times), and `false` otherwise.\n\n**Example**\n\n```\ns = \"rat\", t = \"tar\"  ->  true\ns = \"rat\", t = \"car\"  ->  false\n```",
+  "entry_point": "valid_anagram",
+  "starter_code": "def valid_anagram(s, t):\n    # Return True if t is an anagram of s.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": ["rat", "tar"], "expected": true},
+    {"args": ["rat", "car"], "expected": false},
+    {"args": ["a", "ab"], "expected": false},
+    {"args": ["", ""], "expected": true},
+    {"args": ["aacc", "ccac"], "expected": false}
+  ],
+  "hints": ["Different lengths can never be anagrams.", "Count letter frequencies in each string and compare the counts."],
+  "solutions": [
+    {"name": "Character counts", "explanation": "Anagrams must have the same length and the same multiset of characters. Tally the letters of each string with a counter and compare the two tallies directly.", "code": "from collections import Counter\n\ndef valid_anagram(s, t):\n    if len(s) != len(t):\n        return False\n    return Counter(s) == Counter(t)\n", "complexity": "Time O(n), Space O(k) where k is the alphabet size"}
+  ]
+}

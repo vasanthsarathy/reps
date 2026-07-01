@@ -1,0 +1,22 @@
+{
+  "slug": "climbing-stairs",
+  "title": "Climbing Stairs",
+  "difficulty": "Easy",
+  "concepts": ["dp"],
+  "source": "Blind75",
+  "description": "You are climbing a staircase with `n` steps. Each move you take either 1 or 2 steps at a time. Return the number of distinct sequences of moves that reach the top.\n\n**Example**\n\n```\nn = 2  ->  2   (1+1, 2)\nn = 3  ->  3   (1+1+1, 1+2, 2+1)\n```",
+  "entry_point": "climb_stairs",
+  "starter_code": "def climb_stairs(n):\n    # Return the number of distinct ways to climb n stairs using 1- or 2-steps.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [2], "expected": 2},
+    {"args": [3], "expected": 3},
+    {"args": [4], "expected": 5},
+    {"args": [1], "expected": 1},
+    {"args": [10], "expected": 89}
+  ],
+  "hints": ["The number of ways to reach step n is the number of ways to reach step n-1 plus the number of ways to reach step n-2 (your last move was either a 1-step or a 2-step).", "This is the Fibonacci recurrence — you only need to remember the previous two values."],
+  "solutions": [
+    {"name": "Iterative Fibonacci", "explanation": "Reaching step n requires that your final move was either a single step from n-1 or a double step from n-2, so ways(n) = ways(n-1) + ways(n-2). Rolling two running totals forward from the base cases avoids recomputation and uses constant space.", "code": "def climb_stairs(n):\n    if n <= 2:\n        return n\n    prev2, prev1 = 1, 2\n    for _ in range(3, n + 1):\n        prev2, prev1 = prev1, prev1 + prev2\n    return prev1\n", "complexity": "Time O(n), Space O(1)"}
+  ]
+}

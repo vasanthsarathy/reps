@@ -1,0 +1,22 @@
+{
+  "slug": "contains-duplicate",
+  "title": "Contains Duplicate",
+  "difficulty": "Easy",
+  "concepts": ["hashing", "arrays"],
+  "source": "Blind75",
+  "description": "Given a list of integers `nums`, return `true` if any value appears at least twice, and `false` if every element is distinct.\n\n**Example**\n\n```\nnums = [1, 2, 3, 1]  ->  true\nnums = [1, 2, 3, 4]  ->  false\n```",
+  "entry_point": "contains_duplicate",
+  "starter_code": "def contains_duplicate(nums):\n    # Return True if any value repeats.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 3, 1]], "expected": true},
+    {"args": [[1, 2, 3, 4]], "expected": false},
+    {"args": [[]], "expected": false},
+    {"args": [[1]], "expected": false},
+    {"args": [[5, 5]], "expected": true}
+  ],
+  "hints": ["A set remembers what you've already seen.", "If len(set(nums)) < len(nums), there was a duplicate."],
+  "solutions": [
+    {"name": "Set", "explanation": "Add elements to a set as you scan; if you ever see one already present, you found a duplicate. Equivalently, compare the size of the set to the list length.", "code": "def contains_duplicate(nums):\n    seen = set()\n    for x in nums:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

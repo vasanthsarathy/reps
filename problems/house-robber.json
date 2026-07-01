@@ -1,0 +1,22 @@
+{
+  "slug": "house-robber",
+  "title": "House Robber",
+  "difficulty": "Medium",
+  "concepts": ["dp"],
+  "source": "Blind75",
+  "description": "You plan to rob houses along a street; `nums[i]` is the cash in house `i`. Adjacent houses share a security system, so you cannot rob two houses that are next to each other. Return the maximum total cash you can collect.\n\n**Example**\n\n```\nnums = [1, 2, 3, 1]  ->  4   (rob house 0 and house 2: 1 + 3)\nnums = [2, 7, 9, 3, 1]  ->  12   (rob houses 0, 2, 4: 2 + 9 + 1)\n```",
+  "entry_point": "rob",
+  "starter_code": "def rob(nums):\n    # Return the max sum obtainable without picking two adjacent elements.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 3, 1]], "expected": 4},
+    {"args": [[2, 7, 9, 3, 1]], "expected": 12},
+    {"args": [[]], "expected": 0},
+    {"args": [[5]], "expected": 5},
+    {"args": [[2, 1, 1, 2]], "expected": 4}
+  ],
+  "hints": ["At each house you have a choice: skip it (carry forward the best total so far) or rob it (best total from two houses back, plus this house's cash).", "You only ever need the previous two running totals, not a full array."],
+  "solutions": [
+    {"name": "Rolling max DP", "explanation": "Track two running values as you scan left to right: best total ending at or before the previous house, and best total ending at or before the one before that. For each house, the new best is either skip it (previous best) or rob it (best-two-back plus this house's cash). Roll both values forward.", "code": "def rob(nums):\n    prev, curr = 0, 0\n    for n in nums:\n        prev, curr = curr, max(curr, prev + n)\n    return curr\n", "complexity": "Time O(n), Space O(1)"}
+  ]
+}
