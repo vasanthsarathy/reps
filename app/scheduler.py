@@ -1,13 +1,12 @@
 from __future__ import annotations
 from datetime import date, timedelta
 
-_RESULT_QUALITY = {"peeked": 2, "failed": 1}
+LEVEL_QUALITY = {"easy": 5, "good": 4, "hard": 3, "hint": 2, "peeked": 1}
+PASS_LEVELS = {"easy", "good", "hard"}
 
 
-def quality_from_result(result: str, elapsed_ms: int, target_ms: int) -> int:
-    if result == "clean":
-        return 5 if elapsed_ms <= target_ms else 4
-    return _RESULT_QUALITY.get(result, 1)
+def quality_from_level(level: str) -> int:
+    return LEVEL_QUALITY.get(level, 1)
 
 
 def _iso_plus_days(today: str, days: int) -> str:
@@ -24,7 +23,7 @@ def update_sm2(state: dict, quality: int, today: str, intervals: list[int]) -> d
 
     if quality < 3:
         reps = 0
-        interval = 1
+        interval = 1 if quality <= 1 else 2
     else:
         reps += 1
         if reps <= len(intervals):

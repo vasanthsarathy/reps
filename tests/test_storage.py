@@ -55,9 +55,18 @@ def test_record_attempt_updates_schedule_and_concepts():
     problems = storage.load_problems(config.PROBLEMS_DIR)
     p = problems["two-sum"]
     schedule = {"problems": {}, "concepts": {}}
-    out = storage.record_attempt(schedule, "two-sum", p, "clean", 5 * 60_000,
+    out = storage.record_attempt(schedule, "two-sum", p, "good",
                                  "2026-07-01", config.DEFAULT_CONFIG)
     assert out["problems"]["two-sum"]["repetitions"] == 1
     assert out["concepts"]["hashing"] == {"attempts": 1, "cleans": 1}
     # original not mutated
     assert schedule["problems"] == {}
+
+
+def test_record_attempt_miss_does_not_count_as_clean():
+    problems = storage.load_problems(config.PROBLEMS_DIR)
+    p = problems["two-sum"]
+    schedule = {"problems": {}, "concepts": {}}
+    out = storage.record_attempt(schedule, "two-sum", p, "peeked",
+                                 "2026-07-01", config.DEFAULT_CONFIG)
+    assert out["concepts"]["hashing"] == {"attempts": 1, "cleans": 0}

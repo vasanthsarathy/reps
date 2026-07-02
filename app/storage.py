@@ -4,7 +4,7 @@ import os
 import tempfile
 from pathlib import Path
 from app.models import Problem
-from app.scheduler import quality_from_result, update_sm2, update_concepts
+from app.scheduler import quality_from_level, PASS_LEVELS, update_sm2, update_concepts
 
 _EMPTY_SCHEDULE = {"problems": {}, "concepts": {}}
 
@@ -59,16 +59,15 @@ def append_session(sessions_dir: Path, session: dict) -> Path:
     return path
 
 
-def record_attempt(schedule: dict, slug: str, problem: Problem, result: str,
-                   elapsed_ms: int, today: str, config: dict) -> dict:
+def record_attempt(schedule: dict, slug: str, problem: Problem, level: str,
+                   today: str, config: dict) -> dict:
     problems = {k: dict(v) for k, v in schedule.get("problems", {}).items()}
-    target_min = config["target_minutes"].get(problem.difficulty, 20)
-    quality = quality_from_result(result, elapsed_ms, target_min * 60_000)
+    quality = quality_from_level(level)
     state = problems.get(slug, {"ease": config["starting_ease"], "interval": 0,
                                 "repetitions": 0, "due": None, "last_result": None})
     new_state = update_sm2(state, quality, today, config["initial_intervals"])
-    new_state["last_result"] = result
+    new_state["last_result"] = level
     problems[slug] = new_state
     concepts = update_concepts(schedule.get("concepts", {}), problem.concepts,
-                               clean=(result == "clean"))
+                               clean=(level in PASS_LEVELS))
     return {"problems": problems, "concepts": concepts}

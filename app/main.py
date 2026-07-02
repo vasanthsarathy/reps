@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
+from typing import Literal
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -37,7 +38,7 @@ class AttemptBody(BaseModel):
     slug: str
     code: str
     elapsed_ms: int
-    result: str
+    result: Literal["easy", "good", "hard", "hint", "peeked"]
     notes: dict = {}
     test_summary: dict | None = None
 
@@ -86,8 +87,7 @@ def attempt(body: AttemptBody):
     cfg = _config()
     today = _today()
     schedule = storage.load_schedule(config.SCHEDULE_PATH)
-    schedule = storage.record_attempt(schedule, body.slug, p, body.result,
-                                      body.elapsed_ms, today, cfg)
+    schedule = storage.record_attempt(schedule, body.slug, p, body.result, today, cfg)
     storage.save_schedule(config.SCHEDULE_PATH, schedule)
     storage.append_session(config.SESSIONS_DIR, {
         "timestamp": _now_iso(), "slug": body.slug, "result": body.result,

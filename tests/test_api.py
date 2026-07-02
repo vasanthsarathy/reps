@@ -41,7 +41,7 @@ def test_submit_correct_solution(client):
 def test_attempt_persists_and_returns_next(client):
     r = client.post("/api/attempt", json={
         "slug": "two-sum", "code": "x=1", "elapsed_ms": 300000,
-        "result": "clean", "notes": {"restate": "find two indices"},
+        "result": "good", "notes": {"restate": "find two indices"},
     })
     body = r.json()
     assert body["schedule_state"]["repetitions"] == 1
@@ -58,7 +58,7 @@ def test_attempt_persists_test_summary(client):
 
     r = client.post("/api/attempt", json={
         "slug": "two-sum", "code": "x=1", "elapsed_ms": 300000,
-        "result": "clean", "notes": {},
+        "result": "easy", "notes": {},
         "test_summary": {"passed": 3, "total": 3, "all_passed": True},
     })
     assert r.status_code == 200
@@ -66,6 +66,14 @@ def test_attempt_persists_test_summary(client):
     assert len(session_files) == 1
     saved = json.loads(session_files[0].read_text(encoding="utf-8"))
     assert saved["test_summary"] == {"passed": 3, "total": 3, "all_passed": True}
+
+
+def test_attempt_invalid_level_returns_422(client):
+    r = client.post("/api/attempt", json={
+        "slug": "two-sum", "code": "x=1", "elapsed_ms": 300000,
+        "result": "clean", "notes": {},
+    })
+    assert r.status_code == 422
 
 
 def test_next_endpoint(client):
