@@ -52,7 +52,9 @@ def list_problems():
         st = seen.get(slug)
         out.append({"slug": slug, "title": p.title, "difficulty": p.difficulty,
                     "concepts": p.concepts, "seen": st is not None,
-                    "due": st.get("due") if st else None})
+                    "due": st.get("due") if st else None,
+                    "last_result": st.get("last_result") if st else None,
+                    "repetitions": st.get("repetitions", 0) if st else 0})
     return out
 
 

@@ -19,6 +19,7 @@
       <button id="timer-reset">Reset</button>
       <span id="timer-display">20:00</span>
     </span>
+    <button id="browse-btn">Browse</button>
     <button id="next-btn">What's next?</button>
   </header>
 
@@ -58,6 +59,17 @@
       </div>
     </section>
   </main>
+
+  <div id="browse-overlay" hidden>
+    <div id="browse-panel">
+      <div id="browse-head">
+        <h2>All problems</h2>
+        <input id="browse-search" type="text" placeholder="Search title or concept…" />
+        <button id="browse-close" title="Close">✕</button>
+      </div>
+      <div id="browse-list"></div>
+    </div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
