@@ -57,3 +57,41 @@ def test_run_tests_unordered_compare():
     tests = [{"args": [[1, 2, 3]], "expected": [1, 2, 3]}]
     assert run_tests(code, "subsets_count", tests, compare="exact")["all_passed"] is False
     assert run_tests(code, "subsets_count", tests, compare="unordered")["all_passed"] is True
+
+
+def test_close_compare_numpy_passes_within_tol():
+    code = "import numpy as np\ndef f(x):\n    return np.asarray(x) * 2.0\n"
+    tests = [{"args": [[1.0, 2.0]], "expected": [2.0, 4.0]}]
+    r = run_tests(code, "f", tests, compare="close")
+    assert r["all_passed"] is True
+
+def test_close_compare_numpy_fails_and_reports_max_abs_err():
+    code = "import numpy as np\ndef f(x):\n    return np.asarray(x) + 1.0\n"
+    tests = [{"args": [[1.0, 2.0]], "expected": [2.0, 4.0]}]  # off by 1 on the 2nd
+    r = run_tests(code, "f", tests, compare="close")
+    assert r["all_passed"] is False
+    assert r["results"][0].get("max_abs_err", 0) >= 0.9
+
+def test_close_compare_shape_mismatch_is_fail_not_error():
+    code = "import numpy as np\ndef f(x):\n    return np.asarray(x)[:1]\n"
+    tests = [{"args": [[1.0, 2.0]], "expected": [1.0, 2.0]}]
+    r = run_tests(code, "f", tests, compare="close")
+    assert r["all_passed"] is False
+    assert "shape" in str(r["results"][0]["got"]).lower() or "shape" in r["results"][0].get("note","").lower()
+
+def test_close_compare_nan_is_fail_with_message():
+    code = "import numpy as np\ndef f(x):\n    return np.asarray(x) * float('nan')\n"
+    tests = [{"args": [[1.0]], "expected": [1.0]}]
+    r = run_tests(code, "f", tests, compare="close")
+    assert r["all_passed"] is False
+
+def test_close_compare_torch_tensor():
+    code = "import torch\ndef f(x):\n    return torch.tensor(x) + 1\n"
+    tests = [{"args": [[1.0, 2.0]], "expected": [2.0, 3.0]}]
+    r = run_tests(code, "f", tests, compare="close")
+    assert r["all_passed"] is True
+
+def test_exact_still_works_for_plain_values():
+    code = "def f(a, b):\n    return a + b\n"
+    r = run_tests(code, "f", [{"args": [2, 3], "expected": 5}], compare="exact")
+    assert r["all_passed"] is True

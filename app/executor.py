@@ -36,13 +36,66 @@ def run(code: str, timeout: float = 10.0) -> dict:
 _HARNESS = r'''
 import json, sys, traceback
 
-def _norm(v, mode):
-    if mode == "unordered" and isinstance(v, list):
-        try:
-            return sorted(v, key=lambda z: json.dumps(z, sort_keys=True))
-        except TypeError:
-            return v
+def _to_np(v):
+    try:
+        import numpy as np
+    except Exception:
+        return None
+    try:
+        import torch
+        if isinstance(v, torch.Tensor):
+            return v.detach().cpu().numpy()
+    except Exception:
+        pass
+    if isinstance(v, np.ndarray):
+        return v
+    return None
+
+def _is_array(v):
+    return _to_np(v) is not None
+
+def _fmt(v):
+    a = _to_np(v)
+    if a is not None:
+        flat = a.reshape(-1)
+        head = ", ".join(f"{x:.4g}" for x in flat[:8].tolist())
+        more = "…" if flat.size > 8 else ""
+        return f"shape={tuple(a.shape)} dtype={a.dtype} [{head}{more}]"
     return v
+
+def _compare(got, expected, mode, rtol, atol):
+    """Return (passed, note, max_abs_err|None). Never raises."""
+    import numpy as np
+    ga, ea = _to_np(got), _to_np(expected)
+    if ga is not None or ea is not None:
+        if ga is None: ga = np.asarray(got)
+        if ea is None: ea = np.asarray(expected)
+        if ga.shape != ea.shape:
+            return False, f"shape mismatch: got {tuple(ga.shape)} want {tuple(ea.shape)}", None
+        gf, ef = ga.astype("float64", copy=False), ea.astype("float64", copy=False)
+        with np.errstate(all="ignore"):
+            diff = np.abs(gf - ef)
+            mae = float(np.nanmax(diff)) if diff.size else 0.0
+        if np.isnan(gf).any() and not np.isnan(ef).any():
+            return False, "output contains NaN", mae
+        if np.isinf(gf).any() and not np.isinf(ef).any():
+            return False, "output contains inf", mae
+        if mode == "close":
+            ok = bool(np.allclose(gf, ef, rtol=rtol, atol=atol, equal_nan=True))
+        else:  # exact on arrays
+            ok = bool(ga.shape == ea.shape and (ga.dtype == ea.dtype) and np.array_equal(ga, ea))
+        return ok, "", mae
+    # plain python values
+    if mode == "unordered" and isinstance(got, list) and isinstance(expected, list):
+        try:
+            g = sorted(got, key=lambda z: json.dumps(z, sort_keys=True))
+            e = sorted(expected, key=lambda z: json.dumps(z, sort_keys=True))
+            return g == e, "", None
+        except TypeError:
+            return got == expected, "", None
+    if mode == "close" and isinstance(got, (int, float)) and isinstance(expected, (int, float)):
+        return abs(got - expected) <= atol + rtol * abs(expected), "", abs(got - expected)
+    return got == expected, "", None
 
 def _main():
     payload = json.loads(sys.stdin.read())
@@ -57,15 +110,20 @@ def _main():
         print(json.dumps({"harness_error": f"No function named {payload['entry_point']!r} was defined."}))
         return
     mode = payload.get("compare", "exact")
+    rtol = float(payload.get("rtol", 1e-4)); atol = float(payload.get("atol", 1e-6))
     results = []
     for t in payload["tests"]:
-        row = {"args": t["args"], "expected": t["expected"]}
+        row = {"args": t["args"]}
         try:
             got = fn(*t["args"])
-            row["got"] = got
-            row["passed"] = _norm(got, mode) == _norm(t["expected"], mode)
+            passed, note, mae = _compare(got, t["expected"], mode, rtol, atol)
+            row["got"] = _fmt(got); row["expected"] = _fmt(t["expected"])
+            row["passed"] = passed
+            if note: row["note"] = note
+            if (not passed) and mae is not None: row["max_abs_err"] = mae
         except Exception:
             row["got"] = traceback.format_exc().strip().splitlines()[-1]
+            row["expected"] = _fmt(t.get("expected"))
             row["passed"] = False
         results.append(row)
     print(json.dumps({"results": results}))
@@ -75,9 +133,11 @@ _main()
 
 
 def run_tests(code: str, entry_point: str, tests: list[dict],
-              compare: str = "exact", timeout: float = 10.0) -> dict:
+              compare: str = "exact", timeout: float = 10.0,
+              rtol: float = 1e-4, atol: float = 1e-6) -> dict:
     payload = json.dumps({"code": code, "entry_point": entry_point,
-                          "tests": tests, "compare": compare})
+                          "tests": tests, "compare": compare,
+                          "rtol": rtol, "atol": atol})
     with tempfile.TemporaryDirectory() as td:
         harness = Path(td) / "harness.py"
         harness.write_text(_HARNESS, encoding="utf-8")
