@@ -52,6 +52,22 @@ def test_attempt_persists_and_returns_next(client):
     assert two["seen"] is True
 
 
+def test_attempt_persists_test_summary(client):
+    from app import config
+    import json
+
+    r = client.post("/api/attempt", json={
+        "slug": "two-sum", "code": "x=1", "elapsed_ms": 300000,
+        "result": "clean", "notes": {},
+        "test_summary": {"passed": 3, "total": 3, "all_passed": True},
+    })
+    assert r.status_code == 200
+    session_files = list(config.SESSIONS_DIR.glob("*.json"))
+    assert len(session_files) == 1
+    saved = json.loads(session_files[0].read_text(encoding="utf-8"))
+    assert saved["test_summary"] == {"passed": 3, "total": 3, "all_passed": True}
+
+
 def test_next_endpoint(client):
     assert client.get("/api/next").json()["reason"] in {"review", "new", "done"}
 

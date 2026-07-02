@@ -42,6 +42,15 @@ def test_append_session_writes_file(tmp_path):
     assert json.loads(path.read_text())["result"] == "clean"
 
 
+def test_append_session_collision_writes_distinct_files(tmp_path):
+    session = {"timestamp": "2026-07-01T09-00-00", "slug": "two-sum", "result": "clean"}
+    path1 = storage.append_session(tmp_path, session)
+    path2 = storage.append_session(tmp_path, session)
+    assert path1.exists()
+    assert path2.exists()
+    assert path1 != path2
+
+
 def test_record_attempt_updates_schedule_and_concepts():
     problems = storage.load_problems(config.PROBLEMS_DIR)
     p = problems["two-sum"]

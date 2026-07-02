@@ -39,6 +39,7 @@ class AttemptBody(BaseModel):
     elapsed_ms: int
     result: str
     notes: dict = {}
+    test_summary: dict | None = None
 
 
 @app.get("/api/problems")
@@ -91,6 +92,7 @@ def attempt(body: AttemptBody):
     storage.append_session(config.SESSIONS_DIR, {
         "timestamp": _now_iso(), "slug": body.slug, "result": body.result,
         "elapsed_ms": body.elapsed_ms, "code": body.code, "notes": body.notes,
+        "test_summary": body.test_summary,
     })
     prob_dicts = [{"slug": s, "difficulty": pr.difficulty, "concepts": pr.concepts}
                   for s, pr in problems.items()]

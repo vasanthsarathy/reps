@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field
 
 
 class TestCase(BaseModel):
+    __test__ = False
+
     args: list[Any]
     expected: Any
 

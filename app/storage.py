@@ -49,8 +49,12 @@ def load_config(path: Path, defaults: dict) -> dict:
 def append_session(sessions_dir: Path, session: dict) -> Path:
     sessions_dir = Path(sessions_dir)
     sessions_dir.mkdir(parents=True, exist_ok=True)
-    name = f"{session['timestamp']}-{session['slug']}.json"
-    path = sessions_dir / name
+    stem = f"{session['timestamp']}-{session['slug']}"
+    path = sessions_dir / f"{stem}.json"
+    n = 2
+    while path.exists():
+        path = sessions_dir / f"{stem}-{n}.json"
+        n += 1
     path.write_text(json.dumps(session, indent=2), encoding="utf-8")
     return path
 

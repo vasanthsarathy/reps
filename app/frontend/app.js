@@ -1,5 +1,5 @@
 const $ = (sel) => document.querySelector(sel);
-let editor, currentProblem = null, aided = false;
+let editor, currentProblem = null, aided = false, attemptLogged = false;
 
 async function api(path, opts) {
   const r = await fetch("/api" + path, opts);
@@ -19,7 +19,9 @@ function initEditor() {
 
 async function loadProblem(slug) {
   const p = await api("/problem/" + slug);
-  currentProblem = p; aided = false;
+  currentProblem = p; aided = false; attemptLogged = false;
+  window._lastAllPassed = false;
+  window._lastSubmit = null;
   $("#problem-title").textContent = p.title + "  ·  " + p.difficulty;
   $("#problem-desc").innerHTML = renderMarkdown(p.description);
   renderHints(p.hints);
@@ -63,15 +65,25 @@ function renderSolutions(sols) {
 
 async function runCode() {
   $("#results").textContent = "Running…";
-  const r = await post("/run", { code: editor.getValue() });
-  $("#results").textContent = (r.stdout || "") + (r.error ? "\n" + r.error : "");
+  try {
+    const r = await post("/run", { code: editor.getValue() });
+    $("#results").textContent = (r.stdout || "") + (r.error ? "\n" + r.error : "");
+  } catch (e) {
+    $("#results").textContent = "Error: " + e.message;
+  }
 }
 
 async function submitCode() {
   $("#results").innerHTML = "Running tests…";
-  const r = await post("/submit", { slug: currentProblem.slug, code: editor.getValue() });
+  let r;
+  try {
+    r = await post("/submit", { slug: currentProblem.slug, code: editor.getValue() });
+  } catch (e) {
+    $("#results").textContent = "Error: " + e.message;
+    return;
+  }
   const box = $("#results"); box.innerHTML = "";
-  if (r.error) { box.textContent = r.error; return; }
+  if (r.error) { box.textContent = r.error; window._lastAllPassed = false; window._lastSubmit = null; return; }
   const head = document.createElement("div");
   head.textContent = `${r.passed}/${r.total} passed · ${r.runtime_ms}ms`;
   box.appendChild(head);
@@ -82,6 +94,7 @@ async function submitCode() {
     box.appendChild(d);
   });
   window._lastAllPassed = r.all_passed;
+  window._lastSubmit = { passed: r.passed, total: r.total, all_passed: r.all_passed };
 }
 
 function wire() {
@@ -140,11 +153,14 @@ function wireTimer() {
 }
 
 async function finishAttempt(result) {
+  if (attemptLogged) return;
   if (!currentProblem) return;
+  attemptLogged = true;
   pauseTimer();
   const body = {
     slug: currentProblem.slug, code: editor.getValue(),
     elapsed_ms: getElapsedMs(), result, notes: getNotes(),
+    test_summary: window._lastSubmit || null,
   };
   const res = await post("/attempt", body);
   const n = res.next;
@@ -171,8 +187,12 @@ function markCleanIfSolved() {
 window.addEventListener("DOMContentLoaded", async () => {
   initEditor();
   wire();
-  // Load the recommended next problem on open (falls back to first problem).
-  const nxt = await api("/next");
-  const slug = nxt.recommended || (await api("/problems"))[0]?.slug;
-  if (slug) loadProblem(slug);
+  try {
+    // Load the recommended next problem on open (falls back to first problem).
+    const nxt = await api("/next");
+    const slug = nxt.recommended || (await api("/problems"))[0]?.slug;
+    if (slug) loadProblem(slug);
+  } catch (e) {
+    $("#results").textContent = "Error loading problems: " + e.message;
+  }
 });
