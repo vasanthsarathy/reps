@@ -1,0 +1,21 @@
+{
+  "slug": "ad-sum",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: Sum Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = \\sum_i x_i$, reducing a vector $x \\in \\mathbb{R}^6$ to a scalar.\n\nGiven the (scalar) upstream gradient $g = \\frac{\\partial L}{\\partial f(x)}$, implement `sum_backward(x, g)` returning $\\frac{\\partial L}{\\partial x} \\in \\mathbb{R}^6$.\n\nSince every $x_i$ contributes additively to the sum with coefficient 1, $\\frac{\\partial f}{\\partial x_i} = 1$ for all $i$, so $\\frac{\\partial L}{\\partial x_i} = g$ (broadcast to every entry).\n\n**Shapes**: `x`: (6,), `g`: scalar -> returns `dx`: (6,).",
+  "entry_point": "sum_backward",
+  "starter_code": "import torch\n\ndef sum_backward(x, g):\n    # dx given upstream (scalar) grad g, where forward(x) = x.sum()\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "def forward(x):\n    return x.sum()\n",
+  "random_tests": {"count": 5, "shapes": {"x": [6]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["Every element of x has local derivative 1 with respect to the sum, so the gradient distributes the scalar g equally (unchanged) to every position.", "Broadcast g against a ones-vector of x's shape: dx = g * torch.ones_like(x)."],
+  "solutions": [
+    {"name": "Broadcast scalar grad to every element", "explanation": "Since $\\frac{\\partial}{\\partial x_i}\\sum_j x_j = 1$ for every $i$, the chain rule gives $dx_i = g$ for all $i$ — the scalar upstream gradient is broadcast unchanged across the input shape.", "code": "import torch\n\ndef sum_backward(x, g):\n    return g * torch.ones_like(x)\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

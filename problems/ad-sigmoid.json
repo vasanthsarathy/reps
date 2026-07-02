@@ -1,0 +1,21 @@
+{
+  "slug": "ad-sigmoid",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: Sigmoid Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff", "activations"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = \\sigma(x) = \\frac{1}{1+e^{-x}}$, applied elementwise to a vector $x \\in \\mathbb{R}^6$.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)}$ (same shape as $x$), implement `sigmoid_backward(x, g)` returning $\\frac{\\partial L}{\\partial x}$.\n\nRecall $\\sigma'(x) = \\sigma(x)(1-\\sigma(x))$, so with $s = \\sigma(x)$: $\\frac{\\partial L}{\\partial x_i} = g_i \\cdot s_i (1 - s_i)$.\n\n**Shapes**: `x`: (6,), `g`: (6,) -> returns `dx`: (6,).",
+  "entry_point": "sigmoid_backward",
+  "starter_code": "import torch\n\ndef sigmoid_backward(x, g):\n    # dx given upstream grad g, where forward(x) = torch.sigmoid(x)\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef forward(x):\n    return torch.sigmoid(x)\n",
+  "random_tests": {"count": 5, "shapes": {"x": [6]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["Recompute s = sigmoid(x) inside the backward function; its local derivative is s * (1 - s).", "Apply the chain rule: dx = g * s * (1 - s)."],
+  "solutions": [
+    {"name": "Recompute sigmoid, apply local derivative", "explanation": "Since $\\sigma'(x) = \\sigma(x)(1-\\sigma(x))$, with $s=\\sigma(x)$ the chain rule gives $dx = g \\odot s \\odot (1-s)$.", "code": "import torch\n\ndef sigmoid_backward(x, g):\n    s = torch.sigmoid(x)\n    return g * s * (1 - s)\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

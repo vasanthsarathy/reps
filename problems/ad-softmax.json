@@ -1,0 +1,21 @@
+{
+  "slug": "ad-softmax",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: Softmax Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff", "loss-functions", "activations"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = \\text{softmax}(x)$ applied along the last dimension of $x \\in \\mathbb{R}^{4\\times 5}$, i.e. $s_{i,j} = \\frac{e^{x_{i,j}}}{\\sum_k e^{x_{i,k}}}$.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)}$ (same shape as the output), implement `softmax_backward(x, g)` returning $\\frac{\\partial L}{\\partial x}$.\n\nFor a single row, softmax's Jacobian gives $\\frac{\\partial L}{\\partial x_i} = s_i \\left(g_i - \\sum_k g_k s_k\\right)$. Written per-row this is $dx = s \\odot \\left(g - (g \\cdot s)\\right.\\text{summed over the last dim, keepdims}\\left.\\right)$, applied independently to each of the 4 rows.\n\n**Shapes**: `x`: (4, 5), `g`: (4, 5) -> returns `dx`: (4, 5).",
+  "entry_point": "softmax_backward",
+  "starter_code": "import torch\n\ndef softmax_backward(x, g):\n    # dx given upstream grad g, where forward(x) = torch.softmax(x, dim=-1)\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef forward(x):\n    return torch.softmax(x, dim=-1)\n",
+  "random_tests": {"count": 5, "shapes": {"x": [4, 5]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["Recompute s = softmax(x, dim=-1); the softmax Jacobian per row is diag(s) - s s^T, so g^T J = s * (g - sum(g*s)).", "Compute the per-row scalar (g*s).sum(-1, keepdim=True) first, subtract it from g, then multiply elementwise by s: dx = s * (g - (g*s).sum(-1, keepdim=True))."],
+  "solutions": [
+    {"name": "Row-wise softmax Jacobian contraction", "explanation": "With $s=\\text{softmax}(x)$, the softmax Jacobian per row is $J = \\text{diag}(s) - ss^\\top$, so $dx = J^\\top g = s\\odot g - s(s\\cdot g) = s\\odot\\left(g - \\sum_k g_k s_k\\right)$, computed independently per row via a keepdim sum along the last axis.", "code": "import torch\n\ndef softmax_backward(x, g):\n    s = torch.softmax(x, dim=-1)\n    return s * (g - (g * s).sum(-1, keepdim=True))\n", "complexity": "Time O(n*m), Space O(n*m) for shape (n, m)"}
+  ]
+}

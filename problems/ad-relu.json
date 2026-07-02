@@ -1,0 +1,21 @@
+{
+  "slug": "ad-relu",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: ReLU Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff", "activations"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = \\text{relu}(x) = \\max(x, 0)$, applied elementwise to a vector $x \\in \\mathbb{R}^6$.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)}$ (same shape as $x$), implement `relu_backward(x, g)` returning $\\frac{\\partial L}{\\partial x}$.\n\nRecall $\\text{relu}'(x) = 1$ if $x > 0$ else $0$, so by the chain rule $\\frac{\\partial L}{\\partial x_i} = g_i \\cdot \\mathbb{1}[x_i > 0]$.\n\n**Shapes**: `x`: (6,), `g`: (6,) -> returns `dx`: (6,).",
+  "entry_point": "relu_backward",
+  "starter_code": "import torch\n\ndef relu_backward(x, g):\n    # dx given upstream grad g, where forward(x) = x.relu()\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "def forward(x):\n    return x.relu()\n",
+  "random_tests": {"count": 5, "shapes": {"x": [6]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["The local derivative of relu is a step function: 1 where x > 0, 0 where x <= 0 (the exact value at x=0 doesn't matter for random test inputs).", "Apply the chain rule: dx = g * relu'(x). Build the mask with a comparison and cast it to match g's dtype."],
+  "solutions": [
+    {"name": "Masked upstream gradient", "explanation": "Since $\\text{relu}'(x) = \\mathbb{1}[x>0]$, the chain rule gives $dx = g \\odot \\mathbb{1}[x>0]$: pass the upstream gradient through wherever the input was positive, and zero it out elsewhere.", "code": "def relu_backward(x, g):\n    return g * (x > 0).to(g.dtype)\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}
