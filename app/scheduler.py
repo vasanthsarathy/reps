@@ -57,7 +57,9 @@ def concept_rate(mastery: dict, tag: str) -> float:
     return row["cleans"] / row["attempts"]
 
 
-def recommend_next(problems: list[dict], schedule: dict, today: str, config: dict) -> dict:
+def recommend_next(problems: list[dict], schedule: dict, today: str, config: dict,
+                    track: str | None = None) -> dict:
+    problems = [p for p in problems if track is None or p.get("track") == track]
     sched_problems = schedule.get("problems", {})
     mastery = schedule.get("concepts", {})
 

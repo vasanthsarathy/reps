@@ -54,7 +54,8 @@ def list_problems():
                     "concepts": p.concepts, "seen": st is not None,
                     "due": st.get("due") if st else None,
                     "last_result": st.get("last_result") if st else None,
-                    "repetitions": st.get("repetitions", 0) if st else 0})
+                    "repetitions": st.get("repetitions", 0) if st else 0,
+                    "track": p.track})
     return out
 
 
@@ -113,12 +114,12 @@ def attempt(body: AttemptBody):
 
 
 @app.get("/api/next")
-def next_problem():
+def next_problem(track: str | None = None):
     problems = _problems()
     schedule = storage.load_schedule(config.SCHEDULE_PATH)
-    prob_dicts = [{"slug": s, "difficulty": p.difficulty, "concepts": p.concepts}
+    prob_dicts = [{"slug": s, "difficulty": p.difficulty, "concepts": p.concepts, "track": p.track}
                   for s, p in problems.items()]
-    return scheduler.recommend_next(prob_dicts, schedule, _today(), _config())
+    return scheduler.recommend_next(prob_dicts, schedule, _today(), _config(), track=track)
 
 
 @app.get("/api/config")

@@ -13,6 +13,8 @@ button:hover { background:#1177bb; }
 #columns > section { background:#1e1e1e; overflow:auto; padding:12px; display:flex; flex-direction:column; }
 #problem-desc { line-height:1.5; }
 #problem-desc pre, #solutions pre { background:#111; padding:8px; border-radius:4px; overflow:auto; }
+#problem-desc .katex { font-size:1.05em; }
+#problem-desc .katex-display { margin:0.8em 0; overflow-x:auto; overflow-y:hidden; }
 .CodeMirror { height:auto; flex:1; min-height:300px; border:1px solid #333; font-size:14px; }
 #editor-actions { margin-top:8px; display:flex; gap:8px; }
 #results { white-space:pre-wrap; font-family:ui-monospace, monospace; min-height:120px; }
@@ -41,6 +43,10 @@ button:hover { background:#1177bb; }
 #browse-panel { background:#252526; max-width:640px; width:90%; max-height:80vh; display:flex; flex-direction:column; border-radius:6px; border:1px solid #333; }
 #browse-head { display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid #333; }
 #browse-head h2 { margin:0; font-size:16px; white-space:nowrap; }
+#deck-toggle { display:flex; gap:4px; flex-shrink:0; }
+.deck { background:#333; color:#ccc; padding:5px 10px; font-size:12px; border-radius:14px; }
+.deck:hover { background:#3f3f3f; }
+.deck.active { background:#0e639c; color:#fff; }
 #browse-search { flex:1; background:#1e1e1e; color:#ddd; border:1px solid #333; border-radius:4px; padding:6px 8px; }
 #browse-close { background:transparent; padding:4px 8px; }
 #browse-close:hover { background:#3a3a3a; }
