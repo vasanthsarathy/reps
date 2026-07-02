@@ -96,7 +96,10 @@ async function submitCode() {
   const head = document.createElement("div");
   head.textContent = `${r.passed}/${r.total} passed · ${r.runtime_ms}ms`;
   box.appendChild(head);
-  r.results.forEach((c) => {
+  // Show failing cases first (the useful ones); if all pass, show a few samples.
+  const failing = r.results.filter((c) => !c.passed);
+  const shown = failing.length ? failing.slice(0, 10) : r.results.slice(0, 6);
+  shown.forEach((c) => {
     const d = document.createElement("div");
     d.className = "case " + (c.passed ? "pass" : "fail");
     const got = typeof c.got === "string" ? String(c.got) : JSON.stringify(c.got);
@@ -107,6 +110,13 @@ async function submitCode() {
     d.textContent = line;
     box.appendChild(d);
   });
+  const hidden = r.results.length - shown.length;
+  if (hidden > 0) {
+    const more = document.createElement("div");
+    more.className = "case-more";
+    more.textContent = `… ${hidden} more ${failing.length ? "case(s)" : "passing case(s)"} not shown`;
+    box.appendChild(more);
+  }
   window._lastAllPassed = r.all_passed;
   window._lastSubmit = { passed: r.passed, total: r.total, all_passed: r.all_passed };
 }
