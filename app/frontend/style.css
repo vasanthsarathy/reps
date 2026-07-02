@@ -7,6 +7,8 @@ body { margin: 0; font-family: system-ui, sans-serif; background:#1e1e1e; color:
 #timer-display { font-variant-numeric:tabular-nums; font-size:20px; min-width:70px; text-align:center; }
 #timer-display.overtime { color:#f48771; }
 #timer-minutes { width:56px; }
+#focus-select { background:#1e1e1e; color:#ddd; border:1px solid #3c3c3c; border-radius:4px; padding:5px 8px; font-size:13px; }
+#focus-select:hover { border-color:#555; }
 button { background:#0e639c; color:#fff; border:0; padding:6px 12px; border-radius:4px; cursor:pointer; }
 button:hover { background:#1177bb; }
 #columns { flex:1; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1px; background:#333; overflow:hidden; }
@@ -44,10 +46,6 @@ button:hover { background:#1177bb; }
 #browse-panel { background:#252526; max-width:640px; width:90%; max-height:80vh; display:flex; flex-direction:column; border-radius:6px; border:1px solid #333; }
 #browse-head { display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid #333; }
 #browse-head h2 { margin:0; font-size:16px; white-space:nowrap; }
-#deck-toggle { display:flex; gap:4px; flex-shrink:0; }
-.deck { background:#333; color:#ccc; padding:5px 10px; font-size:12px; border-radius:14px; }
-.deck:hover { background:#3f3f3f; }
-.deck.active { background:#0e639c; color:#fff; }
 #browse-search { flex:1; background:#1e1e1e; color:#ddd; border:1px solid #333; border-radius:4px; padding:6px 8px; }
 #browse-close { background:transparent; padding:4px 8px; }
 #browse-close:hover { background:#3a3a3a; }
