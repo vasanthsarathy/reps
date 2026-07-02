@@ -22,3 +22,16 @@ button:hover { background:#1177bb; }
 #notes textarea, #code { width:100%; }
 #notes textarea { height:44px; background:#252526; color:#ddd; border:1px solid #333; border-radius:4px; }
 #hints button { background:#5a4a00; margin:6px 0; } .hint { background:#2a2a1a; padding:6px; border-radius:4px; margin:4px 0; }
+#rating-bar { margin-top:10px; display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+#rating-bar .rate-label { color:#9c9c9c; font-size:13px; margin-right:2px; }
+.rate { color:#fff; }
+.rate[data-level="easy"] { background:#2e7d32; }
+.rate[data-level="easy"]:hover { background:#388e3c; }
+.rate[data-level="good"] { background:#0e7490; }
+.rate[data-level="good"]:hover { background:#0891b2; }
+.rate[data-level="hard"] { background:#a16207; }
+.rate[data-level="hard"]:hover { background:#b8860b; }
+.rate[data-level="hint"] { background:#b45309; }
+.rate[data-level="hint"]:hover { background:#c2660f; }
+.rate[data-level="peeked"] { background:#b91c1c; }
+.rate[data-level="peeked"]:hover { background:#dc2626; }

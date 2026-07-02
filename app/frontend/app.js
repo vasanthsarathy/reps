@@ -1,5 +1,5 @@
 const $ = (sel) => document.querySelector(sel);
-let editor, currentProblem = null, aided = false, attemptLogged = false;
+let editor, currentProblem = null, attemptLogged = false;
 
 async function api(path, opts) {
   const r = await fetch("/api" + path, opts);
@@ -19,7 +19,7 @@ function initEditor() {
 
 async function loadProblem(slug) {
   const p = await api("/problem/" + slug);
-  currentProblem = p; aided = false; attemptLogged = false;
+  currentProblem = p; attemptLogged = false;
   window._lastAllPassed = false;
   window._lastSubmit = null;
   $("#problem-title").textContent = p.title + "  ·  " + p.difficulty;
@@ -100,11 +100,9 @@ async function submitCode() {
 function wire() {
   $("#run-btn").onclick = runCode;
   $("#submit-btn").onclick = submitCode;
-  $("#mark-clean").onclick = markCleanIfSolved;
   $("#next-btn").onclick = goNext;
-  $("#solution-block").addEventListener("toggle", (e) => {
-    if (e.target.open && currentProblem) { aided = true; finishAttempt("peeked"); }
-  });
+  document.querySelectorAll("#rating-bar button[data-level]").forEach((b) =>
+    b.onclick = () => finishAttempt(b.dataset.level));
   wireTimer();
 }
 
@@ -176,12 +174,6 @@ async function goNext() {
   const n = await api("/next");
   if (!n.recommended) { alert("Nothing due right now. Add problems or come back later."); return; }
   clearNotes(); resetTimer(); loadProblem(n.recommended);
-}
-
-function markCleanIfSolved() {
-  if (window._lastAllPassed && !aided) finishAttempt("clean");
-  else if (aided) finishAttempt("peeked");
-  else alert("Submit first and pass all tests before logging a clean solve.");
 }
 
 window.addEventListener("DOMContentLoaded", async () => {

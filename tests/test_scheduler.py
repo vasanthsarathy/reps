@@ -1,4 +1,4 @@
-from app.scheduler import quality_from_result, update_sm2, update_concepts, concept_rate, recommend_next
+from app.scheduler import quality_from_level, update_sm2, update_concepts, concept_rate, recommend_next
 
 INTERVALS = [1, 3, 7]
 
@@ -11,20 +11,28 @@ PROBLEMS = [
 ]
 
 
-def test_quality_clean_fast_is_5():
-    assert quality_from_result("clean", 10 * 60_000, 20 * 60_000) == 5
+def test_quality_easy_is_5():
+    assert quality_from_level("easy") == 5
 
 
-def test_quality_clean_slow_is_4():
-    assert quality_from_result("clean", 25 * 60_000, 20 * 60_000) == 4
+def test_quality_good_is_4():
+    assert quality_from_level("good") == 4
 
 
-def test_quality_peeked_is_2():
-    assert quality_from_result("peeked", 5 * 60_000, 20 * 60_000) == 2
+def test_quality_hard_is_3():
+    assert quality_from_level("hard") == 3
 
 
-def test_quality_failed_is_1():
-    assert quality_from_result("failed", 5 * 60_000, 20 * 60_000) == 1
+def test_quality_hint_is_2():
+    assert quality_from_level("hint") == 2
+
+
+def test_quality_peeked_is_1():
+    assert quality_from_level("peeked") == 1
+
+
+def test_quality_unknown_is_1():
+    assert quality_from_level("bogus") == 1
 
 
 def _fresh():
@@ -58,10 +66,26 @@ def test_fourth_rep_multiplies_by_ease():
 def test_low_quality_resets_repetitions():
     s = update_sm2(_fresh(), 5, "2026-07-01", INTERVALS)
     s = update_sm2(s, 5, "2026-07-02", INTERVALS)
-    s = update_sm2(s, 2, "2026-07-05", INTERVALS)  # peeked
+    s = update_sm2(s, 2, "2026-07-05", INTERVALS)  # hint
+    assert s["repetitions"] == 0
+    assert s["interval"] == 2
+    assert s["due"] == "2026-07-07"
+
+
+def test_hint_reset_interval_is_2_days():
+    s = update_sm2(_fresh(), 5, "2026-07-01", INTERVALS)
+    s = update_sm2(s, 2, "2026-07-02", INTERVALS)  # hint, quality 2
+    assert s["repetitions"] == 0
+    assert s["interval"] == 2
+    assert s["due"] == "2026-07-04"
+
+
+def test_peeked_reset_interval_is_1_day():
+    s = update_sm2(_fresh(), 5, "2026-07-01", INTERVALS)
+    s = update_sm2(s, 1, "2026-07-02", INTERVALS)  # peeked, quality 1
     assert s["repetitions"] == 0
     assert s["interval"] == 1
-    assert s["due"] == "2026-07-06"
+    assert s["due"] == "2026-07-03"
 
 
 def test_ease_floored_at_1_3():

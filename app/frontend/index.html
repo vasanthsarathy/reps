@@ -26,7 +26,7 @@
     <section id="col-problem">
       <div id="problem-desc"></div>
       <div id="hints"></div>
-      <details id="solution-block"><summary>Show solution (marks as peeked)</summary>
+      <details id="solution-block"><summary>Show solution</summary>
         <div id="solutions"></div>
       </details>
     </section>
@@ -36,7 +36,14 @@
       <div id="editor-actions">
         <button id="run-btn">Run</button>
         <button id="submit-btn">Submit</button>
-        <button id="mark-clean" title="Log this as solved unaided">I solved it (clean)</button>
+      </div>
+      <div id="rating-bar">
+        <span class="rate-label">Rate this attempt:</span>
+        <button class="rate" data-level="easy"   title="Solved, felt trivial — gaps grow fastest">Easy</button>
+        <button class="rate" data-level="good"   title="Solved, normal effort">Good</button>
+        <button class="rate" data-level="hard"   title="Solved but a real struggle — gaps grow slowest">Hard</button>
+        <button class="rate" data-level="hint"   title="Needed a hint — back in ~2 days">Hint</button>
+        <button class="rate" data-level="peeked" title="Read the solution / gave up — back tomorrow">Peeked</button>
       </div>
     </section>
 
