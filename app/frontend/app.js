@@ -33,7 +33,15 @@ async function loadProblem(slug) {
 }
 
 function renderMarkdown(md) {
-  const html = window.marked ? marked.parse(md || "") : (md || "");
+  // Protect LaTeX ($$...$$ and $...$) from the markdown pass so marked can't
+  // mangle math (e.g. eat underscores in scores_{i,j} as emphasis). KaTeX
+  // typesets the restored spans afterwards (see typesetMath).
+  let s = md || "";
+  const math = [];
+  s = s.replace(/\$\$[\s\S]+?\$\$/g, (m) => { math.push(m); return "@@MATH" + (math.length - 1) + "@@"; });
+  s = s.replace(/\$[^$\n]+?\$/g, (m) => { math.push(m); return "@@MATH" + (math.length - 1) + "@@"; });
+  let html = window.marked ? marked.parse(s) : s;
+  html = html.replace(/@@MATH(\d+)@@/g, (_, i) => math[+i]);
   return html;
 }
 function typesetMath(el) {
