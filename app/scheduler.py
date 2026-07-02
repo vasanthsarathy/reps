@@ -69,7 +69,7 @@ def recommend_next(problems: list[dict], schedule: dict, today: str, config: dic
          if slug in allowed and st.get("due") and st["due"] <= today),
         key=lambda s: sched_problems[s]["due"],
     )
-    stats = {"total": len(problems), "seen": len(sched_problems), "due_count": len(due)}
+    stats = {"total": len(problems), "seen": len([s for s in sched_problems if s in allowed]), "due_count": len(due)}
 
     if due:
         return {"recommended": due[0], "due": due, "reason": "review", "stats": stats}

@@ -271,7 +271,7 @@ def _main():
         except Exception:
             row["got"] = traceback.format_exc().strip().splitlines()[-1]; row["passed"] = False
         results.append(row)
-    print(json.dumps({"results": results}))
+    print(json.dumps({"results": results}, default=str))
 
 _main()
 '''
@@ -310,7 +310,7 @@ def _main():
         except Exception:
             row["got"] = traceback.format_exc().strip().splitlines()[-1]; row["passed"] = False
         results.append(row)
-    print(json.dumps({"results": results}))
+    print(json.dumps({"results": results}, default=str))
 _main()
 '''
 
