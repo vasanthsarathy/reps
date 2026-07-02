@@ -1,0 +1,30 @@
+{
+  "slug": "batchnorm-forward",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Batch Normalization Forward Pass",
+  "difficulty": "Medium",
+  "concepts": ["normalization"],
+  "libraries": ["numpy"],
+  "description": "Implement batch normalization over the batch axis of $x \\in \\mathbb{R}^{n \\times d}$ (n examples, d features), with learnable per-feature scale $\\gamma \\in \\mathbb{R}^d$ and shift $\\beta \\in \\mathbb{R}^d$:\n$$\\mu_j = \\frac{1}{n}\\sum_{i=1}^{n} x_{i,j}, \\qquad \\sigma_j^2 = \\frac{1}{n}\\sum_{i=1}^{n} (x_{i,j}-\\mu_j)^2$$\n$$\\hat{x}_{i,j} = \\frac{x_{i,j}-\\mu_j}{\\sqrt{\\sigma_j^2 + \\epsilon}}, \\qquad \\text{out}_{i,j} = \\gamma_j \\hat{x}_{i,j} + \\beta_j$$\n\nUnlike layer norm (which normalizes each row over its features), batch norm normalizes each COLUMN (feature) over the batch (axis 0). Use $\\epsilon = 10^{-5}$. Implement `batchnorm(x, gamma, beta)` returning `out` with the same shape as `x`.\n\n**Shapes**: `x`: `(8, 4)`, `gamma`: `(4,)`, `beta`: `(4,)` -> returns `(8, 4)`.",
+  "entry_point": "batchnorm",
+  "starter_code": "import numpy as np\n\ndef batchnorm(x, gamma, beta):\n    # TODO: normalize each column (feature) to zero mean / unit var over the batch axis (eps=1e-5), then scale by gamma and shift by beta\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef batchnorm(x, gamma, beta):\n    x = np.asarray(x, dtype=np.float64)\n    gamma = np.asarray(gamma, dtype=np.float64)\n    beta = np.asarray(beta, dtype=np.float64)\n    eps = 1e-5\n    mu = x.mean(axis=0, keepdims=True)\n    var = x.var(axis=0, keepdims=True)\n    x_hat = (x - mu) / np.sqrt(var + eps)\n    return gamma * x_hat + beta\n",
+  "random_tests": {"count": 20, "shapes": {"x": [8, 4], "gamma": [4], "beta": [4]}, "dtype": "float32", "range": [-3, 3], "seed": 11},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute per-column (per-feature) mean and (biased, i.e. divide by n not n-1) variance along axis=0 with keepdims=True so broadcasting works across the batch.",
+    "Add eps inside the sqrt: 1/sqrt(var + eps), then scale by gamma and shift by beta elementwise (both length-d vectors broadcast down each column)."
+  ],
+  "solutions": [
+    {
+      "name": "Per-feature standardize over the batch, then affine transform",
+      "explanation": "Each feature (column) is independently standardized to zero mean and unit variance using statistics computed across the batch (axis 0), then an elementwise affine transform $\\gamma \\odot \\hat{x} + \\beta$ is applied, broadcasting the length-$d$ $\\gamma,\\beta$ vectors down every row.",
+      "code": "import numpy as np\ndef batchnorm(x, gamma, beta):\n    x = np.asarray(x, dtype=np.float64)\n    gamma = np.asarray(gamma, dtype=np.float64)\n    beta = np.asarray(beta, dtype=np.float64)\n    eps = 1e-5\n    mu = x.mean(axis=0, keepdims=True)\n    var = x.var(axis=0, keepdims=True)\n    x_hat = (x - mu) / np.sqrt(var + eps)\n    return gamma * x_hat + beta\n",
+      "complexity": "Time O(n*d), Space O(n*d)"
+    }
+  ]
+}

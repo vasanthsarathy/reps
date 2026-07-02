@@ -1,0 +1,30 @@
+{
+  "slug": "kl-divergence",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "KL Divergence Between Two Distributions",
+  "difficulty": "Medium",
+  "concepts": ["loss-functions"],
+  "libraries": ["numpy"],
+  "description": "Implement the Kullback-Leibler divergence between two discrete distributions derived from unnormalized positive weight vectors $p, q \\in \\mathbb{R}_{>0}^n$. First normalize each vector to sum to 1:\n$$\\tilde{p}_i = \\frac{p_i}{\\sum_{j} p_j}, \\qquad \\tilde{q}_i = \\frac{q_i}{\\sum_{j} q_j}$$\nthen compute\n$$D_{KL}(\\tilde{p} \\parallel \\tilde{q}) = \\sum_{i=1}^{n} \\tilde{p}_i \\log\\!\\left(\\frac{\\tilde{p}_i}{\\tilde{q}_i}\\right)$$\n\nImplement `kl_divergence(p, q)` returning a single scalar. Both inputs are strictly positive, so no clamping is needed.\n\n**Shapes**: `p`, `q`: `(5,)` -> returns a scalar.",
+  "entry_point": "kl_divergence",
+  "starter_code": "import numpy as np\n\ndef kl_divergence(p, q):\n    # TODO: normalize p and q to sum to 1, then return sum(p_norm * log(p_norm / q_norm))\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef kl_divergence(p, q):\n    p = np.asarray(p, dtype=np.float64)\n    q = np.asarray(q, dtype=np.float64)\n    p_norm = p / np.sum(p)\n    q_norm = q / np.sum(q)\n    return np.sum(p_norm * np.log(p_norm / q_norm))\n",
+  "random_tests": {"count": 20, "shapes": {"p": [5], "q": [5]}, "dtype": "float32", "range": [0.1, 1.5], "seed": 18},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Normalize p and q separately by dividing each by its own sum, so both become valid probability distributions that sum to 1.",
+    "The KL divergence is sum(p_norm * log(p_norm / q_norm)) — compute it elementwise on the normalized vectors, then sum."
+  ],
+  "solutions": [
+    {
+      "name": "Normalize to distributions, then sum p*log(p/q)",
+      "explanation": "KL divergence requires proper probability distributions, so the raw positive weights are first normalized to sum to 1. The divergence $\\sum_i \\tilde p_i \\log(\\tilde p_i/\\tilde q_i)$ measures the extra bits needed to encode samples from $\\tilde p$ using a code optimized for $\\tilde q$; it is 0 iff $\\tilde p = \\tilde q$ and is non-negative by Gibbs' inequality.",
+      "code": "import numpy as np\ndef kl_divergence(p, q):\n    p = np.asarray(p, dtype=np.float64)\n    q = np.asarray(q, dtype=np.float64)\n    p_norm = p / np.sum(p)\n    q_norm = q / np.sum(q)\n    return np.sum(p_norm * np.log(p_norm / q_norm))\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

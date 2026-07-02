@@ -1,0 +1,30 @@
+{
+  "slug": "embedding-lookup",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Embedding Table Lookup",
+  "difficulty": "Easy",
+  "concepts": ["neural-networks"],
+  "libraries": ["numpy"],
+  "description": "Implement an embedding lookup: given an embedding table $T \\in \\mathbb{R}^{V \\times e}$ (vocabulary size $V$, embedding dimension $e$) and a vector of integer token indices $\\text{idx} \\in \\{0, \\dots, V-1\\}^k$, return the stacked rows of $T$ selected by $\\text{idx}$:\n$$\\text{out}_i = T_{\\text{idx}_i}, \\qquad i = 1, \\dots, k$$\n\nImplement `embedding_lookup(table, indices)` returning `out` of shape `(k, e)`, i.e. `table[indices]`.\n\n**Shapes**: `table`: `(6, 4)`, `indices`: `(5,)` (integers in `[0, 5]`) -> returns `(5, 4)`.",
+  "entry_point": "embedding_lookup",
+  "starter_code": "import numpy as np\n\ndef embedding_lookup(table, indices):\n    # TODO: return table[indices], the rows of table selected by the integer indices\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef embedding_lookup(table, indices):\n    table = np.asarray(table, dtype=np.float64)\n    indices = np.asarray(indices, dtype=np.int64)\n    return table[indices]\n",
+  "random_tests": {"count": 20, "shapes": {"table": [6, 4], "indices": [5]}, "dtype": {"table": "float32", "indices": "int64"}, "range": {"indices": [0, 5]}, "seed": 17},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Numpy supports fancy indexing directly: table[indices] selects one row of table per entry of indices and stacks them.",
+    "The output shape is (len(indices), embed_dim) — each integer in indices picks out the whole corresponding row of the table."
+  ],
+  "solutions": [
+    {
+      "name": "Fancy-index rows by integer indices",
+      "explanation": "An embedding layer is a lookup table: each token id is an integer row index into $T$, and `table[indices]` uses numpy's fancy indexing to gather those rows into a new array in the order given by `indices`, allowing repeats.",
+      "code": "import numpy as np\ndef embedding_lookup(table, indices):\n    table = np.asarray(table, dtype=np.float64)\n    indices = np.asarray(indices, dtype=np.int64)\n    return table[indices]\n",
+      "complexity": "Time O(k*e), Space O(k*e)"
+    }
+  ]
+}

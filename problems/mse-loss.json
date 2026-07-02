@@ -1,0 +1,30 @@
+{
+  "slug": "mse-loss",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Mean Squared Error Loss",
+  "difficulty": "Easy",
+  "concepts": ["loss-functions"],
+  "libraries": ["numpy"],
+  "description": "Implement the mean squared error between a prediction vector and a target vector $\\text{pred}, \\text{target} \\in \\mathbb{R}^n$:\n$$\\text{MSE}(\\text{pred}, \\text{target}) = \\frac{1}{n}\\sum_{i=1}^{n} (\\text{pred}_i - \\text{target}_i)^2$$\n\nImplement `mse(pred, target)` returning a single scalar.\n\n**Shapes**: `pred`, `target`: `(8,)` -> returns a scalar.",
+  "entry_point": "mse",
+  "starter_code": "import numpy as np\n\ndef mse(pred, target):\n    # TODO: mean((pred - target) ** 2)\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef mse(pred, target):\n    pred = np.asarray(pred, dtype=np.float64)\n    target = np.asarray(target, dtype=np.float64)\n    return np.mean((pred - target) ** 2)\n",
+  "random_tests": {"count": 20, "shapes": {"pred": [8], "target": [8]}, "dtype": "float32", "range": [-5, 5], "seed": 16},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute the elementwise difference (pred - target), square it, then take the mean over all elements.",
+    "np.mean((pred - target) ** 2) handles both the squaring and the averaging in one expression."
+  ],
+  "solutions": [
+    {
+      "name": "Mean of squared elementwise differences",
+      "explanation": "MSE penalizes the average squared deviation between predictions and targets; squaring makes all errors non-negative and weights larger errors more heavily, and dividing by $n$ normalizes for vector length so the loss is comparable across batch sizes.",
+      "code": "import numpy as np\ndef mse(pred, target):\n    pred = np.asarray(pred, dtype=np.float64)\n    target = np.asarray(target, dtype=np.float64)\n    return np.mean((pred - target) ** 2)\n",
+      "complexity": "Time O(n), Space O(1)"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "slug": "gram-matrix",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Gram Matrix",
+  "difficulty": "Easy",
+  "concepts": ["linear-algebra"],
+  "libraries": ["numpy"],
+  "description": "Implement the Gram matrix of $X \\in \\mathbb{R}^{m \\times n}$ (m rows/vectors of dimension n):\n$$G = X X^\\top \\in \\mathbb{R}^{m \\times m}, \\qquad G_{i,j} = \\sum_{k=1}^{n} X_{i,k} X_{j,k}$$\nso entry $G_{i,j}$ is the dot product of row $i$ and row $j$ of $X$.\n\nImplement `gram_matrix(X)` returning `G` of shape `(m, m)`.\n\n**Shapes**: `X`: `(4, 5)` -> returns `(4, 4)`.",
+  "entry_point": "gram_matrix",
+  "starter_code": "import numpy as np\n\ndef gram_matrix(X):\n    # TODO: X @ X.T\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef gram_matrix(X):\n    X = np.asarray(X, dtype=np.float64)\n    return X @ X.T\n",
+  "random_tests": {"count": 20, "shapes": {"X": [4, 5]}, "dtype": "float32", "range": [-3, 3], "seed": 15},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "The Gram matrix is simply X multiplied by its own transpose: X @ X.T.",
+    "Entry (i, j) of the result is the dot product of row i and row j of X, so the diagonal holds each row's squared norm."
+  ],
+  "solutions": [
+    {
+      "name": "Matrix product with transpose",
+      "explanation": "Matrix multiplication $XX^\\top$ pairs every row of $X$ with every row of $X$ via dot products, producing the $m \\times m$ matrix of pairwise inner products, i.e. the Gram matrix; it is symmetric since $G_{i,j} = G_{j,i}$.",
+      "code": "import numpy as np\ndef gram_matrix(X):\n    X = np.asarray(X, dtype=np.float64)\n    return X @ X.T\n",
+      "complexity": "Time O(m^2 * n), Space O(m^2)"
+    }
+  ]
+}
