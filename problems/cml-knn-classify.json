@@ -1,0 +1,57 @@
+{
+  "slug": "cml-knn-classify",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "K-Nearest-Neighbors Classification",
+  "difficulty": "Easy",
+  "concepts": [
+    "knn"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given labeled training points $X_{\\text{train}} \\in \\mathbb{R}^{m \\times d}$ with integer labels $y_{\\text{train}} \\in \\{0, \\dots, C-1\\}^m$, classify each query point in $X_{\\text{test}} \\in \\mathbb{R}^{p \\times d}$ using the k-nearest-neighbors rule:\n\n1. For each test point, compute Euclidean distances to all training points.\n2. Take the $k$ training points with smallest distance (break distance ties by **lower training index**).\n3. Predict the **majority label** among those $k$ neighbors; break label ties by choosing the **lowest label value**.\n\nImplement `knn_classify(X_train, y_train, X_test, k)` returning predicted labels for every row of `X_test`.\n\n**Shapes**: `X_train`: (15, 3), `y_train`: (15,) int in $\\{0,1,2\\}$, `X_test`: (5, 3), `k`: 3 (scalar) -> returns predictions: (5,).",
+  "entry_point": "knn_classify",
+  "starter_code": "import numpy as np\n\ndef knn_classify(X_train, y_train, X_test, k):\n    # TODO: for each test point, find k nearest training points (Euclidean,\n    # ties -> lower train index) and predict the majority label\n    # (ties -> lowest label).\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef knn_classify(X_train, y_train, X_test, k):\n    X_train = np.asarray(X_train, dtype=np.float64)\n    y_train = np.asarray(y_train).astype(np.int64)\n    X_test = np.asarray(X_test, dtype=np.float64)\n    p = X_test.shape[0]\n    preds = np.zeros(p, dtype=np.int64)\n    n_classes = int(y_train.max()) + 1 if y_train.size > 0 else 1\n    for i in range(p):\n        dists = np.sqrt(np.sum((X_train - X_test[i]) ** 2, axis=1))\n        order = np.argsort(dists, kind='stable')\n        neighbors = order[:k]\n        counts = np.zeros(n_classes, dtype=np.int64)\n        for idx in neighbors:\n            counts[y_train[idx]] += 1\n        preds[i] = np.argmax(counts)\n    return preds\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X_train": [
+        15,
+        3
+      ],
+      "y_train": [
+        15
+      ],
+      "X_test": [
+        5,
+        3
+      ],
+      "k": 3
+    },
+    "dtype": "int64",
+    "range": [
+      0,
+      2
+    ],
+    "seed": 5
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "np.argsort with kind='stable' preserves the original (lower-index) ordering among equal distances, giving a deterministic tie-break for the k nearest neighbors.",
+    "Count labels among the k neighbors with np.bincount or a manual counts array, then np.argmax picks the lowest label on a tie since it returns the first maximum."
+  ],
+  "solutions": [
+    {
+      "name": "Stable-sort distances, argmax vote",
+      "explanation": "Sorting distances with a stable algorithm ensures that when distances tie, the training point with the lower index is preferred, matching the required tie-break. Counting labels among the k nearest and taking argmax (which returns the first/lowest index on ties) gives the majority vote with a deterministic tie-break.",
+      "code": "import numpy as np\ndef knn_classify(X_train, y_train, X_test, k):\n    X_train = np.asarray(X_train, dtype=np.float64)\n    y_train = np.asarray(y_train).astype(np.int64)\n    X_test = np.asarray(X_test, dtype=np.float64)\n    n_classes = int(y_train.max()) + 1 if y_train.size > 0 else 1\n    preds = []\n    for x in X_test:\n        dists = np.sqrt(np.sum((X_train - x) ** 2, axis=1))\n        order = np.argsort(dists, kind='stable')[:k]\n        counts = np.bincount(y_train[order], minlength=n_classes)\n        preds.append(int(np.argmax(counts)))\n    return np.array(preds, dtype=np.int64)\n",
+      "complexity": "Time O(p m d + p m log m), Space O(m)"
+    }
+  ]
+}

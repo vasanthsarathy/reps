@@ -1,0 +1,49 @@
+{
+  "slug": "cml-standardize",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "Standardize Features (Zero Mean, Unit Variance)",
+  "difficulty": "Easy",
+  "concepts": [
+    "normalization"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given a matrix $X \\in \\mathbb{R}^{n \\times d}$, standardize each column to have zero mean and unit variance using the **population** standard deviation:\n$$X'_{ij} = \\frac{X_{ij} - \\mu_j}{\\sigma_j}, \\qquad \\mu_j = \\frac{1}{n}\\sum_{i=1}^n X_{ij}, \\qquad \\sigma_j = \\sqrt{\\frac{1}{n}\\sum_{i=1}^n (X_{ij} - \\mu_j)^2}$$\n\nImplement `standardize(X)` returning the standardized matrix $X'$ of the same shape.\n\n**Shapes**: `X`: (12, 4) -> returns `X'`: (12, 4).",
+  "entry_point": "standardize",
+  "starter_code": "import numpy as np\n\ndef standardize(X):\n    # TODO: subtract per-column mean and divide by per-column population std\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef standardize(X):\n    X = np.asarray(X, dtype=np.float64)\n    mu = X.mean(axis=0, keepdims=True)\n    sigma = X.std(axis=0, keepdims=True)\n    return (X - mu) / sigma\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X": [
+        12,
+        4
+      ]
+    },
+    "dtype": "float32",
+    "range": [
+      -4,
+      6
+    ],
+    "seed": 6
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "np.mean and np.std with axis=0 compute per-column statistics; keepdims=True lets them broadcast directly against X.",
+    "Use the population standard deviation (divide by n, numpy's default ddof=0), not the sample standard deviation."
+  ],
+  "solutions": [
+    {
+      "name": "Per-column z-score",
+      "explanation": "Standardization rescales every feature column to have mean 0 and standard deviation 1, which is the population statistic $\\sigma_j$ computed with denominator $n$ (numpy's default `ddof=0`).",
+      "code": "import numpy as np\ndef standardize(X):\n    X = np.asarray(X, dtype=np.float64)\n    mu = X.mean(axis=0, keepdims=True)\n    sigma = X.std(axis=0, keepdims=True)\n    return (X - mu) / sigma\n",
+      "complexity": "Time O(n d), Space O(n d)"
+    }
+  ]
+}

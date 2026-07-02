@@ -1,0 +1,52 @@
+{
+  "slug": "cml-sigmoid-bce",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "Numerically Stable Binary Cross-Entropy from Logits",
+  "difficulty": "Medium",
+  "concepts": [
+    "loss-functions",
+    "numerical-stability"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given a raw label-score array $t \\in \\mathbb{R}^n$ and raw (pre-sigmoid) scores $z \\in \\mathbb{R}^n$ (logits), first threshold $t$ into a hard binary label $y_i = \\mathbb{1}[t_i > 0] \\in \\{0,1\\}$, then compute the mean binary cross-entropy loss:\n$$L = \\frac{1}{n}\\sum_{i=1}^n \\Big[ -y_i \\log \\sigma(z_i) - (1-y_i)\\log(1-\\sigma(z_i)) \\Big], \\qquad \\sigma(z) = \\frac{1}{1+e^{-z}}$$\n\nComputing $\\sigma(z)$ and then taking its log directly can overflow or lose precision for large $|z|$. Instead use the numerically stable, algebraically equivalent form:\n$$-y_i \\log\\sigma(z_i) - (1-y_i)\\log(1-\\sigma(z_i)) = \\max(z_i, 0) - z_i y_i + \\log\\big(1 + e^{-|z_i|}\\big)$$\n\nImplement `bce_loss(y_true, logits)`, where the first argument `y_true` is the raw array $t$ (threshold it internally as above), returning the scalar mean loss $L$.\n\n**Shapes**: `y_true`: (16,) real-valued, thresholded at 0 to obtain labels in $\\{0,1\\}$; `logits`: (16,) -> returns a scalar.",
+  "entry_point": "bce_loss",
+  "starter_code": "import numpy as np\n\ndef bce_loss(y_true, logits):\n    # TODO: y = (y_true > 0), then numerically stable mean BCE from logits:\n    # max(z,0) - z*y + log(1 + exp(-|z|)), averaged over the batch\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef bce_loss(y_true, logits):\n    t = np.asarray(y_true, dtype=np.float64)\n    y = (t > 0).astype(np.float64)\n    z = np.asarray(logits, dtype=np.float64)\n    per_example = np.maximum(z, 0) - z * y + np.log1p(np.exp(-np.abs(z)))\n    return float(np.mean(per_example))\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "y_true": [
+        16
+      ],
+      "logits": [
+        16
+      ]
+    },
+    "dtype": "float32",
+    "range": [
+      -4,
+      4
+    ],
+    "seed": 8
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "First binarize the raw y_true array with y = (y_true > 0).astype(float) to get hard 0/1 labels.",
+    "Do not compute sigmoid(z) and then log() of it directly -- use the fused, overflow-safe identity max(z,0) - z*y + log(1 + exp(-|z|)); np.log1p(np.exp(-np.abs(z))) computes the last term stably since its exponent is always <= 0."
+  ],
+  "solutions": [
+    {
+      "name": "Stable logits-based BCE",
+      "explanation": "The raw `y_true` array is thresholded at zero to obtain hard binary labels. Substituting $\\sigma(z) = 1/(1+e^{-z})$ into the cross-entropy and simplifying with $\\log(1+e^{-z}) = \\max(-z,0) + \\log(1+e^{-|z|})$ yields the fused form $\\max(z,0) - zy + \\log(1+e^{-|z|})$, which never exponentiates a large positive number, avoiding overflow.",
+      "code": "import numpy as np\ndef bce_loss(y_true, logits):\n    t = np.asarray(y_true, dtype=np.float64)\n    y = (t > 0).astype(np.float64)\n    z = np.asarray(logits, dtype=np.float64)\n    per_example = np.maximum(z, 0) - z * y + np.log1p(np.exp(-np.abs(z)))\n    return float(np.mean(per_example))\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

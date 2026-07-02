@@ -1,0 +1,56 @@
+{
+  "slug": "cml-naive-bayes",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "Gaussian Naive Bayes Prediction",
+  "difficulty": "Medium",
+  "concepts": [
+    "naive-bayes"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given training features $X_{\\text{train}} \\in \\mathbb{R}^{m \\times d}$ with binary labels $y_{\\text{train}} \\in \\{0,1\\}^m$, fit a Gaussian Naive Bayes classifier: for each class $c$ and feature $j$, estimate the mean $\\mu_{c,j}$ and variance $\\sigma_{c,j}^2$ (population variance, i.e. divide by the class count) from the training rows of that class, and estimate the class prior $\\pi_c = \\frac{\\#\\{i: y_i=c\\}}{m}$.\n\nFor numerical stability, add $\\epsilon = 10^{-6}$ to every variance before using it. For a query point $x$, predict the class with the highest log-posterior (up to the constant normalizer):\n$$\\hat{y} = \\arg\\max_c \\left[ \\log \\pi_c + \\sum_{j=1}^d \\log \\mathcal{N}(x_j; \\mu_{c,j}, \\sigma_{c,j}^2 + \\epsilon) \\right], \\qquad \\mathcal{N}(x;\\mu,v) = \\frac{1}{\\sqrt{2\\pi v}} e^{-\\frac{(x-\\mu)^2}{2v}}$$\n\nBreak ties between classes by choosing the **lower class index**.\n\nImplement `gaussian_nb_predict(X_train, y_train, X_test)` returning predicted labels for every row of `X_test`.\n\n**Shapes**: `X_train`: (20, 3), `y_train`: (20,) int in $\\{0,1\\}$, `X_test`: (6, 3) -> returns predictions: (6,).",
+  "entry_point": "gaussian_nb_predict",
+  "starter_code": "import numpy as np\n\ndef gaussian_nb_predict(X_train, y_train, X_test):\n    # TODO: fit per-class Gaussian (mean/var + eps=1e-6) and priors from\n    # X_train/y_train, then predict argmax log-posterior for each X_test row.\n    # Tie-break -> lower class index.\n    pass\n",
+  "compare": "close",
+  "rtol": 0.001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef gaussian_nb_predict(X_train, y_train, X_test):\n    X_train = np.asarray(X_train, dtype=np.float64)\n    y_train = np.asarray(y_train).astype(np.int64)\n    X_test = np.asarray(X_test, dtype=np.float64)\n    eps = 1e-6\n    classes = sorted(set(y_train.tolist()))\n    m = X_train.shape[0]\n    stats = {}\n    for c in classes:\n        rows = X_train[y_train == c]\n        mean = rows.mean(axis=0)\n        var = rows.var(axis=0) + eps\n        prior = rows.shape[0] / m\n        stats[c] = (mean, var, prior)\n    preds = []\n    for x in X_test:\n        best_c, best_score = None, -np.inf\n        for c in classes:\n            mean, var, prior = stats[c]\n            log_lik = np.sum(-0.5 * np.log(2 * np.pi * var) - ((x - mean) ** 2) / (2 * var))\n            score = np.log(prior) + log_lik\n            if score > best_score:\n                best_score = score\n                best_c = c\n        preds.append(best_c)\n    return np.array(preds, dtype=np.int64)\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X_train": [
+        20,
+        3
+      ],
+      "y_train": [
+        20
+      ],
+      "X_test": [
+        6,
+        3
+      ]
+    },
+    "dtype": "int64",
+    "range": [
+      0,
+      1
+    ],
+    "seed": 9
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "For each class, compute the per-feature mean and population variance (divide by the class count, numpy's default var() ddof=0) from the training rows of that class, and add epsilon=1e-6 for stability.",
+    "Sum the per-feature Gaussian log-densities plus the log class prior for each class, then pick the class with the highest total score (iterate classes in increasing order and use a strict > comparison so the first/lowest class wins ties)."
+  ],
+  "solutions": [
+    {
+      "name": "Per-class Gaussian log-posterior",
+      "explanation": "Naive Bayes assumes conditional independence of features given the class, so the joint likelihood factors into a product of per-feature Gaussians; taking logs turns this into a sum. Adding a small epsilon to each variance avoids division by zero when a class's feature values are constant. Predicting the class with the largest $\\log \\pi_c + \\sum_j \\log \\mathcal{N}(x_j;\\mu_{c,j},\\sigma_{c,j}^2+\\epsilon)$ is equivalent to maximizing the posterior probability.",
+      "code": "import numpy as np\ndef gaussian_nb_predict(X_train, y_train, X_test):\n    X_train = np.asarray(X_train, dtype=np.float64)\n    y_train = np.asarray(y_train).astype(np.int64)\n    X_test = np.asarray(X_test, dtype=np.float64)\n    eps = 1e-6\n    classes = sorted(set(y_train.tolist()))\n    m = X_train.shape[0]\n    stats = {}\n    for c in classes:\n        rows = X_train[y_train == c]\n        mean = rows.mean(axis=0)\n        var = rows.var(axis=0) + eps\n        prior = rows.shape[0] / m\n        stats[c] = (mean, var, prior)\n    preds = []\n    for x in X_test:\n        best_c, best_score = None, -np.inf\n        for c in classes:\n            mean, var, prior = stats[c]\n            log_lik = np.sum(-0.5 * np.log(2 * np.pi * var) - ((x - mean) ** 2) / (2 * var))\n            score = np.log(prior) + log_lik\n            if score > best_score:\n                best_score = score\n                best_c = c\n        preds.append(best_c)\n    return np.array(preds, dtype=np.int64)\n",
+      "complexity": "Time O((m+p) d C), Space O(dC)"
+    }
+  ]
+}

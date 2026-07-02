@@ -1,0 +1,56 @@
+{
+  "slug": "cml-linreg-gd",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "One Step of Gradient Descent for Linear Regression",
+  "difficulty": "Easy",
+  "concepts": [
+    "linear-regression",
+    "gradient-descent"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given a design matrix $X \\in \\mathbb{R}^{n \\times d}$, targets $y \\in \\mathbb{R}^n$, and current weights $w \\in \\mathbb{R}^d$, perform **one step** of batch gradient descent on the mean-squared-error loss:\n$$J(w) = \\frac{1}{n}\\|Xw - y\\|_2^2$$\n\nThe gradient is $\\nabla J(w) = \\frac{2}{n} X^\\top (Xw - y)$. Update the weights using a fixed learning rate $\\eta = 0.1$:\n$$w' = w - \\eta \\nabla J(w)$$\n\nImplement `linreg_gd_step(X, y, w)` returning the updated weight vector $w'$ (the learning rate 0.1 is a fixed constant, not an argument).\n\n**Shapes**: `X`: (10, 3), `y`: (10,), `w`: (3,) -> returns `w'`: (3,).",
+  "entry_point": "linreg_gd_step",
+  "starter_code": "import numpy as np\n\ndef linreg_gd_step(X, y, w):\n    # TODO: one step of gradient descent on MSE loss, lr = 0.1\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef linreg_gd_step(X, y, w):\n    X = np.asarray(X, dtype=np.float64)\n    y = np.asarray(y, dtype=np.float64)\n    w = np.asarray(w, dtype=np.float64)\n    lr = 0.1\n    n = X.shape[0]\n    preds = X @ w\n    grad = (2.0 / n) * (X.T @ (preds - y))\n    return w - lr * grad\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X": [
+        10,
+        3
+      ],
+      "y": [
+        10
+      ],
+      "w": [
+        3
+      ]
+    },
+    "dtype": "float32",
+    "range": [
+      -2,
+      2
+    ],
+    "seed": 1
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "First compute the residual r = Xw - y, then the gradient is (2/n) X^T r.",
+    "The update is w - lr * gradient with lr fixed at 0.1; this is a single step, not a training loop."
+  ],
+  "solutions": [
+    {
+      "name": "Single batch gradient step",
+      "explanation": "For MSE loss $J(w) = \\frac{1}{n}\\|Xw-y\\|_2^2$, the gradient w.r.t. $w$ is $\\frac{2}{n}X^\\top(Xw-y)$. One gradient descent step moves $w$ in the negative gradient direction scaled by the learning rate.",
+      "code": "import numpy as np\ndef linreg_gd_step(X, y, w):\n    X = np.asarray(X, dtype=np.float64)\n    y = np.asarray(y, dtype=np.float64)\n    w = np.asarray(w, dtype=np.float64)\n    lr = 0.1\n    n = X.shape[0]\n    grad = (2.0 / n) * (X.T @ (X @ w - y))\n    return w - lr * grad\n",
+      "complexity": "Time O(n d), Space O(d)"
+    }
+  ]
+}
