@@ -1,4 +1,4 @@
-from app.executor import run, run_tests
+from app.executor import run, run_tests, run_reference_tests
 
 
 def test_run_captures_stdout():
@@ -122,3 +122,23 @@ def test_exact_compare_numpy_bool_scalar_fails():
     r = run_tests(code, "f", tests, compare="exact")
     assert r["all_passed"] is False
     assert r["error"] == ""
+
+
+SOFTMAX_REF = "import numpy as np\ndef softmax(x):\n    x=x-x.max(axis=-1,keepdims=True)\n    e=np.exp(x)\n    return e/e.sum(axis=-1,keepdims=True)\n"
+RT = {"count": 5, "shapes": {"x": [4, 3]}, "dtype": "float32", "range": [-5, 5], "seed": 0}
+
+def test_reference_correct_solution_passes():
+    r = run_reference_tests(SOFTMAX_REF, "softmax", SOFTMAX_REF, RT, "close", ["numpy"])
+    assert r["all_passed"] is True and r["total"] == 5
+
+def test_reference_wrong_solution_fails():
+    wrong = "import numpy as np\ndef softmax(x):\n    return np.exp(x)\n"  # unnormalized
+    r = run_reference_tests(wrong, "softmax", SOFTMAX_REF, RT, "close", ["numpy"])
+    assert r["all_passed"] is False
+    assert any("max_abs_err" in row for row in r["results"])
+
+def test_reference_torch_inputs():
+    ref = "import torch\ndef f(x):\n    return x.relu()\n"
+    rt = {"count": 3, "shapes": {"x": [5]}, "dtype": "float32", "range": [-2, 2], "seed": 1}
+    r = run_reference_tests(ref, "f", ref, rt, "close", ["torch"])
+    assert r["all_passed"] is True
