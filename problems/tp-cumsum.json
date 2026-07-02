@@ -1,0 +1,29 @@
+{
+  "slug": "tp-cumsum",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Cumulative Sum",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Implement `cumsum(a)`, the running total of a vector $a$ of length $n$:\n\n$$\\text{cumsum}(a)_k = \\sum_{l=0}^{k} a_l$$\n\n**Input**: `a`, shape `[n]`. **Output**: shape `[n]`.\n\n`cumsum`/`sum` are banned. Instead multiply $a$ by a lower-triangular matrix of ones (built via broadcasting comparisons, as in the `triu`/`eye` puzzles) to get every prefix sum at once.",
+  "entry_point": "cumsum",
+  "starter_code": "import torch\n\ndef cumsum(a):\n    # Return the running total of a as a length-n vector, without torch.cumsum/sum.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef cumsum(a):\n    n = a.shape[0]\n    out = torch.zeros(n, dtype=a.dtype)\n    total = 0\n    for k in range(n):\n        total = total + a[k]\n        out[k] = total\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [6]}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "zeros", "ones"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "Build a lower-triangular ones matrix M with M[r,c] = 1 when r >= c (like triu/eye), then M @ a gives every prefix sum at once."
+  ],
+  "solutions": [
+    {
+      "name": "Matmul with a lower-triangular ones matrix",
+      "explanation": "Let $M_{r,c} = 1$ if $c \\leq r$ else $0$ (a lower-triangular matrix, built the same way as `triu`/`eye`). Then $(Ma)_r = \\sum_{c \\leq r} a_c$, which is exactly the running total at position $r$.",
+      "code": "import torch\n\ndef cumsum(a):\n    n = a.shape[0]\n    idx = torch.arange(n)\n    tri = (idx[:, None] >= idx[None, :]).long()\n    return tri @ a\n",
+      "complexity": "Time O(n^2), Space O(n^2)"
+    }
+  ]
+}

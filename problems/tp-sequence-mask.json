@@ -1,0 +1,29 @@
+{
+  "slug": "tp-sequence-mask",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Sequence Mask",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Given a batch of rows $\\text{values} \\in \\mathbb{R}^{b\\times n}$ and a per-row valid length $\\text{length} \\in \\mathbb{Z}^b$, zero out every entry `values[k, t]` whose column index $t$ is at least $\\text{length}[k]$ — i.e. mask out the padding tail of each row.\n\n**Shapes**: `values`:[b,n], `length`:[b] -> output:[b,n].",
+  "entry_point": "sequence_mask",
+  "starter_code": "import torch\n\ndef sequence_mask(values, length):\n    # values: [b, n], length: [b]\n    # TODO: zero out values[k, t] where t >= length[k]\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef sequence_mask(values, length):\n    b, n = values.shape\n    out = values.clone()\n    for k in range(b):\n        for t in range(n):\n            if t >= length[k]:\n                out[k, t] = 0\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"values": [3, 5], "length": [3]}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["sequence_mask", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "Build a `[b, n]` boolean mask by comparing a row of column indices `arange(n)` against the per-row `length`, broadcasting `length` down a new trailing axis.",
+    "Multiplying `values` by that boolean mask zeroes out exactly the padded tail of each row — 1 line, broadcasting only."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcast comparison mask",
+      "explanation": "`arange(n)[None, :] < length[:, None]` broadcasts to a `[b, n]` boolean tensor that is true exactly where $t < \\text{length}[k]$. Multiplying `values` elementwise by this mask keeps valid entries and zeroes the rest.",
+      "code": "import torch\n\ndef sequence_mask(values, length):\n    return values * (torch.arange(values.shape[1])[None, :] < length[:, None])\n",
+      "complexity": "Time O(b*n), Space O(b*n)"
+    }
+  ]
+}

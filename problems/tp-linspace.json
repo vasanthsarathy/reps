@@ -1,0 +1,29 @@
+{
+  "slug": "tp-linspace",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Linspace",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Return $n$ evenly spaced values between $i$ and $j$ inclusive: the $k$-th output (for $k=0,\\dots,n-1$) is $i + (j-i)\\cdot \\frac{k}{n-1}$, with the single value $i$ when $n=1$.\n\n**Shapes**: `i`, `j`, `n` are scalars -> output:[n] (float).",
+  "entry_point": "linspace",
+  "starter_code": "import torch\n\ndef linspace(i, j, n):\n    # i, j, n: python scalars; return n evenly spaced float values from i to j inclusive\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef linspace(i, j, n):\n    out = torch.zeros(n, dtype=torch.float32)\n    for k in range(n):\n        if n == 1:\n            out[k] = i\n        else:\n            out[k] = i + (j - i) * k / (n - 1)\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"i": 0, "j": 10, "n": 5}, "dtype": "int64", "range": [0, 10], "seed": 0},
+  "banned": ["linspace", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "The k-th value is a linear interpolation between i and j: `i + (j - i) * k / (n - 1)`, built from `arange(n)`.",
+    "Guard the `n - 1` denominator with `max(n - 1, 1)` so a single-point request still returns `i` instead of dividing by zero — 1 line, broadcasting only."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcast linear interpolation",
+      "explanation": "Casting `arange(n)` to float and scaling it by $\\frac{j-i}{\\max(n-1,1)}$ before adding $i$ produces every interpolated point in one broadcast expression; the `max` guard makes the $n=1$ case degenerate to just $i$, matching the reference's special case.",
+      "code": "import torch\n\ndef linspace(i, j, n):\n    return i + (j - i) * torch.arange(n).float() / max(n - 1, 1)\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

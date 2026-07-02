@@ -1,0 +1,29 @@
+{
+  "slug": "tp-compress",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Compress",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Given a boolean mask $g \\in \\{0,1\\}^n$ and a value vector $v \\in \\mathbb{R}^n$, produce a length-$i$ vector that packs the values `v[k]` for which `g[k]` is true into the front of the output, preserving their original order, leaving any remaining trailing positions as $0$. If more than $i$ values are selected, keep only the first $i$ of them.\n\n**Shapes**: `g`:[n], `v`:[n] -> output:[i].\n\n**Example**: `g=[1,0,1,0]`, `v=[9,2,7,4]`, `i=3` -> `[9,7,0]`.",
+  "entry_point": "compress",
+  "starter_code": "import torch\n\ndef compress(g, v, i):\n    # g: [n] 0/1 mask, v: [n] values, i: output length\n    # TODO: pack v[k] where g[k] is true into the first positions of a length-i vector\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef compress(g, v, i):\n    n = g.shape[0]\n    out = torch.zeros(i, dtype=v.dtype)\n    pos = 0\n    for k in range(n):\n        if g[k] != 0:\n            if pos < i:\n                out[pos] = v[k]\n                pos += 1\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"g": [6], "v": [6], "i": 6}, "dtype": "int64", "range": [0, 1], "seed": 0},
+  "banned": ["compress", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "The running count of true entries in g up to and including index k tells you which output slot that entry lands in; build that running count with a lower-triangular comparison matrix and `@` since `cumsum` is banned.",
+    "Once you know each element's target slot, an `[i, n]` equality mask against `arange(i)` (times `g` to drop false entries) matmul'd with `v` scatters the values into place — 1 line, broadcasting only."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcast scatter via triangular matmul",
+      "explanation": "The running count of true values up to and including index $k$ is $\\text{prefix}(k)=\\sum_{j\\le k} g_j$, computed without `cumsum` as $L @ g$ where $L_{a,b}=\\mathbb{1}[b\\le a]$. Each true index's target slot is $\\text{prefix}(k)-1$. Building an $[i,n]$ mask that is $1$ where `arange(i)` equals that target slot (and $0$ wherever $g$ is false) and matmuling it with $v$ places each selected value into its slot; slots $\\ge i$ never match a row of `arange(i)`, so overflow values are dropped automatically.",
+      "code": "import torch\n\ndef compress(g, v, i):\n    return ((torch.arange(i)[:, None] == ((torch.arange(g.shape[0])[:, None] >= torch.arange(g.shape[0])[None, :]).float() @ g.float() - 1)[None, :]).float() * g.float()) @ v.float()\n",
+      "complexity": "Time O(n*i), Space O(n*i)"
+    }
+  ]
+}

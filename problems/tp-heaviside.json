@@ -1,0 +1,29 @@
+{
+  "slug": "tp-heaviside",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Heaviside",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Apply the Heaviside step function elementwise to $a$, using $b$ as the tie-break value at zero: output$[k] = 1$ if $a[k]>0$, output$[k] = b[k]$ if $a[k]=0$, and output$[k]=0$ if $a[k]<0$.\n\n**Shapes**: `a`:[n], `b`:[n] -> output:[n].",
+  "entry_point": "heaviside",
+  "starter_code": "import torch\n\ndef heaviside(a, b):\n    # a, b: [n]; 1 if a>0, b if a==0, 0 if a<0\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef heaviside(a, b):\n    out = torch.zeros_like(a, dtype=torch.float32)\n    for k in range(a.shape[0]):\n        if a[k] > 0:\n            out[k] = 1\n        elif a[k] == 0:\n            out[k] = b[k]\n        else:\n            out[k] = 0\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [6], "b": [6]}, "dtype": "int64", "range": [-3, 3], "seed": 0},
+  "banned": ["heaviside", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "This is a three-way elementwise choice: positive, zero, or negative — nest two `torch.where` calls on the comparisons `a > 0` and `a == 0`.",
+    "1 line, broadcasting only: `torch.where(a > 0, 1, torch.where(a == 0, b, 0))`."
+  ],
+  "solutions": [
+    {
+      "name": "Nested where",
+      "explanation": "`torch.where` implements an elementwise ternary choice. Nesting it lets us express the three cases directly: pick $1$ when $a>0$, otherwise fall into an inner `where` that picks $b$ when $a=0$ and $0$ otherwise.",
+      "code": "import torch\n\ndef heaviside(a, b):\n    return torch.where(a > 0, 1, torch.where(a == 0, b, 0))\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

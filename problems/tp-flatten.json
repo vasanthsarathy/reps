@@ -1,0 +1,29 @@
+{
+  "slug": "tp-flatten",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Flatten",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Given a 2-D tensor $a \\in \\mathbb{R}^{i\\times j}$, return its row-major flattening into a length-$(i\\cdot j)$ vector, i.e. output$[r\\cdot j + c] = a[r,c]$. `view`/`reshape` are banned — build the flattening purely from index arithmetic.\n\n**Shapes**: `a`:[i,j] -> output:[i*j].",
+  "entry_point": "flatten",
+  "starter_code": "import torch\n\ndef flatten(a, i, j):\n    # a: [i, j], return length i*j row-major vector (no view/reshape allowed)\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef flatten(a, i, j):\n    out = torch.zeros(i * j, dtype=a.dtype)\n    idx = 0\n    for r in range(i):\n        for c in range(j):\n            out[idx] = a[r, c]\n            idx += 1\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [3, 4], "i": 3, "j": 4}, "dtype": "int64", "range": [0, 9], "seed": 0},
+  "banned": ["flatten", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "For flat position `k` in `arange(i*j)`, its row is `k // j` and its column is `k % j`.",
+    "Index `a` with those two derived index tensors directly (advanced indexing) instead of calling `view`/`reshape` — 1 line, broadcasting only."
+  ],
+  "solutions": [
+    {
+      "name": "Row/col index arithmetic",
+      "explanation": "Row-major flattening maps flat index $k$ to row $\\lfloor k/j\\rfloor$ and column $k \\bmod j$. Building those two index vectors with `arange(i*j)` and integer div/mod, then advanced-indexing `a` with them, reproduces `a.flatten()` without ever calling `view` or `reshape`.",
+      "code": "import torch\n\ndef flatten(a, i, j):\n    return a[torch.arange(i * j) // j, torch.arange(i * j) % j]\n",
+      "complexity": "Time O(i*j), Space O(i*j)"
+    }
+  ]
+}

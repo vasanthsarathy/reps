@@ -1,0 +1,29 @@
+{
+  "slug": "tp-diff",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Diff",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Implement `diff(a, i)`, the discrete first difference of a vector $a$ of length $i$:\n\n$$\\text{diff}(a,i)_k = \\begin{cases} a_0 & k = 0 \\\\ a_k - a_{k-1} & k \\geq 1 \\end{cases}$$\n\n**Input**: `a` shape `[i]`, `i` (python int, the length, equal to `a.shape[0]`). **Output**: shape `[i]`.\n\nSolve with broadcasting/`torch.where` only, no python loop.",
+  "entry_point": "diff",
+  "starter_code": "import torch\n\ndef diff(a, i):\n    # Return diff(a): a[0] at k=0, a[k]-a[k-1] for k>=1.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef diff(a, i):\n    out = torch.zeros(i, dtype=a.dtype)\n    for k in range(i):\n        if k == 0:\n            out[k] = a[k]\n        else:\n            out[k] = a[k] - a[k - 1]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [6], "i": 6}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "diff"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "Use torch.where twice: once to safely index k-1 (clamping k=0 to itself), once to pick a[0] vs a[k]-a[k-1]."
+  ],
+  "solutions": [
+    {
+      "name": "torch.where with a clamped shifted index",
+      "explanation": "`idx = arange(i)` gives the positions. For the $k=0$ case we can't read $a_{-1}$, so we clamp the lookup index to `idx` itself (a dummy value) when $k=0$ via `torch.where(idx == 0, idx, idx - 1)`. Then a second `torch.where` selects $a_k$ at $k=0$ and $a_k - a_{k-1}$ everywhere else.",
+      "code": "import torch\n\ndef diff(a, i):\n    idx = torch.arange(i)\n    prev = a[torch.where(idx == 0, idx, idx - 1)]\n    return torch.where(idx == 0, a, a - prev)\n",
+      "complexity": "Time O(i), Space O(i)"
+    }
+  ]
+}

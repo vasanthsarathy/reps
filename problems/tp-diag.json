@@ -1,0 +1,29 @@
+{
+  "slug": "tp-diag",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Diagonal",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors", "linear-algebra"],
+  "libraries": ["torch"],
+  "description": "Implement `diag(a)`, which returns the main diagonal of a square matrix $a \\in \\mathbb{R}^{n \\times n}$:\n\n$$\\text{diag}(a)_k = a_{k,k}$$\n\n**Input**: `a`, shape `[n, n]`. **Output**: shape `[n]`.\n\nSolve with broadcasting/indexing only — build the diagonal with `torch.arange`-based fancy indexing, no python loop.",
+  "entry_point": "diag",
+  "starter_code": "import torch\n\ndef diag(a):\n    # Return the length-n main diagonal of square matrix a.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef diag(a):\n    n = a.shape[0]\n    out = torch.zeros(n, dtype=a.dtype)\n    for k in range(n):\n        out[k] = a[k, k]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [4, 4]}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "diag", "diagonal"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "Fancy-index a with the same arange vector for both the row and column axis: a[idx, idx]."
+  ],
+  "solutions": [
+    {
+      "name": "Fancy indexing with arange",
+      "explanation": "Indexing $a$ with `idx = torch.arange(n)` on both axes simultaneously selects $a_{k,k}$ for every $k$, i.e. exactly the main diagonal.",
+      "code": "import torch\n\ndef diag(a):\n    idx = torch.arange(a.shape[0])\n    return a[idx, idx]\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

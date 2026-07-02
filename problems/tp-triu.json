@@ -1,0 +1,29 @@
+{
+  "slug": "tp-triu",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Upper Triangular Ones",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors", "linear-algebra"],
+  "libraries": ["torch"],
+  "description": "Implement `triu(j)`, which returns a $j \\times j$ matrix of ones on and above the main diagonal (upper triangular, inclusive):\n\n$$\\text{triu}(j)_{r,c} = \\begin{cases} 1 & c \\geq r \\\\ 0 & c < r \\end{cases}$$\n\n**Input**: `j` (python int, the size). **Output**: shape `[j, j]`.\n\nSolve with broadcasting only — compare row/column index vectors, no `torch.triu`.",
+  "entry_point": "triu",
+  "starter_code": "import torch\n\ndef triu(j):\n    # Return the j x j upper-triangular-ones matrix (including diagonal) without torch.triu.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef triu(j):\n    out = torch.zeros(j, j, dtype=torch.int64)\n    for r in range(j):\n        for c in range(j):\n            if c >= r:\n                out[r, c] = 1\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"j": 4}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "zeros", "ones", "triu"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "Compare a column vector of row indices against a row vector of column indices with <=."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcasted row/column comparison",
+      "explanation": "Broadcasting `arange(j)` as a column of row indices against `arange(j)` as a row of column indices gives a $[j,j]$ grid; the entry at $(r,c)$ is `True` exactly when $r \\leq c$, matching the upper-triangular-inclusive pattern once cast to an integer dtype.",
+      "code": "import torch\n\ndef triu(j):\n    idx = torch.arange(j)\n    return (idx[:, None] <= idx[None, :]).long()\n",
+      "complexity": "Time O(j^2), Space O(j^2)"
+    }
+  ]
+}
