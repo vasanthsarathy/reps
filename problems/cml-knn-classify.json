@@ -10,7 +10,7 @@
   "libraries": [
     "numpy"
   ],
-  "description": "Given labeled training points $X_{\\text{train}} \\in \\mathbb{R}^{m \\times d}$ with integer labels $y_{\\text{train}} \\in \\{0, \\dots, C-1\\}^m$, classify each query point in $X_{\\text{test}} \\in \\mathbb{R}^{p \\times d}$ using the k-nearest-neighbors rule:\n\n1. For each test point, compute Euclidean distances to all training points.\n2. Take the $k$ training points with smallest distance (break distance ties by **lower training index**).\n3. Predict the **majority label** among those $k$ neighbors; break label ties by choosing the **lowest label value**.\n\nImplement `knn_classify(X_train, y_train, X_test, k)` returning predicted labels for every row of `X_test`.\n\n**Shapes**: `X_train`: (15, 3), `y_train`: (15,) int in $\\{0,1,2\\}$, `X_test`: (5, 3), `k`: 3 (scalar) -> returns predictions: (5,).",
+  "description": "Given labeled training points with continuous features $X_{\\text{train}} \\in \\mathbb{R}^{m \\times d}$ and integer labels $y_{\\text{train}} \\in \\{0, \\dots, C-1\\}^m$, classify each query point in $X_{\\text{test}} \\in \\mathbb{R}^{p \\times d}$ using the k-nearest-neighbors rule:\n\n1. For each test point, compute Euclidean distances to all training points.\n2. Take the $k$ training points with smallest distance (break distance ties by **lower training index**).\n3. Predict the **majority label** among those $k$ neighbors; break label ties by choosing the **lowest label value**.\n\nImplement `knn_classify(X_train, y_train, X_test, k)` returning predicted labels for every row of `X_test`.\n\n**Shapes**: `X_train`: (15, 3), `y_train`: (15,) int in $\\{0,1,2\\}$, `X_test`: (5, 3), `k`: 3 (scalar) -> returns predictions: (5,).",
   "entry_point": "knn_classify",
   "starter_code": "import numpy as np\n\ndef knn_classify(X_train, y_train, X_test, k):\n    # TODO: for each test point, find k nearest training points (Euclidean,\n    # ties -> lower train index) and predict the majority label\n    # (ties -> lowest label).\n    pass\n",
   "compare": "close",
@@ -33,12 +33,26 @@
       ],
       "k": 3
     },
-    "dtype": "int64",
-    "range": [
-      0,
-      2
-    ],
-    "seed": 5
+    "dtype": {
+      "X_train": "float32",
+      "y_train": "int64",
+      "X_test": "float32"
+    },
+    "range": {
+      "X_train": [
+        -3,
+        3
+      ],
+      "y_train": [
+        0,
+        2
+      ],
+      "X_test": [
+        -3,
+        3
+      ]
+    },
+    "seed": 0
   },
   "banned": [],
   "tests": [],

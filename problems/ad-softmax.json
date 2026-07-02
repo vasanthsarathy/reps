@@ -4,7 +4,7 @@
   "source": "AutodiffPuzzles",
   "title": "Autodiff: Softmax Backward",
   "difficulty": "Medium",
-  "concepts": ["autodiff", "loss-functions", "activations"],
+  "concepts": ["autodiff", "activations"],
   "libraries": ["torch"],
   "description": "The forward pass is $f(x) = \\text{softmax}(x)$ applied along the last dimension of $x \\in \\mathbb{R}^{4\\times 5}$, i.e. $s_{i,j} = \\frac{e^{x_{i,j}}}{\\sum_k e^{x_{i,k}}}$.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)}$ (same shape as the output), implement `softmax_backward(x, g)` returning $\\frac{\\partial L}{\\partial x}$.\n\nFor a single row, softmax's Jacobian gives $\\frac{\\partial L}{\\partial x_i} = s_i \\left(g_i - \\sum_k g_k s_k\\right)$. Written per-row this is $dx = s \\odot \\left(g - (g \\cdot s)\\right.\\text{summed over the last dim, keepdims}\\left.\\right)$, applied independently to each of the 4 rows.\n\n**Shapes**: `x`: (4, 5), `g`: (4, 5) -> returns `dx`: (4, 5).",
   "entry_point": "softmax_backward",

@@ -10,7 +10,7 @@
   "libraries": [
     "numpy"
   ],
-  "description": "Given training features $X_{\\text{train}} \\in \\mathbb{R}^{m \\times d}$ with binary labels $y_{\\text{train}} \\in \\{0,1\\}^m$, fit a Gaussian Naive Bayes classifier: for each class $c$ and feature $j$, estimate the mean $\\mu_{c,j}$ and variance $\\sigma_{c,j}^2$ (population variance, i.e. divide by the class count) from the training rows of that class, and estimate the class prior $\\pi_c = \\frac{\\#\\{i: y_i=c\\}}{m}$.\n\nFor numerical stability, add $\\epsilon = 10^{-6}$ to every variance before using it. For a query point $x$, predict the class with the highest log-posterior (up to the constant normalizer):\n$$\\hat{y} = \\arg\\max_c \\left[ \\log \\pi_c + \\sum_{j=1}^d \\log \\mathcal{N}(x_j; \\mu_{c,j}, \\sigma_{c,j}^2 + \\epsilon) \\right], \\qquad \\mathcal{N}(x;\\mu,v) = \\frac{1}{\\sqrt{2\\pi v}} e^{-\\frac{(x-\\mu)^2}{2v}}$$\n\nBreak ties between classes by choosing the **lower class index**.\n\nImplement `gaussian_nb_predict(X_train, y_train, X_test)` returning predicted labels for every row of `X_test`.\n\n**Shapes**: `X_train`: (20, 3), `y_train`: (20,) int in $\\{0,1\\}$, `X_test`: (6, 3) -> returns predictions: (6,).",
+  "description": "Given continuous training features $X_{\\text{train}} \\in \\mathbb{R}^{m \\times d}$ with binary labels $y_{\\text{train}} \\in \\{0,1\\}^m$, fit a Gaussian Naive Bayes classifier: for each class $c$ and feature $j$, estimate the mean $\\mu_{c,j}$ and variance $\\sigma_{c,j}^2$ (population variance, i.e. divide by the class count) from the training rows of that class, and estimate the class prior $\\pi_c = \\frac{\\#\\{i: y_i=c\\}}{m}$.\n\nFor numerical stability, add $\\epsilon = 10^{-6}$ to every variance before using it. For a query point $x$, predict the class with the highest log-posterior (up to the constant normalizer):\n$$\\hat{y} = \\arg\\max_c \\left[ \\log \\pi_c + \\sum_{j=1}^d \\log \\mathcal{N}(x_j; \\mu_{c,j}, \\sigma_{c,j}^2 + \\epsilon) \\right], \\qquad \\mathcal{N}(x;\\mu,v) = \\frac{1}{\\sqrt{2\\pi v}} e^{-\\frac{(x-\\mu)^2}{2v}}$$\n\nBreak ties between classes by choosing the **lower class index**.\n\nImplement `gaussian_nb_predict(X_train, y_train, X_test)` returning predicted labels for every row of `X_test`.\n\n**Shapes**: `X_train`: (20, 3), `y_train`: (20,) int in $\\{0,1\\}$, `X_test`: (6, 3) -> returns predictions: (6,).",
   "entry_point": "gaussian_nb_predict",
   "starter_code": "import numpy as np\n\ndef gaussian_nb_predict(X_train, y_train, X_test):\n    # TODO: fit per-class Gaussian (mean/var + eps=1e-6) and priors from\n    # X_train/y_train, then predict argmax log-posterior for each X_test row.\n    # Tie-break -> lower class index.\n    pass\n",
   "compare": "close",
@@ -32,12 +32,26 @@
         3
       ]
     },
-    "dtype": "int64",
-    "range": [
-      0,
-      1
-    ],
-    "seed": 9
+    "dtype": {
+      "X_train": "float32",
+      "y_train": "int64",
+      "X_test": "float32"
+    },
+    "range": {
+      "X_train": [
+        -3,
+        3
+      ],
+      "y_train": [
+        0,
+        1
+      ],
+      "X_test": [
+        -3,
+        3
+      ]
+    },
+    "seed": 0
   },
   "banned": [],
   "tests": [],

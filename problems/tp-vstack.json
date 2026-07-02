@@ -12,7 +12,7 @@
   "compare": "close",
   "reference": "import torch\n\ndef vstack(a, b):\n    n = a.shape[0]\n    out = torch.zeros(2, n, dtype=a.dtype)\n    for k in range(n):\n        out[0, k] = a[k]\n        out[1, k] = b[k]\n    return out\n",
   "random_tests": {"count": 20, "shapes": {"a": [5], "b": [5]}, "dtype": "int64", "range": [0, 5], "seed": 0},
-  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "zeros", "ones", "stack", "vstack"],
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "zeros", "ones", "stack", "vstack", "cat"],
   "tests": [],
   "hints": [
     "Solve in 1 line using broadcasting only.",

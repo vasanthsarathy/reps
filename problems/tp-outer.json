@@ -12,7 +12,7 @@
   "compare": "close",
   "reference": "import torch\n\ndef outer(a, b):\n    i, j = a.shape[0], b.shape[0]\n    out = torch.zeros(i, j, dtype=a.dtype)\n    for k in range(i):\n        for l in range(j):\n            out[k, l] = a[k] * b[l]\n    return out\n",
   "random_tests": {"count": 20, "shapes": {"a": [4], "b": [5]}, "dtype": "int64", "range": [0, 5], "seed": 0},
-  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "outer"],
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "outer", "ger"],
   "tests": [],
   "hints": [
     "Solve in 1 line using broadcasting only.",
