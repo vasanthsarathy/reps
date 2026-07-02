@@ -4,7 +4,7 @@
   "difficulty": "Easy",
   "concepts": ["hashing", "strings"],
   "source": "Blind75",
-  "description": "Given two strings `s` and `t`, return `true` if `t` is an anagram of `s` (uses exactly the same letters, each the same number of times), and `false` otherwise.\n\n**Example**\n\n```\ns = \"rat\", t = \"tar\"  ->  true\ns = \"rat\", t = \"car\"  ->  false\n```",
+  "description": "Two strings are anagrams of each other when one can be rearranged, letter for letter, into the other -- same characters, same counts, just shuffled into a different order. Write a function that takes strings `s` and `t` and reports whether `t` is a rearrangement of `s`.\n\n**Example**\n\n```\nvalid_anagram(\"rat\", \"tar\")\n# -> True   (\"tar\" is \"rat\" with its letters shuffled)\n\nvalid_anagram(\"rat\", \"car\")\n# -> False  (different letters entirely)\n```",
   "entry_point": "valid_anagram",
   "starter_code": "def valid_anagram(s, t):\n    # Return True if t is an anagram of s.\n    pass\n",
   "compare": "exact",
