@@ -268,6 +268,7 @@ async function finishAttempt(result) {
     slug: currentProblem.slug, code: editor.getValue(),
     elapsed_ms: getElapsedMs(), result, notes: getNotes(),
     test_summary: window._lastSubmit || null,
+    track: activeTrack || null,
   };
   const res = await post("/attempt", body);
   const n = res.next;
@@ -280,7 +281,8 @@ async function finishAttempt(result) {
 }
 
 async function goNext() {
-  const n = await api("/next?track=" + activeTrack);
+  const q = activeTrack ? "?track=" + activeTrack : "";
+  const n = await api("/next" + q);
   if (!n.recommended) { alert("Nothing due right now. Add problems or come back later."); return; }
   clearNotes(); resetTimer(); loadProblem(n.recommended);
 }
@@ -290,7 +292,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   wire();
   try {
     // Load the recommended next problem on open (falls back to first problem).
-    const nxt = await api("/next?track=" + activeTrack);
+    const q = activeTrack ? "?track=" + activeTrack : "";
+    const nxt = await api("/next" + q);
     const slug = nxt.recommended || (await api("/problems"))[0]?.slug;
     if (slug) loadProblem(slug);
   } catch (e) {

@@ -60,11 +60,13 @@ def concept_rate(mastery: dict, tag: str) -> float:
 def recommend_next(problems: list[dict], schedule: dict, today: str, config: dict,
                     track: str | None = None) -> dict:
     problems = [p for p in problems if track is None or p.get("track") == track]
+    allowed = {p["slug"] for p in problems}
     sched_problems = schedule.get("problems", {})
     mastery = schedule.get("concepts", {})
 
     due = sorted(
-        (slug for slug, st in sched_problems.items() if st.get("due") and st["due"] <= today),
+        (slug for slug, st in sched_problems.items()
+         if slug in allowed and st.get("due") and st["due"] <= today),
         key=lambda s: sched_problems[s]["due"],
     )
     stats = {"total": len(problems), "seen": len(sched_problems), "due_count": len(due)}

@@ -41,6 +41,7 @@ class AttemptBody(BaseModel):
     result: Literal["easy", "good", "hard", "hint", "peeked"]
     notes: dict = {}
     test_summary: dict | None = None
+    track: str | None = None
 
 
 @app.get("/api/problems")
@@ -107,14 +108,15 @@ def attempt(body: AttemptBody):
         "elapsed_ms": body.elapsed_ms, "code": body.code, "notes": body.notes,
         "test_summary": body.test_summary,
     })
-    prob_dicts = [{"slug": s, "difficulty": pr.difficulty, "concepts": pr.concepts}
+    prob_dicts = [{"slug": s, "difficulty": pr.difficulty, "concepts": pr.concepts, "track": pr.track}
                   for s, pr in problems.items()]
-    nxt = scheduler.recommend_next(prob_dicts, schedule, today, cfg)
+    nxt = scheduler.recommend_next(prob_dicts, schedule, today, cfg, track=(body.track or None))
     return {"schedule_state": schedule["problems"][body.slug], "next": nxt}
 
 
 @app.get("/api/next")
 def next_problem(track: str | None = None):
+    track = track or None
     problems = _problems()
     schedule = storage.load_schedule(config.SCHEDULE_PATH)
     prob_dicts = [{"slug": s, "difficulty": p.difficulty, "concepts": p.concepts, "track": p.track}

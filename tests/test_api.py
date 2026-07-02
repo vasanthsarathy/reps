@@ -108,6 +108,16 @@ def test_next_track_filter(client):
     assert out["reason"] in {"new", "review", "done"}
 
 
+def test_next_empty_track_behaves_like_all(client):
+    # An empty track query param (as sent by the frontend's default "All" deck)
+    # must behave the same as omitting the param entirely.
+    empty = client.get("/api/next?track=").json()
+    all_ = client.get("/api/next").json()
+    assert empty["recommended"] is not None
+    assert empty["recommended"] == all_["recommended"]
+    assert empty["reason"] == "new"
+
+
 def test_get_config_returns_defaults(client):
     r = client.get("/api/config")
     assert r.status_code == 200
