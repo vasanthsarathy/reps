@@ -1,0 +1,52 @@
+{
+  "slug": "cml-confusion-matrix",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "Multi-Class Confusion Matrix",
+  "difficulty": "Easy",
+  "concepts": [
+    "metrics"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given true labels $y_{\\text{true}} \\in \\{0,\\dots,n_c-1\\}^n$, predicted labels $y_{\\text{pred}} \\in \\{0,\\dots,n_c-1\\}^n$, and the number of classes $n_c$, build the $n_c \\times n_c$ confusion matrix $M$ where\n$$M_{r,c} = \\#\\{ i : y_{\\text{true},i} = r \\text{ and } y_{\\text{pred},i} = c \\}$$\n\nso rows index the true class and columns index the predicted class.\n\nImplement `confusion_matrix(y_true, y_pred, n_classes)` returning $M$ as an $n_c \\times n_c$ integer array.\n\n**Shapes**: `y_true`: (20,) int in $\\{0,1,2\\}$, `y_pred`: (20,) int in $\\{0,1,2\\}$, `n_classes`: 3 (scalar) -> returns $M$: (3, 3).",
+  "entry_point": "confusion_matrix",
+  "starter_code": "import numpy as np\n\ndef confusion_matrix(y_true, y_pred, n_classes):\n    # TODO: return an n_classes x n_classes array M where M[r, c] counts\n    # examples with true label r and predicted label c\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef confusion_matrix(y_true, y_pred, n_classes):\n    y_true = np.asarray(y_true).astype(np.int64)\n    y_pred = np.asarray(y_pred).astype(np.int64)\n    M = np.zeros((n_classes, n_classes), dtype=np.int64)\n    for t, p in zip(y_true, y_pred):\n        M[t, p] += 1\n    return M\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "y_true": [
+        20
+      ],
+      "y_pred": [
+        20
+      ],
+      "n_classes": 3
+    },
+    "dtype": "int64",
+    "range": [
+      0,
+      2
+    ],
+    "seed": 11
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Initialize an n_classes x n_classes array of zeros, then loop over paired (true, pred) labels and increment M[true, pred].",
+    "This can also be vectorized with np.add.at(M, (y_true, y_pred), 1) instead of a Python loop."
+  ],
+  "solutions": [
+    {
+      "name": "Count pairs into a matrix",
+      "explanation": "Each example contributes exactly one count to the cell indexed by its (true, predicted) label pair; accumulating these counts over all examples gives the full confusion matrix.",
+      "code": "import numpy as np\ndef confusion_matrix(y_true, y_pred, n_classes):\n    y_true = np.asarray(y_true).astype(np.int64)\n    y_pred = np.asarray(y_pred).astype(np.int64)\n    M = np.zeros((n_classes, n_classes), dtype=np.int64)\n    np.add.at(M, (y_true, y_pred), 1)\n    return M\n",
+      "complexity": "Time O(n), Space O(n_c^2)"
+    }
+  ]
+}

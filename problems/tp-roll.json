@@ -1,0 +1,29 @@
+{
+  "slug": "tp-roll",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Roll",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Implement `roll(a, i)`, which rolls a length-$i$ vector left by one position, wrapping the first element to the end:\n\n$$\\text{roll}(a,i)_k = a_{(k+1) \\bmod i}$$\n\n**Input**: `a` shape `[i]`, `i` (python int, the length, equal to `a.shape[0]`). **Output**: shape `[i]`.\n\nSolve with broadcasting/index arithmetic only, no `torch.roll`.",
+  "entry_point": "roll",
+  "starter_code": "import torch\n\ndef roll(a, i):\n    # Return a rolled left by 1: out[k] = a[(k+1) % i]. No torch.roll.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef roll(a, i):\n    out = torch.zeros(i, dtype=a.dtype)\n    for k in range(i):\n        out[k] = a[(k + 1) % i]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [6], "i": 6}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "Index a with (torch.arange(i) + 1) % i — modular index arithmetic does the wraparound for you."
+  ],
+  "solutions": [
+    {
+      "name": "Modular index arithmetic",
+      "explanation": "Computing shifted indices `(arange(i) + 1) % i` gives $[1, 2, \\dots, i-1, 0]$; indexing $a$ with that vector reads $a_{(k+1) \\bmod i}$ at every position $k$, which is a left roll by one.",
+      "code": "import torch\n\ndef roll(a, i):\n    idx = torch.arange(i)\n    return a[(idx + 1) % i]\n",
+      "complexity": "Time O(i), Space O(i)"
+    }
+  ]
+}

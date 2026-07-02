@@ -1,0 +1,21 @@
+{
+  "slug": "ad-linear",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: Linear Layer Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff", "linear-algebra", "neural-networks"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = xW + b$, a linear (affine) layer with $x \\in \\mathbb{R}^{3\\times 4}$ and FIXED constants $W \\in \\mathbb{R}^{4\\times 2}$, $b \\in \\mathbb{R}^{2}$ (neither is differentiated), producing an output in $\\mathbb{R}^{3\\times 2}$.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)} \\in \\mathbb{R}^{3\\times 2}$, implement `linear_backward(x, g)` returning $\\frac{\\partial L}{\\partial x} \\in \\mathbb{R}^{3\\times 4}$.\n\nSince $b$ doesn't depend on $x$, only the $xW$ term contributes: $\\frac{\\partial L}{\\partial x} = g W^\\top$.\n\n**Shapes**: `x`: (3, 4), `W`: (4, 2) constant, `b`: (2,) constant, `g`: (3, 2) -> returns `dx`: (3, 4).",
+  "entry_point": "linear_backward",
+  "starter_code": "import torch\n\ndef linear_backward(x, g):\n    # dx given upstream grad g, where forward(x) = x @ W + b for fixed constants W, b\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef forward(x):\n    W = torch.arange(8, dtype=torch.float32).reshape(4, 2) * 0.1\n    b = torch.tensor([0.1, -0.2], dtype=torch.float32)\n    return x @ W + b\n",
+  "random_tests": {"count": 5, "shapes": {"x": [3, 4]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["W and b are fixed constants (not differentiated) — define them identically to the forward pass.", "The additive bias b has zero derivative with respect to x, so only the x @ W term matters: dx = g @ W.T (same as plain matmul backward)."],
+  "solutions": [
+    {"name": "Bias drops out; transpose-multiply by W", "explanation": "For $f(x)=xW+b$ with constant $W,b$, the bias term has zero gradient w.r.t. $x$, so only the matmul term contributes: $dx = gW^\\top$, identical in form to the pure matmul backward.", "code": "import torch\n\ndef linear_backward(x, g):\n    W = torch.arange(8, dtype=torch.float32).reshape(4, 2) * 0.1\n    return g @ W.T\n", "complexity": "Time O(n*m*k), Space O(n*m) for x:(n,m), W:(m,k)"}
+  ]
+}

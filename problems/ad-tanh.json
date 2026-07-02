@@ -1,0 +1,21 @@
+{
+  "slug": "ad-tanh",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: Tanh Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff", "activations"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = \\tanh(x)$, applied elementwise to a vector $x \\in \\mathbb{R}^6$.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)}$ (same shape as $x$), implement `tanh_backward(x, g)` returning $\\frac{\\partial L}{\\partial x}$.\n\nRecall $\\tanh'(x) = 1 - \\tanh^2(x)$, so $\\frac{\\partial L}{\\partial x_i} = g_i \\cdot (1 - \\tanh^2(x_i))$.\n\n**Shapes**: `x`: (6,), `g`: (6,) -> returns `dx`: (6,).",
+  "entry_point": "tanh_backward",
+  "starter_code": "import torch\n\ndef tanh_backward(x, g):\n    # dx given upstream grad g, where forward(x) = torch.tanh(x)\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef forward(x):\n    return torch.tanh(x)\n",
+  "random_tests": {"count": 5, "shapes": {"x": [6]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["The local derivative of tanh is 1 - tanh(x)^2.", "Apply the chain rule: dx = g * (1 - torch.tanh(x)**2)."],
+  "solutions": [
+    {"name": "Recompute tanh, apply local derivative", "explanation": "Since $\\tanh'(x) = 1-\\tanh^2(x)$, the chain rule gives $dx = g \\odot (1-\\tanh^2(x))$.", "code": "import torch\n\ndef tanh_backward(x, g):\n    return g * (1 - torch.tanh(x) ** 2)\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

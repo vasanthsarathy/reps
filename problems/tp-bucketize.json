@@ -1,0 +1,29 @@
+{
+  "slug": "tp-bucketize",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Bucketize",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Given values $v\\in\\mathbb{R}^n$ and a set of boundary thresholds $\\text{boundaries}\\in\\mathbb{R}^m$, return for each $v[k]$ the count of boundaries strictly less than $v[k]$ (its bucket index).\n\n**Shapes**: `v`:[n], `boundaries`:[m] -> output:[n].",
+  "entry_point": "bucketize",
+  "starter_code": "import torch\n\ndef bucketize(v, boundaries):\n    # v: [n], boundaries: [m]; output[k] = count of boundaries < v[k]\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef bucketize(v, boundaries):\n    n = v.shape[0]\n    m = boundaries.shape[0]\n    out = torch.zeros(n, dtype=torch.int64)\n    for k in range(n):\n        count = 0\n        for t in range(m):\n            if boundaries[t] < v[k]:\n                count += 1\n        out[k] = count\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"v": [6], "boundaries": [4]}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["bucketize", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "Build an `[n, m]` boolean matrix comparing every `boundaries[t]` against every `v[k]`.",
+    "Matmuling that boolean matrix with a length-m vector of ones sums each row into the bucket count, avoiding `sum`/`cumsum` — 1 line, broadcasting only."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcast comparison + matmul sum",
+      "explanation": "`boundaries[None, :] < v[:, None]` broadcasts to an `[n, m]` boolean matrix that is $1$ at $(k,t)$ exactly when $\\text{boundaries}_t < v_k$. Matmuling with a vector of ones sums each row, giving the count of boundaries below each $v_k$ — its bucket index — with no explicit sort or loop required.",
+      "code": "import torch\n\ndef bucketize(v, boundaries):\n    return (boundaries[None, :] < v[:, None]).float() @ torch.ones(boundaries.shape[0])\n",
+      "complexity": "Time O(n*m), Space O(n*m)"
+    }
+  ]
+}

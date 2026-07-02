@@ -1,0 +1,21 @@
+{
+  "slug": "ad-log",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: Log Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = \\ln(x)$, applied elementwise to a vector $x \\in \\mathbb{R}^6$ with all entries positive.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)}$ (same shape as $x$), implement `log_backward(x, g)` returning $\\frac{\\partial L}{\\partial x}$.\n\nRecall $\\frac{d}{dx} \\ln(x) = \\frac{1}{x}$, so $\\frac{\\partial L}{\\partial x_i} = \\frac{g_i}{x_i}$.\n\n**Shapes**: `x`: (6,), `g`: (6,) -> returns `dx`: (6,).",
+  "entry_point": "log_backward",
+  "starter_code": "import torch\n\ndef log_backward(x, g):\n    # dx given upstream grad g, where forward(x) = torch.log(x)\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef forward(x):\n    return torch.log(x)\n",
+  "random_tests": {"count": 5, "shapes": {"x": [6]}, "dtype": "float32", "range": [0.5, 3], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["The local derivative of log is 1/x.", "Apply the chain rule: dx = g / x."],
+  "solutions": [
+    {"name": "Reciprocal local derivative", "explanation": "Since $\\frac{d}{dx}\\ln(x) = \\frac{1}{x}$, the chain rule gives $dx = g / x$.", "code": "def log_backward(x, g):\n    return g / x\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

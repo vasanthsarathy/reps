@@ -1,0 +1,29 @@
+{
+  "slug": "tp-pad-to",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Pad To",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Given a length-$i$ vector $a$, return a length-$j$ vector obtained by copying $a$ from the front and either zero-padding the tail (when $j>i$) or truncating (when $j<i$).\n\n**Shapes**: `a`:[i] -> output:[j].\n\n**Example**: `a=[1,2,3,4,5]`, `i=5`, `j=7` -> `[1,2,3,4,5,0,0]`.",
+  "entry_point": "pad_to",
+  "starter_code": "import torch\n\ndef pad_to(a, i, j):\n    # a: [i], return length-j vector: copy a then zero-pad or truncate\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef pad_to(a, i, j):\n    out = torch.zeros(j, dtype=a.dtype)\n    for k in range(j):\n        if k < i:\n            out[k] = a[k]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [5], "i": 5, "j": 7}, "dtype": "int64", "range": [0, 9], "seed": 0},
+  "banned": ["pad_to", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "pad"],
+  "tests": [],
+  "hints": [
+    "Compare `arange(j)` against `i` to know which output positions should come from `a` and which should be zero.",
+    "Clamp the index used to read from `a` so it never goes out of bounds for positions past `i`, then use `torch.where` to pick between the read value and zero — 1 line, broadcasting only."
+  ],
+  "solutions": [
+    {
+      "name": "Clamped index + where",
+      "explanation": "For output position $k$, we want `a[k]` when $k<i$ and $0$ otherwise. Reading `a[min(k, i-1)]` is always in bounds, and `torch.where(arange(j) < i, ...)` selects that read where valid and $0$ elsewhere, giving both zero-padding ($j>i$) and truncation ($j<i$) for free.",
+      "code": "import torch\n\ndef pad_to(a, i, j):\n    return torch.where(torch.arange(j) < i, a[torch.arange(j).clamp(max=a.shape[0] - 1)], 0)\n",
+      "complexity": "Time O(j), Space O(j)"
+    }
+  ]
+}

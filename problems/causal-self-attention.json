@@ -1,0 +1,30 @@
+{
+  "slug": "causal-self-attention",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Causal (Masked) Self-Attention",
+  "difficulty": "Hard",
+  "concepts": ["attention"],
+  "libraries": ["numpy"],
+  "description": "Implement scaled dot-product self-attention with a CAUSAL mask, as used in autoregressive (decoder-only) transformers, for $Q, K, V \\in \\mathbb{R}^{n \\times d}$ (sequence length $n$, head dim $d$). Position $i$ may only attend to positions $j \\le i$:\n$$\\text{scores}_{i,j} = \\frac{(QK^\\top)_{i,j}}{\\sqrt{d}}, \\qquad \\text{scores}_{i,j} \\leftarrow -\\infty \\;\\text{ if } j > i$$\n$$\\text{Attention}(Q,K,V) = \\text{softmax}(\\text{scores})\\,V$$\n\nSet the scores for future positions ($j > i$) to $-\\infty$ BEFORE the softmax (so their softmax weight is exactly 0), then take a row-wise stable softmax over the key axis.\n\nImplement `causal_self_attention(Q, K, V)` returning the attention output of shape `(n, d)`.\n\n**Shapes**: `Q`, `K`, `V`: `(5, 8)` (seq_len=5, d=8) -> returns `(5, 8)`.",
+  "entry_point": "causal_self_attention",
+  "starter_code": "import numpy as np\n\ndef causal_self_attention(Q, K, V):\n    # TODO: scores = Q @ K.T / sqrt(d); mask scores[i, j] = -inf for j > i; softmax(scores, axis=-1) @ V\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef causal_self_attention(Q, K, V):\n    Q = np.asarray(Q, dtype=np.float64)\n    K = np.asarray(K, dtype=np.float64)\n    V = np.asarray(V, dtype=np.float64)\n    n, d = Q.shape\n    scores = (Q @ K.T) / np.sqrt(d)\n    mask = np.triu(np.ones((n, n), dtype=bool), k=1)\n    scores = np.where(mask, -np.inf, scores)\n    scores = scores - scores.max(axis=-1, keepdims=True)\n    e = np.exp(scores)\n    weights = e / e.sum(axis=-1, keepdims=True)\n    return weights @ V\n",
+  "random_tests": {"count": 20, "shapes": {"Q": [5, 8], "K": [5, 8], "V": [5, 8]}, "dtype": "float32", "range": [-2, 2], "seed": 9},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Build an (n, n) boolean mask that is True where column index > row index (np.triu(..., k=1)), and set scores to -inf there before softmax so those positions get exactly zero weight.",
+    "Subtract the row max AFTER masking (not before) so the max is computed only over the allowed (unmasked) entries; rows with -inf entries otherwise stay numerically stable since exp(-inf)=0."
+  ],
+  "solutions": [
+    {
+      "name": "Masked scaled dot-product attention",
+      "explanation": "The causal mask enforces the autoregressive constraint that position $i$ cannot see future positions $j>i$. Setting those scores to $-\\infty$ before softmax makes $e^{-\\infty}=0$, so masked positions receive exactly zero attention weight while the remaining weights still form a valid probability distribution over allowed positions.",
+      "code": "import numpy as np\ndef causal_self_attention(Q, K, V):\n    Q = np.asarray(Q, dtype=np.float64)\n    K = np.asarray(K, dtype=np.float64)\n    V = np.asarray(V, dtype=np.float64)\n    n, d = Q.shape\n    scores = (Q @ K.T) / np.sqrt(d)\n    mask = np.triu(np.ones((n, n), dtype=bool), k=1)\n    scores = np.where(mask, -np.inf, scores)\n    scores = scores - scores.max(axis=-1, keepdims=True)\n    e = np.exp(scores)\n    weights = e / e.sum(axis=-1, keepdims=True)\n    return weights @ V\n",
+      "complexity": "Time O(n^2 d), Space O(n^2)"
+    }
+  ]
+}

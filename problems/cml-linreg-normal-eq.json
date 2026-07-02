@@ -1,0 +1,53 @@
+{
+  "slug": "cml-linreg-normal-eq",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "Linear Regression via the Normal Equation",
+  "difficulty": "Easy",
+  "concepts": [
+    "linear-regression",
+    "linear-algebra"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given a design matrix $X \\in \\mathbb{R}^{n \\times d}$ (already including any bias column if desired) and targets $y \\in \\mathbb{R}^n$, find the ordinary least squares weight vector $w \\in \\mathbb{R}^d$ that minimizes $\\|Xw - y\\|_2^2$.\n\nThe closed-form solution (the normal equation) is:\n$$w = (X^\\top X)^{-1} X^\\top y$$\n\nImplement `linear_regression(X, y)` returning $w$.\n\n**Shapes**: `X`: (20, 3), `y`: (20,) -> returns `w`: (3,).",
+  "entry_point": "linear_regression",
+  "starter_code": "import numpy as np\n\ndef linear_regression(X, y):\n    # TODO: return w = (X^T X)^-1 X^T y\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef linear_regression(X, y):\n    X = np.asarray(X, dtype=np.float64)\n    y = np.asarray(y, dtype=np.float64)\n    XtX = X.T @ X\n    Xty = X.T @ y\n    w = np.linalg.inv(XtX) @ Xty\n    return w\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X": [
+        20,
+        3
+      ],
+      "y": [
+        20
+      ]
+    },
+    "dtype": "float32",
+    "range": [
+      -3,
+      3
+    ],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "The normal equation comes from setting the gradient of the squared-error loss w.r.t. w to zero.",
+    "Use np.linalg.inv (or solve) on X^T X, then multiply by X^T y. Cast to float64 for numerical stability."
+  ],
+  "solutions": [
+    {
+      "name": "Normal equation",
+      "explanation": "The least-squares objective $J(w) = \\|Xw - y\\|_2^2$ has gradient $2X^\\top(Xw - y)$. Setting this to zero gives $X^\\top X w = X^\\top y$, so $w = (X^\\top X)^{-1} X^\\top y$, assuming $X^\\top X$ is invertible.",
+      "code": "import numpy as np\ndef linear_regression(X, y):\n    X = np.asarray(X, dtype=np.float64)\n    y = np.asarray(y, dtype=np.float64)\n    w = np.linalg.inv(X.T @ X) @ (X.T @ y)\n    return w\n",
+      "complexity": "Time O(n d^2 + d^3), Space O(d^2)"
+    }
+  ]
+}

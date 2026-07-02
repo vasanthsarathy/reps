@@ -1,0 +1,53 @@
+{
+  "slug": "cml-softmax-regression",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "Softmax Regression Class Probabilities",
+  "difficulty": "Easy",
+  "concepts": [
+    "softmax-regression"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given a feature matrix $X \\in \\mathbb{R}^{n \\times d}$ and a weight matrix $W \\in \\mathbb{R}^{d \\times C}$ (one column per class), compute the row-wise softmax of the linear scores $Z = XW \\in \\mathbb{R}^{n \\times C}$:\n$$\\hat{y}_{i,c} = \\frac{e^{Z_{i,c}}}{\\sum_{c'=1}^{C} e^{Z_{i,c'}}}$$\n\nUse a numerically stable softmax: subtract each row's max score before exponentiating.\n\nImplement `softmax_regression_predict(X, W)` returning the $n \\times C$ matrix of class probabilities (each row sums to 1).\n\n**Shapes**: `X`: (10, 4), `W`: (4, 3) -> returns probabilities: (10, 3).",
+  "entry_point": "softmax_regression_predict",
+  "starter_code": "import numpy as np\n\ndef softmax_regression_predict(X, W):\n    # TODO: Z = X @ W, then row-wise stable softmax(Z)\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef softmax_regression_predict(X, W):\n    X = np.asarray(X, dtype=np.float64)\n    W = np.asarray(W, dtype=np.float64)\n    Z = X @ W\n    Z = Z - Z.max(axis=1, keepdims=True)\n    expZ = np.exp(Z)\n    return expZ / expZ.sum(axis=1, keepdims=True)\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X": [
+        10,
+        4
+      ],
+      "W": [
+        4,
+        3
+      ]
+    },
+    "dtype": "float32",
+    "range": [
+      -2,
+      2
+    ],
+    "seed": 10
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute the linear scores Z = X @ W first (shape n x C).",
+    "Subtract each row's max from Z before exponentiating (Z - Z.max(axis=1, keepdims=True)) to avoid overflow; the result is unchanged mathematically since softmax is shift-invariant."
+  ],
+  "solutions": [
+    {
+      "name": "Row-wise stable softmax",
+      "explanation": "Softmax is invariant to adding a constant to all scores in a row, since it cancels in the numerator and denominator: $\\frac{e^{z-k}}{\\sum e^{z'-k}} = \\frac{e^{z}}{\\sum e^{z'}}$. Subtracting the row max keeps every exponent $\\le 0$, preventing overflow.",
+      "code": "import numpy as np\ndef softmax_regression_predict(X, W):\n    X = np.asarray(X, dtype=np.float64)\n    W = np.asarray(W, dtype=np.float64)\n    Z = X @ W\n    Z = Z - Z.max(axis=1, keepdims=True)\n    expZ = np.exp(Z)\n    return expZ / expZ.sum(axis=1, keepdims=True)\n",
+      "complexity": "Time O(n d C), Space O(n C)"
+    }
+  ]
+}

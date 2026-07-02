@@ -2,7 +2,7 @@
   "slug": "maximum-product-subarray",
   "title": "Maximum Product Subarray",
   "difficulty": "Medium",
-  "concepts": ["dp"],
+  "concepts": ["dynamic-programming"],
   "source": "Blind75",
   "description": "Scan through an integer array `nums`, which might contain negatives and zeros, looking for whichever contiguous stretch of elements multiplies together into the biggest possible product, then return that product. This is more subtle than summing: a pair of negative factors cancels out to a positive, so a stretch that currently multiplies to a deeply negative number can flip into the best answer the instant one more negative value joins it, meaning a single running best is not enough to track on its own.\n\n**Example**\n\n```\nnums = [2, 3, -2, 4]  ->  6    (the subarray [2, 3])\nnums = [-2, 3, -4]    ->  24   (the whole array: -2 * 3 * -4)\n```",
   "entry_point": "max_product",

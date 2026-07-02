@@ -1,0 +1,29 @@
+{
+  "slug": "tp-flip",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Flip",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Implement `flip(a, i)`, which reverses a length-$i$ vector:\n\n$$\\text{flip}(a,i)_k = a_{i-1-k}$$\n\n**Input**: `a` shape `[i]`, `i` (python int, the length, equal to `a.shape[0]`). **Output**: shape `[i]`.\n\nSolve with broadcasting/index arithmetic only, no `torch.flip`.",
+  "entry_point": "flip",
+  "starter_code": "import torch\n\ndef flip(a, i):\n    # Return a reversed: out[k] = a[i-1-k]. No torch.flip.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef flip(a, i):\n    out = torch.zeros(i, dtype=a.dtype)\n    for k in range(i):\n        out[k] = a[i - 1 - k]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [6], "i": 6}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "torch.arange(i - 1, -1, -1) directly builds the reversed index vector [i-1, i-2, ..., 0]."
+  ],
+  "solutions": [
+    {
+      "name": "Descending arange index",
+      "explanation": "`torch.arange(i - 1, -1, -1)` produces the index vector $[i-1, i-2, \\dots, 0]$; indexing $a$ with it reads $a_{i-1-k}$ at every position $k$, reversing the vector.",
+      "code": "import torch\n\ndef flip(a, i):\n    return a[torch.arange(i - 1, -1, -1)]\n",
+      "complexity": "Time O(i), Space O(i)"
+    }
+  ]
+}

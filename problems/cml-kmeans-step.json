@@ -1,0 +1,53 @@
+{
+  "slug": "cml-kmeans-step",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "One Iteration of K-Means",
+  "difficulty": "Medium",
+  "concepts": [
+    "clustering"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given data points $X \\in \\mathbb{R}^{n \\times d}$ and current centroids $C \\in \\mathbb{R}^{k \\times d}$, perform **one iteration** of Lloyd's algorithm:\n\n1. **Assign**: assign each point $x_i$ to the nearest centroid by Euclidean distance, $c(i) = \\arg\\min_j \\|x_i - C_j\\|_2$. If a point is equidistant from multiple centroids, assign it to the one with the **lowest index**.\n2. **Update**: set each new centroid to the mean of the points assigned to it. If a centroid receives **no points**, leave that centroid unchanged.\n\nImplement `kmeans_step(X, centroids)` returning the updated centroids $C' \\in \\mathbb{R}^{k \\times d}$.\n\n**Shapes**: `X`: (20, 2), `centroids`: (3, 2) -> returns updated `centroids`: (3, 2).",
+  "entry_point": "kmeans_step",
+  "starter_code": "import numpy as np\n\ndef kmeans_step(X, centroids):\n    # TODO: assign points to nearest centroid, then recompute centroids as the mean\n    # of their assigned points (keep old centroid if it gets no points).\n    # Tie-break assignment to the lowest centroid index.\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef kmeans_step(X, centroids):\n    X = np.asarray(X, dtype=np.float64)\n    C = np.asarray(centroids, dtype=np.float64)\n    n = X.shape[0]\n    k = C.shape[0]\n    dists = np.zeros((n, k))\n    for i in range(n):\n        for j in range(k):\n            dists[i, j] = np.sqrt(np.sum((X[i] - C[j]) ** 2))\n    assignments = np.argmin(dists, axis=1)\n    new_C = C.copy()\n    for j in range(k):\n        mask = assignments == j\n        if np.any(mask):\n            new_C[j] = X[mask].mean(axis=0)\n    return new_C\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X": [
+        20,
+        2
+      ],
+      "centroids": [
+        3,
+        2
+      ]
+    },
+    "dtype": "float32",
+    "range": [
+      -5,
+      5
+    ],
+    "seed": 3
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute the pairwise Euclidean distance from every point to every centroid, then use argmin along the centroid axis (argmin already breaks ties by lowest index).",
+    "Recompute each centroid as the mean of its assigned points; if a centroid has zero assigned points, keep its old value instead of producing NaN."
+  ],
+  "solutions": [
+    {
+      "name": "Vectorized assign + update",
+      "explanation": "Broadcasting $X$ against $C$ gives all pairwise squared distances at once: $\\|x_i - C_j\\|_2^2$. `np.argmin` picks the closest centroid per point, breaking ties toward the lowest index by default. Each centroid is then replaced by the mean of its assigned points, or left unchanged when empty.",
+      "code": "import numpy as np\ndef kmeans_step(X, centroids):\n    X = np.asarray(X, dtype=np.float64)\n    C = np.asarray(centroids, dtype=np.float64)\n    diffs = X[:, None, :] - C[None, :, :]\n    dists = np.sqrt(np.sum(diffs ** 2, axis=2))\n    assignments = np.argmin(dists, axis=1)\n    new_C = C.copy()\n    for j in range(C.shape[0]):\n        mask = assignments == j\n        if np.any(mask):\n            new_C[j] = X[mask].mean(axis=0)\n    return new_C\n",
+      "complexity": "Time O(n k d), Space O(n k)"
+    }
+  ]
+}

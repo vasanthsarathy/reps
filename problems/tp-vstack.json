@@ -1,0 +1,29 @@
+{
+  "slug": "tp-vstack",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Vstack",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Implement `vstack(a, b)`, which stacks two length-$n$ vectors into a $2 \\times n$ matrix:\n\n$$\\text{vstack}(a,b)_{0,k} = a_k, \\qquad \\text{vstack}(a,b)_{1,k} = b_k$$\n\n**Input**: `a` shape `[n]`, `b` shape `[n]`. **Output**: shape `[2, n]`.\n\nSolve with broadcasting via `torch.where` only — no `torch.stack`/`torch.vstack`.",
+  "entry_point": "vstack",
+  "starter_code": "import torch\n\ndef vstack(a, b):\n    # Return a [2, n] tensor with row 0 = a and row 1 = b, without torch.stack/vstack.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef vstack(a, b):\n    n = a.shape[0]\n    out = torch.zeros(2, n, dtype=a.dtype)\n    for k in range(n):\n        out[0, k] = a[k]\n        out[1, k] = b[k]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [5], "b": [5]}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "zeros", "ones", "stack", "vstack", "cat"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "torch.where with a row-index column vector of shape [2,1] can select between a[None,:] and b[None,:] per row."
+  ],
+  "solutions": [
+    {
+      "name": "torch.where over a row-index broadcast",
+      "explanation": "A column vector `row = arange(2)[:, None]` has shape $[2,1]$; comparing it to $0$ and broadcasting against `a[None,:]`/`b[None,:]` (each shape $[1,n]$) picks row $a$ when `row == 0` and row $b$ otherwise, producing the stacked $[2,n]$ result.",
+      "code": "import torch\n\ndef vstack(a, b):\n    row = torch.arange(2)[:, None]\n    return torch.where(row == 0, a[None, :], b[None, :])\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

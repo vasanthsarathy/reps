@@ -1,0 +1,29 @@
+{
+  "slug": "tp-ones",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Ones",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Implement `ones(i)`, which returns a length-$i$ vector of $1$s:\n\n$$\\text{ones}(i)_k = 1 \\quad \\text{for } k = 0, \\dots, i-1$$\n\n**Input**: `i` (python int, the length). **Output**: a 1-D tensor of shape `[i]` filled with ones.\n\nYou may use `torch.arange` and comparisons; broadcasting only. `torch.ones`/`torch.zeros` are banned so you must build the vector another way.",
+  "entry_point": "ones",
+  "starter_code": "import torch\n\ndef ones(i):\n    # Return a length-i vector of 1s, without calling torch.ones/torch.zeros.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef ones(i):\n    out = torch.zeros(i, dtype=torch.int64)\n    for k in range(i):\n        out[k] = 1\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"i": 5}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "zeros", "ones"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "torch.arange(i) is always >= 0 — a comparison against arange gives you a boolean vector you can cast to get 1s."
+  ],
+  "solutions": [
+    {
+      "name": "arange + comparison",
+      "explanation": "`torch.arange(i)` produces $[0, 1, \\dots, i-1]$, all of which are $\\geq 0$. Comparing gives an all-`True` boolean vector; casting to an integer dtype turns every `True` into a `1`.",
+      "code": "import torch\n\ndef ones(i):\n    return (torch.arange(i) >= 0).long()\n",
+      "complexity": "Time O(i), Space O(i)"
+    }
+  ]
+}

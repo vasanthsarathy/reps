@@ -97,6 +97,27 @@ def test_next_endpoint(client):
     assert client.get("/api/next").json()["reason"] in {"review", "new", "done"}
 
 
+def test_problems_include_track(client):
+    items = client.get("/api/problems").json()
+    assert all("track" in it for it in items)
+
+
+def test_next_track_filter(client):
+    # with no ML problems seeded in the fixture, ml track → nothing recommended
+    out = client.get("/api/next?track=ml").json()
+    assert out["reason"] in {"new", "review", "done"}
+
+
+def test_next_empty_track_behaves_like_all(client):
+    # An empty track query param (as sent by the frontend's default "All" deck)
+    # must behave the same as omitting the param entirely.
+    empty = client.get("/api/next?track=").json()
+    all_ = client.get("/api/next").json()
+    assert empty["recommended"] is not None
+    assert empty["recommended"] == all_["recommended"]
+    assert empty["reason"] == "new"
+
+
 def test_get_config_returns_defaults(client):
     r = client.get("/api/config")
     assert r.status_code == 200

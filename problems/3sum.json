@@ -2,7 +2,7 @@
   "slug": "3sum",
   "title": "3Sum",
   "difficulty": "Medium",
-  "concepts": ["two-pointer", "arrays", "sorting"],
+  "concepts": ["two-pointers", "arrays", "sorting"],
   "source": "Blind75",
   "description": "Given a list of integers `nums`, return every triplet of distinct indices `[a, b, c]` (as the values `nums[a], nums[b], nums[c]`) whose values sum to zero. Each returned triplet's values must be sorted ascending, and no duplicate triplets (by value) may appear in the output. The order of triplets in the result does not matter.\n\n**Example**\n\n```\nnums = [-1, 0, 1, 2, -1, -4]  ->  [[-1, -1, 2], [-1, 0, 1]]\n```",
   "entry_point": "three_sum",

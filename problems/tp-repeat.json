@@ -1,0 +1,29 @@
+{
+  "slug": "tp-repeat",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Repeat",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Given a vector $a\\in\\mathbb{R}^n$ and a repeat count $d$, return a $[d,n]$ tensor whose every row is a copy of $a$ (tile $a$ along a new leading axis using broadcasting, not an explicit copy loop).\n\n**Shapes**: `a`:[n] -> output:[d,n].",
+  "entry_point": "repeat",
+  "starter_code": "import torch\n\ndef repeat(a, d):\n    # a: [n], d: scalar repeat count; return [d, n] tiling of a\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef repeat(a, d):\n    n = a.shape[0]\n    out = torch.zeros((d, n), dtype=a.dtype)\n    for r in range(d):\n        for c in range(n):\n            out[r, c] = a[c]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [5], "d": 3}, "dtype": "int64", "range": [0, 9], "seed": 0},
+  "banned": ["repeat", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "Give `a` a leading size-1 axis with `a[None, :]`, then add a `[d, 1]` zero tensor so broadcasting stretches it to `[d, n]`.",
+    "1 line, broadcasting only: no `repeat`/`expand`/loop needed, adding zero broadcasts the row across d copies."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcast add of zeros",
+      "explanation": "`a[None, :]` has shape `[1, n]`. Adding a `[d, 1]` zero tensor broadcasts both operands to `[d, n]`, replicating the row of `a` down every one of the `d` rows without changing any value.",
+      "code": "import torch\n\ndef repeat(a, d):\n    return a[None, :] + torch.zeros((d, 1), dtype=a.dtype)\n",
+      "complexity": "Time O(d*n), Space O(d*n)"
+    }
+  ]
+}

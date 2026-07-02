@@ -1,0 +1,29 @@
+{
+  "slug": "tp-outer",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Outer Product",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors", "linear-algebra"],
+  "libraries": ["torch"],
+  "description": "Implement `outer(a, b)`, the outer product of vectors $a \\in \\mathbb{R}^i$ and $b \\in \\mathbb{R}^j$:\n\n$$\\text{outer}(a,b)_{k,l} = a_k \\cdot b_l$$\n\n**Input**: `a` shape `[i]`, `b` shape `[j]`. **Output**: shape `[i, j]`.\n\nSolve with broadcasting only — index with `None` to add axes rather than calling `view`/`reshape`/`unsqueeze`.",
+  "entry_point": "outer",
+  "starter_code": "import torch\n\ndef outer(a, b):\n    # Return the [i, j] outer product of a and b using broadcasting.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef outer(a, b):\n    i, j = a.shape[0], b.shape[0]\n    out = torch.zeros(i, j, dtype=a.dtype)\n    for k in range(i):\n        for l in range(j):\n            out[k, l] = a[k] * b[l]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [4], "b": [5]}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "outer", "ger"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "a[:, None] has shape [i, 1] and b[None, :] has shape [1, j]; multiplying broadcasts to [i, j]."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcasted multiply",
+      "explanation": "Adding a trailing axis to $a$ (shape $[i,1]$) and a leading axis to $b$ (shape $[1,j]$) lets elementwise multiplication broadcast to shape $[i,j]$, giving $a_k b_l$ at position $(k,l)$.",
+      "code": "import torch\n\ndef outer(a, b):\n    return a[:, None] * b[None, :]\n",
+      "complexity": "Time O(i*j), Space O(i*j)"
+    }
+  ]
+}

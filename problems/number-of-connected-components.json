@@ -2,7 +2,7 @@
   "slug": "number-of-connected-components",
   "title": "Number of Connected Components in an Undirected Graph",
   "difficulty": "Medium",
-  "concepts": ["graphs", "union-find", "bfs-dfs"],
+  "concepts": ["graphs", "union-find", "bfs", "dfs"],
   "source": "Blind75",
   "description": "You have `n` nodes, numbered `0` through `n - 1`, and a list `edges` of undirected connections `[a, b]` between them. Sort the nodes into groups where two nodes land in the same group exactly when some chain of edges links them together. Report how many such groups exist.\n\n**Example**\n\n```\nn = 5, edges = [[0,1],[1,2],[3,4]]  ->  2   ({0,1,2} and {3,4})\n```",
   "entry_point": "count_components",

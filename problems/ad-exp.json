@@ -1,0 +1,21 @@
+{
+  "slug": "ad-exp",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: Exp Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = e^x$, applied elementwise to a vector $x \\in \\mathbb{R}^6$.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)}$ (same shape as $x$), implement `exp_backward(x, g)` returning $\\frac{\\partial L}{\\partial x}$.\n\nRecall $\\frac{d}{dx} e^x = e^x$, so $\\frac{\\partial L}{\\partial x_i} = g_i \\cdot e^{x_i}$.\n\n**Shapes**: `x`: (6,), `g`: (6,) -> returns `dx`: (6,).",
+  "entry_point": "exp_backward",
+  "starter_code": "import torch\n\ndef exp_backward(x, g):\n    # dx given upstream grad g, where forward(x) = torch.exp(x)\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef forward(x):\n    return torch.exp(x)\n",
+  "random_tests": {"count": 5, "shapes": {"x": [6]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["exp is its own derivative: d/dx e^x = e^x.", "Apply the chain rule: dx = g * torch.exp(x)."],
+  "solutions": [
+    {"name": "Self-derivative of exp", "explanation": "Since $\\frac{d}{dx}e^x = e^x$, the chain rule gives $dx = g \\odot e^x$.", "code": "import torch\n\ndef exp_backward(x, g):\n    return g * torch.exp(x)\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

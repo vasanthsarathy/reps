@@ -1,0 +1,51 @@
+{
+  "slug": "cml-pca",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "PCA Projection via Covariance Eigendecomposition",
+  "difficulty": "Medium",
+  "concepts": [
+    "dimensionality-reduction",
+    "linear-algebra"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given data $X \\in \\mathbb{R}^{n \\times d}$ and an integer $k \\le d$, implement Principal Component Analysis:\n\n1. Center the data: $\\tilde{X} = X - \\bar{X}$ (subtract the per-column mean).\n2. Compute the covariance matrix $\\Sigma = \\frac{1}{n} \\tilde{X}^\\top \\tilde{X} \\in \\mathbb{R}^{d \\times d}$.\n3. Find its eigenvectors, sort them by **descending eigenvalue**, and take the top $k$ as columns of $V \\in \\mathbb{R}^{d \\times k}$.\n4. Fix the sign ambiguity of each eigenvector: for each column of $V$, if the entry with the largest absolute value is negative, flip the sign of the whole column.\n5. Project: return $\\tilde{X} V \\in \\mathbb{R}^{n \\times k}$.\n\nImplement `pca_transform(X, k)` returning the $n \\times k$ projected data.\n\n**Shapes**: `X`: (20, 4), `k`: 2 (scalar) -> returns projection: (20, 2).",
+  "entry_point": "pca_transform",
+  "starter_code": "import numpy as np\n\ndef pca_transform(X, k):\n    # TODO: center X, eigendecompose the covariance matrix, take top-k eigenvectors\n    # (sign-fixed: largest-magnitude entry positive), and project X onto them.\n    pass\n",
+  "compare": "close",
+  "rtol": 0.001,
+  "atol": 1e-05,
+  "reference": "import numpy as np\ndef pca_transform(X, k):\n    X = np.asarray(X, dtype=np.float64)\n    Xc = X - X.mean(axis=0, keepdims=True)\n    n = X.shape[0]\n    cov = (Xc.T @ Xc) / n\n    eigvals, eigvecs = np.linalg.eigh(cov)\n    order = np.argsort(eigvals)[::-1]\n    eigvecs = eigvecs[:, order]\n    V = eigvecs[:, :k]\n    for j in range(V.shape[1]):\n        idx = np.argmax(np.abs(V[:, j]))\n        if V[idx, j] < 0:\n            V[:, j] = -V[:, j]\n    return Xc @ V\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X": [
+        20,
+        4
+      ],
+      "k": 2
+    },
+    "dtype": "float32",
+    "range": [
+      -3,
+      3
+    ],
+    "seed": 4
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "np.linalg.eigh returns eigenvalues in ascending order for symmetric matrices; sort descending and reorder the eigenvector columns to match.",
+    "Eigenvectors are only defined up to sign, so after selecting the top-k columns, flip each column so its largest-magnitude entry is positive -- this must match between reference and solution."
+  ],
+  "solutions": [
+    {
+      "name": "Covariance eigendecomposition",
+      "explanation": "PCA finds the directions of maximal variance, which are the top eigenvectors of the covariance matrix $\\Sigma = \\frac{1}{n}\\tilde{X}^\\top\\tilde{X}$. Since `eigh` exploits symmetry and is numerically stable, we sort its eigenpairs by descending eigenvalue, sign-fix the eigenvectors for determinism, and project the centered data onto them.",
+      "code": "import numpy as np\ndef pca_transform(X, k):\n    X = np.asarray(X, dtype=np.float64)\n    Xc = X - X.mean(axis=0, keepdims=True)\n    n = X.shape[0]\n    cov = (Xc.T @ Xc) / n\n    eigvals, eigvecs = np.linalg.eigh(cov)\n    order = np.argsort(eigvals)[::-1]\n    V = eigvecs[:, order][:, :k].copy()\n    for j in range(V.shape[1]):\n        idx = np.argmax(np.abs(V[:, j]))\n        if V[idx, j] < 0:\n            V[:, j] *= -1\n    return Xc @ V\n",
+      "complexity": "Time O(n d^2 + d^3), Space O(d^2)"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "slug": "jump-game",
   "title": "Jump Game",
   "difficulty": "Medium",
-  "concepts": ["dp"],
+  "concepts": ["dynamic-programming"],
   "source": "Blind75",
   "description": "You start at index `0` of an array `nums`, where `nums[i]` is the farthest you're allowed to jump forward from index `i` (you may jump anywhere from `1` up to `nums[i]` steps, or stay put with a jump of `0`). Determine whether you can reach the last index of the array.\n\n**Example**\n\n```\ncan_jump([2, 3, 1, 1, 4])  ->  True    (jump 1 step to index 1, then 3 steps to the last index)\ncan_jump([3, 2, 1, 0, 4])  ->  False   (you always get stuck on the 0 at index 3)\n```",
   "entry_point": "can_jump",

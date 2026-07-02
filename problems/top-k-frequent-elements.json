@@ -2,7 +2,7 @@
   "slug": "top-k-frequent-elements",
   "title": "Top K Frequent Elements",
   "difficulty": "Medium",
-  "concepts": ["hashing", "bucket sort", "heap"],
+  "concepts": ["hashing", "bucket-sort", "heap"],
   "source": "Blind75",
   "description": "You are given a list of integers `nums` and an integer `k`.\n\nReturn the `k` values that occur most often in `nums`. Ties (values with equal counts) may be returned in any order, and the values you return may be in any order overall. It is guaranteed that a unique answer set of size `k` exists.\n\n**Example**\n\n```\nnums = [1, 1, 1, 2, 2, 3], k = 2  ->  [1, 2]   (1 appears 3x, 2 appears 2x, 3 appears 1x)\n```",
   "entry_point": "top_k_frequent",

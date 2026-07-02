@@ -1,0 +1,29 @@
+{
+  "slug": "tp-eye",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Identity Matrix",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors", "linear-algebra"],
+  "libraries": ["torch"],
+  "description": "Implement `eye(j)`, which returns the $j \\times j$ identity matrix:\n\n$$\\text{eye}(j)_{r,c} = \\begin{cases} 1 & r = c \\\\ 0 & r \\neq c \\end{cases}$$\n\n**Input**: `j` (python int, the size). **Output**: shape `[j, j]`.\n\nSolve with broadcasting only — compare two `torch.arange(j)` vectors against each other, no `torch.eye`.",
+  "entry_point": "eye",
+  "starter_code": "import torch\n\ndef eye(j):\n    # Return the j x j identity matrix without calling torch.eye.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef eye(j):\n    out = torch.zeros(j, j, dtype=torch.int64)\n    for r in range(j):\n        for c in range(j):\n            if r == c:\n                out[r, c] = 1\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"j": 4}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "zeros", "ones", "eye"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "Compare a column vector torch.arange(j)[:, None] against a row vector torch.arange(j)[None, :] for equality."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcasted row/column equality",
+      "explanation": "Broadcasting `arange(j)` as a column against `arange(j)` as a row produces a $[j,j]$ grid; the entry at $(r,c)$ is `True` exactly when $r = c$, so casting the equality mask to an integer dtype gives the identity matrix.",
+      "code": "import torch\n\ndef eye(j):\n    idx = torch.arange(j)\n    return (idx[:, None] == idx[None, :]).long()\n",
+      "complexity": "Time O(j^2), Space O(j^2)"
+    }
+  ]
+}

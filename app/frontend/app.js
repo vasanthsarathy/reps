@@ -1,5 +1,6 @@
 const $ = (sel) => document.querySelector(sel);
 let editor, currentProblem = null, attemptLogged = false;
+let activeTrack = "";
 
 async function api(path, opts) {
   const r = await fetch("/api" + path, opts);
@@ -24,6 +25,7 @@ async function loadProblem(slug) {
   window._lastSubmit = null;
   $("#problem-title").textContent = p.title + "  ·  " + p.difficulty;
   $("#problem-desc").innerHTML = renderMarkdown(p.description);
+  typesetMath($("#problem-desc"));
   renderHints(p.hints);
   renderSolutions(p.solutions);
   editor.setValue(p.starter_code || "");
@@ -31,13 +33,17 @@ async function loadProblem(slug) {
 }
 
 function renderMarkdown(md) {
-  // Minimal: fence code blocks and preserve line breaks. Good enough for problem text.
-  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  return esc(md)
-    .replace(/```([\s\S]*?)```/g, (_, c) => "<pre>" + c.trim() + "</pre>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/\n/g, "<br/>");
+  const html = window.marked ? marked.parse(md || "") : (md || "");
+  return html;
+}
+function typesetMath(el) {
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {
+      delimiters: [{left: "$$", right: "$$", display: true},
+                   {left: "$", right: "$", display: false}],
+      throwOnError: false,
+    });
+  }
 }
 
 function renderHints(hints) {
@@ -46,8 +52,10 @@ function renderHints(hints) {
     const btn = document.createElement("button");
     btn.textContent = "Hint " + (i + 1);
     btn.onclick = () => {
-      const d = document.createElement("div"); d.className = "hint"; d.textContent = h;
+      const d = document.createElement("div"); d.className = "hint";
+      d.innerHTML = renderMarkdown(h);
       box.replaceChild(d, btn);
+      typesetMath(d);
     };
     box.appendChild(btn);
   });
@@ -57,10 +65,11 @@ function renderSolutions(sols) {
   const box = $("#solutions"); box.innerHTML = "";
   (sols || []).forEach((s) => {
     const el = document.createElement("div");
-    el.innerHTML = "<h4>" + s.name + "</h4><p>" + s.explanation + "</p><pre>" +
+    el.innerHTML = "<h4>" + s.name + "</h4>" + renderMarkdown(s.explanation) + "<pre>" +
       s.code.replace(/</g, "&lt;") + "</pre><em>" + s.complexity + "</em>";
     box.appendChild(el);
   });
+  typesetMath(box);
 }
 
 async function runCode() {
@@ -87,12 +96,27 @@ async function submitCode() {
   const head = document.createElement("div");
   head.textContent = `${r.passed}/${r.total} passed · ${r.runtime_ms}ms`;
   box.appendChild(head);
-  r.results.forEach((c) => {
+  // Show failing cases first (the useful ones); if all pass, show a few samples.
+  const failing = r.results.filter((c) => !c.passed);
+  const shown = failing.length ? failing.slice(0, 10) : r.results.slice(0, 6);
+  shown.forEach((c) => {
     const d = document.createElement("div");
     d.className = "case " + (c.passed ? "pass" : "fail");
-    d.textContent = `${c.passed ? "✓" : "✗"} args=${JSON.stringify(c.args)} → got ${JSON.stringify(c.got)} · want ${JSON.stringify(c.expected)}`;
+    const got = typeof c.got === "string" ? String(c.got) : JSON.stringify(c.got);
+    const expected = typeof c.expected === "string" ? String(c.expected) : JSON.stringify(c.expected);
+    let line = `${c.passed ? "✓" : "✗"} args=${JSON.stringify(c.args)} → got ${got} · want ${expected}`;
+    if (c.max_abs_err !== undefined && c.max_abs_err !== null) line += ` · max_abs_err=${c.max_abs_err}`;
+    if (c.note) line += ` · ${c.note}`;
+    d.textContent = line;
     box.appendChild(d);
   });
+  const hidden = r.results.length - shown.length;
+  if (hidden > 0) {
+    const more = document.createElement("div");
+    more.className = "case-more";
+    more.textContent = `… ${hidden} more ${failing.length ? "case(s)" : "passing case(s)"} not shown`;
+    box.appendChild(more);
+  }
   window._lastAllPassed = r.all_passed;
   window._lastSubmit = { passed: r.passed, total: r.total, all_passed: r.all_passed };
 }
@@ -108,6 +132,12 @@ function wire() {
   $("#browse-close").onclick = closeBrowse;
   $("#browse-search").oninput = (e) => renderBrowse(filterItems(e.target.value));
   $("#browse-overlay").onclick = (e) => { if (e.target.id === "browse-overlay") closeBrowse(); };
+  document.querySelectorAll("#deck-toggle button[data-track]").forEach((b) =>
+    b.onclick = () => {
+      activeTrack = b.dataset.track;
+      document.querySelectorAll("#deck-toggle button").forEach((x) => x.classList.toggle("active", x === b));
+      renderBrowse(filterItems($("#browse-search").value));
+    });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !$("#browse-overlay").hidden) closeBrowse();
   });
@@ -120,7 +150,7 @@ function todayISO() { return new Date().toISOString().slice(0, 10); }
 
 async function openBrowse() {
   browseItems = await api("/problems");
-  renderBrowse(browseItems);
+  renderBrowse(filterItems($("#browse-search").value));
   $("#browse-overlay").hidden = false;
   $("#browse-search").focus();
 }
@@ -131,10 +161,10 @@ function closeBrowse() {
 
 function filterItems(query) {
   const q = query.trim().toLowerCase();
-  if (!q) return browseItems;
   return browseItems.filter((item) =>
-    item.title.toLowerCase().includes(q) ||
-    (item.concepts || []).some((c) => c.toLowerCase().includes(q)));
+    (!activeTrack || item.track === activeTrack) &&
+    (!q || item.title.toLowerCase().includes(q) ||
+     (item.concepts || []).some((c) => c.toLowerCase().includes(q))));
 }
 
 function shortDate(due) {
@@ -251,6 +281,7 @@ async function finishAttempt(result) {
     slug: currentProblem.slug, code: editor.getValue(),
     elapsed_ms: getElapsedMs(), result, notes: getNotes(),
     test_summary: window._lastSubmit || null,
+    track: activeTrack || null,
   };
   const res = await post("/attempt", body);
   const n = res.next;
@@ -263,7 +294,8 @@ async function finishAttempt(result) {
 }
 
 async function goNext() {
-  const n = await api("/next");
+  const q = activeTrack ? "?track=" + activeTrack : "";
+  const n = await api("/next" + q);
   if (!n.recommended) { alert("Nothing due right now. Add problems or come back later."); return; }
   clearNotes(); resetTimer(); loadProblem(n.recommended);
 }
@@ -273,7 +305,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   wire();
   try {
     // Load the recommended next problem on open (falls back to first problem).
-    const nxt = await api("/next");
+    const q = activeTrack ? "?track=" + activeTrack : "";
+    const nxt = await api("/next" + q);
     const slug = nxt.recommended || (await api("/problems"))[0]?.slug;
     if (slug) loadProblem(slug);
   } catch (e) {

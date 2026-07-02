@@ -1,0 +1,29 @@
+{
+  "slug": "tp-sum",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Sum",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Implement `sum(a)`, which returns the scalar sum of a vector $a$ of length $n$:\n\n$$\\text{sum}(a) = \\sum_{k=0}^{n-1} a_k$$\n\n**Input**: `a`, shape `[n]`. **Output**: a scalar (0-d tensor or python number) equal to the total.\n\n`sum`/`cumsum` are banned. Instead express the sum as a dot product `a @ v` with a vector `v` of 1s that you build yourself (e.g. via `torch.arange` and a comparison, as in the `ones` puzzle).",
+  "entry_point": "sum",
+  "starter_code": "import torch\n\ndef sum(a):\n    # Return the scalar sum of vector a using a @ (vector of ones), not torch.sum.\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef sum(a):\n    total = 0\n    for k in range(a.shape[0]):\n        total = total + a[k].item()\n    return total\n",
+  "random_tests": {"count": 20, "shapes": {"a": [6]}, "dtype": "int64", "range": [0, 5], "seed": 0},
+  "banned": ["view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip", "zeros", "ones"],
+  "tests": [],
+  "hints": [
+    "Solve in 1 line using broadcasting only.",
+    "A dot product a @ v with v an all-ones vector of the same length computes the sum — build v the same way as in the `ones` puzzle."
+  ],
+  "solutions": [
+    {
+      "name": "Dot product with a ones vector",
+      "explanation": "Multiplying $a$ by an all-ones vector via matrix multiplication ($a \\cdot v$ where $v_k = 1$) computes $\\sum_k a_k$. Build $v$ from `torch.arange(n) >= 0` so no banned `ones`/`sum` calls are used.",
+      "code": "import torch\n\ndef sum(a):\n    n = a.shape[0]\n    v = (torch.arange(n) >= 0).long()\n    return a @ v\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

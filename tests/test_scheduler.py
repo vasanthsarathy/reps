@@ -132,3 +132,15 @@ def test_recommend_done_when_all_seen_and_not_due():
     out = recommend_next(PROBLEMS, schedule, "2026-07-01", CONFIG)
     assert out["recommended"] is None
     assert out["reason"] == "done"
+
+
+def test_recommend_next_track_scopes_due():
+    problems = [
+        {"slug": "coding-a", "concepts": [], "track": "coding"},
+        {"slug": "ml-a", "concepts": [], "track": "ml"},
+    ]
+    schedule = {"problems": {"coding-a": {"due": "2026-06-01"}}, "concepts": {}}
+    out_ml = recommend_next(problems, schedule, "2026-07-01", CONFIG, track="ml")
+    assert out_ml["recommended"] != "coding-a"
+    out_coding = recommend_next(problems, schedule, "2026-07-01", CONFIG, track="coding")
+    assert out_coding["recommended"] == "coding-a"

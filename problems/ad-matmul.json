@@ -1,0 +1,21 @@
+{
+  "slug": "ad-matmul",
+  "track": "ml",
+  "source": "AutodiffPuzzles",
+  "title": "Autodiff: Matmul Backward",
+  "difficulty": "Medium",
+  "concepts": ["autodiff", "linear-algebra"],
+  "libraries": ["torch"],
+  "description": "The forward pass is $f(x) = xW$, a matrix multiply of $x \\in \\mathbb{R}^{3\\times 4}$ by a FIXED constant matrix $W \\in \\mathbb{R}^{4\\times 5}$ (not itself differentiated), producing an output in $\\mathbb{R}^{3\\times 5}$.\n\nGiven the upstream gradient $g = \\frac{\\partial L}{\\partial f(x)} \\in \\mathbb{R}^{3\\times 5}$, implement `matmul_backward(x, g)` returning $\\frac{\\partial L}{\\partial x} \\in \\mathbb{R}^{3\\times 4}$.\n\nFor $f(x) = xW$, the chain rule gives $\\frac{\\partial L}{\\partial x} = g W^\\top$.\n\n**Shapes**: `x`: (3, 4), `W`: (4, 5) constant, `g`: (3, 5) -> returns `dx`: (3, 4).",
+  "entry_point": "matmul_backward",
+  "starter_code": "import torch\n\ndef matmul_backward(x, g):\n    # dx given upstream grad g, where forward(x) = x @ W for a fixed constant W\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef forward(x):\n    W = torch.arange(20, dtype=torch.float32).reshape(4, 5) * 0.1\n    return x @ W\n",
+  "random_tests": {"count": 5, "shapes": {"x": [3, 4]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"},
+  "banned": [],
+  "tests": [],
+  "hints": ["W is a fixed constant (not differentiated) — define it identically to the forward pass, e.g. torch.arange(20, dtype=torch.float32).reshape(4, 5) * 0.1.", "For f(x) = x @ W, the chain rule gives dx = g @ W.T."],
+  "solutions": [
+    {"name": "Transpose-multiply by the constant weight", "explanation": "For a linear map $f(x)=xW$ with constant $W$, the Jacobian-vector product through matmul gives $dx = gW^\\top$: multiply the upstream gradient by the transpose of the (fixed) weight matrix.", "code": "import torch\n\ndef matmul_backward(x, g):\n    W = torch.arange(20, dtype=torch.float32).reshape(4, 5) * 0.1\n    return g @ W.T\n", "complexity": "Time O(n*m*k), Space O(n*k) for x:(n,m), W:(m,k)"}
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "slug": "tp-bincount",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Bincount",
+  "difficulty": "Easy",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Given an integer vector $a\\in\\{0,\\dots,j-1\\}^n$, return a length-$j$ vector whose $p$-th entry counts how many elements of $a$ equal $p$.\n\n**Shapes**: `a`:[n] -> output:[j].",
+  "entry_point": "bincount",
+  "starter_code": "import torch\n\ndef bincount(a, j):\n    # a: [n] ints in [0, j); return length-j counts of each value\n    # TODO\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef bincount(a, j):\n    out = torch.zeros(j, dtype=torch.int64)\n    for k in range(a.shape[0]):\n        out[a[k]] += 1\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"a": [8], "j": 5}, "dtype": "int64", "range": [0, 4], "seed": 0},
+  "banned": ["bincount", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "Build a `[j, n]` boolean matrix comparing every candidate bucket value `arange(j)` against every element of `a`.",
+    "Matrix-multiplying that boolean matrix by a length-n vector of ones sums each row without using `sum` directly — 1 line, broadcasting only."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcast equality + matmul sum",
+      "explanation": "`arange(j)[:, None] == a[None, :]` gives a `[j, n]` matrix that is $1$ at $(p,k)$ exactly when $a_k=p$. Matmuling with a vector of ones sums each row, i.e. counts how many elements of `a` equal each bucket $p$, avoiding the banned `sum`/`cumsum` primitives.",
+      "code": "import torch\n\ndef bincount(a, j):\n    return (torch.arange(j)[:, None] == a[None, :]).float() @ torch.ones(a.shape[0])\n",
+      "complexity": "Time O(j*n), Space O(j*n)"
+    }
+  ]
+}

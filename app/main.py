@@ -41,6 +41,7 @@ class AttemptBody(BaseModel):
     result: Literal["easy", "good", "hard", "hint", "peeked"]
     notes: dict = {}
     test_summary: dict | None = None
+    track: str | None = None
 
 
 @app.get("/api/problems")
@@ -54,7 +55,8 @@ def list_problems():
                     "concepts": p.concepts, "seen": st is not None,
                     "due": st.get("due") if st else None,
                     "last_result": st.get("last_result") if st else None,
-                    "repetitions": st.get("repetitions", 0) if st else 0})
+                    "repetitions": st.get("repetitions", 0) if st else 0,
+                    "track": p.track})
     return out
 
 
@@ -76,8 +78,18 @@ def submit(body: SubmitBody):
     p = _problems().get(body.slug)
     if not p:
         raise HTTPException(404, f"No problem {body.slug!r}")
-    return executor.run_tests(body.code, p.entry_point,
-                              [t.model_dump() for t in p.tests], p.compare)
+    rt = p.random_tests
+    if p.reference and rt and rt.get("mode") == "autograd":
+        result = executor.run_autograd_tests(body.code, p.entry_point, p.reference, rt,
+                                             rtol=p.rtol, atol=p.atol)
+    elif p.reference and rt:
+        result = executor.run_reference_tests(body.code, p.entry_point, p.reference, rt,
+                                              p.compare, p.libraries, rtol=p.rtol, atol=p.atol,
+                                              banned=p.banned)
+    else:
+        result = executor.run_tests(body.code, p.entry_point, [t.model_dump() for t in p.tests],
+                                    p.compare, rtol=p.rtol, atol=p.atol, banned=p.banned)
+    return result
 
 
 @app.post("/api/attempt")
@@ -96,19 +108,20 @@ def attempt(body: AttemptBody):
         "elapsed_ms": body.elapsed_ms, "code": body.code, "notes": body.notes,
         "test_summary": body.test_summary,
     })
-    prob_dicts = [{"slug": s, "difficulty": pr.difficulty, "concepts": pr.concepts}
+    prob_dicts = [{"slug": s, "difficulty": pr.difficulty, "concepts": pr.concepts, "track": pr.track}
                   for s, pr in problems.items()]
-    nxt = scheduler.recommend_next(prob_dicts, schedule, today, cfg)
+    nxt = scheduler.recommend_next(prob_dicts, schedule, today, cfg, track=(body.track or None))
     return {"schedule_state": schedule["problems"][body.slug], "next": nxt}
 
 
 @app.get("/api/next")
-def next_problem():
+def next_problem(track: str | None = None):
+    track = track or None
     problems = _problems()
     schedule = storage.load_schedule(config.SCHEDULE_PATH)
-    prob_dicts = [{"slug": s, "difficulty": p.difficulty, "concepts": p.concepts}
+    prob_dicts = [{"slug": s, "difficulty": p.difficulty, "concepts": p.concepts, "track": p.track}
                   for s, p in problems.items()]
-    return scheduler.recommend_next(prob_dicts, schedule, _today(), _config())
+    return scheduler.recommend_next(prob_dicts, schedule, _today(), _config(), track=track)
 
 
 @app.get("/api/config")

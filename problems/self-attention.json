@@ -1,0 +1,30 @@
+{
+  "slug": "self-attention",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Scaled Dot-Product Self-Attention",
+  "difficulty": "Medium",
+  "concepts": ["attention"],
+  "libraries": ["numpy"],
+  "description": "Implement single-head scaled dot-product self-attention for queries, keys, and values $Q, K, V \\in \\mathbb{R}^{n \\times d}$ (sequence length $n$, head dim $d$):\n$$\\text{Attention}(Q,K,V) = \\text{softmax}\\!\\left(\\frac{QK^\\top}{\\sqrt{d}}\\right)V$$\n\nThe softmax is applied over the key axis (the last axis of the $n \\times n$ score matrix, i.e. row-wise), so each query's attention weights over all keys sum to 1. Use a numerically stable softmax (subtract the row max first).\n\nImplement `self_attention(Q, K, V)` returning the attention output of shape `(n, d)`.\n\n**Shapes**: `Q`, `K`, `V`: `(4, 8)` (seq_len=4, d=8) -> returns `(4, 8)`.",
+  "entry_point": "self_attention",
+  "starter_code": "import numpy as np\n\ndef self_attention(Q, K, V):\n    # TODO: softmax(Q @ K.T / sqrt(d), axis=-1) @ V\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef self_attention(Q, K, V):\n    Q = np.asarray(Q, dtype=np.float64)\n    K = np.asarray(K, dtype=np.float64)\n    V = np.asarray(V, dtype=np.float64)\n    d = Q.shape[-1]\n    scores = (Q @ K.T) / np.sqrt(d)\n    scores = scores - scores.max(axis=-1, keepdims=True)\n    e = np.exp(scores)\n    weights = e / e.sum(axis=-1, keepdims=True)\n    return weights @ V\n",
+  "random_tests": {"count": 20, "shapes": {"Q": [4, 8], "K": [4, 8], "V": [4, 8]}, "dtype": "float32", "range": [-2, 2], "seed": 6},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute raw scores as Q @ K.T, scale by 1/sqrt(d) where d is the last dimension of Q/K, then apply a row-wise stable softmax over the key axis (axis=-1).",
+    "The attention output is the softmax weight matrix (n x n) times V (n x d): weights @ V."
+  ],
+  "solutions": [
+    {
+      "name": "Scaled dot-product attention",
+      "explanation": "Each query's similarity to every key is measured by the dot product $QK^\\top$, scaled by $1/\\sqrt{d}$ to keep the softmax input variance roughly constant regardless of $d$ (since a dot product of $d$ independent unit-variance terms has variance $d$). Softmax over the key axis turns scores into a convex-combination weighting of $V$'s rows.",
+      "code": "import numpy as np\ndef self_attention(Q, K, V):\n    Q = np.asarray(Q, dtype=np.float64)\n    K = np.asarray(K, dtype=np.float64)\n    V = np.asarray(V, dtype=np.float64)\n    d = Q.shape[-1]\n    scores = (Q @ K.T) / np.sqrt(d)\n    scores = scores - scores.max(axis=-1, keepdims=True)\n    e = np.exp(scores)\n    weights = e / e.sum(axis=-1, keepdims=True)\n    return weights @ V\n",
+      "complexity": "Time O(n^2 d), Space O(n^2)"
+    }
+  ]
+}

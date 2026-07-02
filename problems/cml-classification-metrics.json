@@ -1,0 +1,51 @@
+{
+  "slug": "cml-classification-metrics",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "Binary Classification Precision, Recall, F1",
+  "difficulty": "Easy",
+  "concepts": [
+    "metrics"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given binary ground-truth labels $y_{\\text{true}} \\in \\{0,1\\}^n$ and binary predictions $y_{\\text{pred}} \\in \\{0,1\\}^n$ (class 1 is \"positive\"), compute:\n$$\\text{precision} = \\frac{TP}{TP+FP}, \\qquad \\text{recall} = \\frac{TP}{TP+FN}, \\qquad F_1 = \\frac{2 \\cdot \\text{precision} \\cdot \\text{recall}}{\\text{precision}+\\text{recall}}$$\n\nwhere $TP$, $FP$, $FN$ are counts of true positives, false positives, and false negatives. If a denominator is zero, define that metric (and $F_1$, if either precision or recall is undefined) to be $0$.\n\nImplement `precision_recall_f1(y_true, y_pred)` returning a length-3 array `[precision, recall, f1]`.\n\n**Shapes**: `y_true`: (20,) int in $\\{0,1\\}$, `y_pred`: (20,) int in $\\{0,1\\}$ -> returns array of shape (3,).",
+  "entry_point": "precision_recall_f1",
+  "starter_code": "import numpy as np\n\ndef precision_recall_f1(y_true, y_pred):\n    # TODO: return np.array([precision, recall, f1]); guard divide-by-zero -> 0\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef precision_recall_f1(y_true, y_pred):\n    y_true = np.asarray(y_true).astype(np.int64)\n    y_pred = np.asarray(y_pred).astype(np.int64)\n    tp = int(np.sum((y_true == 1) & (y_pred == 1)))\n    fp = int(np.sum((y_true == 0) & (y_pred == 1)))\n    fn = int(np.sum((y_true == 1) & (y_pred == 0)))\n    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0\n    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0\n    if precision + recall > 0:\n        f1 = 2 * precision * recall / (precision + recall)\n    else:\n        f1 = 0.0\n    return np.array([precision, recall, f1])\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "y_true": [
+        20
+      ],
+      "y_pred": [
+        20
+      ]
+    },
+    "dtype": "int64",
+    "range": [
+      0,
+      1
+    ],
+    "seed": 7
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Count TP, FP, FN with boolean masks and logical AND, e.g. tp = np.sum((y_true == 1) & (y_pred == 1)).",
+    "Guard every division: if a denominator is 0, the metric should be 0 rather than raising or producing NaN/inf."
+  ],
+  "solutions": [
+    {
+      "name": "Confusion counts to precision/recall/F1",
+      "explanation": "Precision and recall are ratios built from the true-positive, false-positive, and false-negative counts; $F_1$ is their harmonic mean. Each ratio is guarded against a zero denominator by returning 0 instead of dividing.",
+      "code": "import numpy as np\ndef precision_recall_f1(y_true, y_pred):\n    y_true = np.asarray(y_true).astype(np.int64)\n    y_pred = np.asarray(y_pred).astype(np.int64)\n    tp = int(np.sum((y_true == 1) & (y_pred == 1)))\n    fp = int(np.sum((y_true == 0) & (y_pred == 1)))\n    fn = int(np.sum((y_true == 1) & (y_pred == 0)))\n    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0\n    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0\n    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0\n    return np.array([precision, recall, f1])\n",
+      "complexity": "Time O(n), Space O(1)"
+    }
+  ]
+}

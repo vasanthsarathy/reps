@@ -1,0 +1,30 @@
+{
+  "slug": "mlp-forward",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Two-Layer MLP Forward Pass",
+  "difficulty": "Easy",
+  "concepts": ["neural-networks"],
+  "libraries": ["numpy"],
+  "description": "Implement the forward pass of a 1-hidden-layer MLP with a ReLU nonlinearity, for input $x \\in \\mathbb{R}^{n \\times d}$, weights $W_1 \\in \\mathbb{R}^{d \\times h}$, $b_1 \\in \\mathbb{R}^{h}$, $W_2 \\in \\mathbb{R}^{h \\times o}$, $b_2 \\in \\mathbb{R}^{o}$:\n$$\\text{out} = \\text{ReLU}(xW_1 + b_1)\\,W_2 + b_2$$\n\nImplement `mlp_forward(x, W1, b1, W2, b2)` returning `out` of shape `(n, o)`.\n\n**Shapes**: `x`: `(4, 3)`, `W1`: `(3, 5)`, `b1`: `(5,)`, `W2`: `(5, 2)`, `b2`: `(2,)` -> returns `(4, 2)`.",
+  "entry_point": "mlp_forward",
+  "starter_code": "import numpy as np\n\ndef mlp_forward(x, W1, b1, W2, b2):\n    # TODO: relu(x @ W1 + b1) @ W2 + b2\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef mlp_forward(x, W1, b1, W2, b2):\n    x = np.asarray(x, dtype=np.float64)\n    W1 = np.asarray(W1, dtype=np.float64); b1 = np.asarray(b1, dtype=np.float64)\n    W2 = np.asarray(W2, dtype=np.float64); b2 = np.asarray(b2, dtype=np.float64)\n    h = np.maximum(x @ W1 + b1, 0.0)\n    return h @ W2 + b2\n",
+  "random_tests": {"count": 20, "shapes": {"x": [4, 3], "W1": [3, 5], "b1": [5], "W2": [5, 2], "b2": [2]}, "dtype": "float32", "range": [-2, 2], "seed": 4},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute the hidden pre-activation x @ W1 + b1 first (b1 broadcasts over the batch axis), then apply ReLU.",
+    "Feed the ReLU output through the second linear layer h @ W2 + b2 to get the final output."
+  ],
+  "solutions": [
+    {
+      "name": "Two matmuls with a ReLU in between",
+      "explanation": "The hidden layer applies an affine map followed by ReLU, and the output layer applies a second affine map to the hidden activations: $\\text{out} = \\text{ReLU}(xW_1+b_1)W_2 + b_2$.",
+      "code": "import numpy as np\ndef mlp_forward(x, W1, b1, W2, b2):\n    x = np.asarray(x, dtype=np.float64)\n    W1 = np.asarray(W1, dtype=np.float64); b1 = np.asarray(b1, dtype=np.float64)\n    W2 = np.asarray(W2, dtype=np.float64); b2 = np.asarray(b2, dtype=np.float64)\n    h = np.maximum(x @ W1 + b1, 0.0)\n    return h @ W2 + b2\n",
+      "complexity": "Time O(n*d*h + n*h*o), Space O(n*h)"
+    }
+  ]
+}

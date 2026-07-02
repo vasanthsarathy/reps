@@ -1,0 +1,52 @@
+{
+  "slug": "cml-logistic-regression",
+  "track": "ml",
+  "source": "ClassicML",
+  "title": "Logistic Regression Predicted Probabilities",
+  "difficulty": "Easy",
+  "concepts": [
+    "logistic-regression"
+  ],
+  "libraries": [
+    "numpy"
+  ],
+  "description": "Given a feature matrix $X \\in \\mathbb{R}^{n \\times d}$ and a weight vector $w \\in \\mathbb{R}^d$, compute the predicted probability of the positive class under logistic regression:\n$$\\hat{y} = \\sigma(Xw), \\qquad \\sigma(z) = \\frac{1}{1 + e^{-z}}$$\n\napplied elementwise to the linear scores $Xw \\in \\mathbb{R}^n$.\n\nImplement `logistic_predict_proba(X, w)` returning $\\hat{y} \\in \\mathbb{R}^n$.\n\n**Shapes**: `X`: (15, 4), `w`: (4,) -> returns `y_hat`: (15,).",
+  "entry_point": "logistic_predict_proba",
+  "starter_code": "import numpy as np\n\ndef logistic_predict_proba(X, w):\n    # TODO: return sigmoid(X @ w)\n    pass\n",
+  "compare": "close",
+  "rtol": 0.0001,
+  "atol": 1e-06,
+  "reference": "import numpy as np\ndef logistic_predict_proba(X, w):\n    X = np.asarray(X, dtype=np.float64)\n    w = np.asarray(w, dtype=np.float64)\n    z = X @ w\n    return 1.0 / (1.0 + np.exp(-z))\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {
+      "X": [
+        15,
+        4
+      ],
+      "w": [
+        4
+      ]
+    },
+    "dtype": "float32",
+    "range": [
+      -2,
+      2
+    ],
+    "seed": 2
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute the linear scores z = X @ w first, then apply the sigmoid elementwise.",
+    "The sigmoid function is 1 / (1 + exp(-z)); numpy's exp broadcasts elementwise over the vector z."
+  ],
+  "solutions": [
+    {
+      "name": "Sigmoid of linear scores",
+      "explanation": "Logistic regression models the probability of the positive class as $\\sigma(Xw)$ where $\\sigma$ squashes the real-valued linear score into $(0,1)$.",
+      "code": "import numpy as np\ndef logistic_predict_proba(X, w):\n    X = np.asarray(X, dtype=np.float64)\n    w = np.asarray(w, dtype=np.float64)\n    return 1.0 / (1.0 + np.exp(-(X @ w)))\n",
+      "complexity": "Time O(n d), Space O(n)"
+    }
+  ]
+}

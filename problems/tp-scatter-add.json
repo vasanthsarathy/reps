@@ -1,0 +1,29 @@
+{
+  "slug": "tp-scatter-add",
+  "track": "ml",
+  "source": "TensorPuzzles",
+  "title": "Scatter Add",
+  "difficulty": "Medium",
+  "concepts": ["broadcasting", "tensors"],
+  "libraries": ["torch"],
+  "description": "Given values $v\\in\\mathbb{R}^n$ and integer links $\\text{link}\\in\\{0,\\dots,j-1\\}^n$, return a length-$j$ vector where entry $p$ is the sum of all `values[k]` whose `link[k]==p` (scatter-add into $j$ buckets).\n\n**Shapes**: `values`:[n], `link`:[n] -> output:[j].",
+  "entry_point": "scatter_add",
+  "starter_code": "import torch\n\ndef scatter_add(values, link, j):\n    # values: [n], link: [n] ints in [0, j)\n    # TODO: out[link[k]] += values[k], length j\n    pass\n",
+  "compare": "close",
+  "reference": "import torch\n\ndef scatter_add(values, link, j):\n    out = torch.zeros(j, dtype=values.dtype)\n    for k in range(values.shape[0]):\n        out[link[k]] += values[k]\n    return out\n",
+  "random_tests": {"count": 20, "shapes": {"values": [6], "link": [6], "j": 4}, "dtype": "int64", "range": [0, 3], "seed": 0},
+  "banned": ["scatter_add", "view", "reshape", "tensor", "sum", "prod", "mean", "cumsum", "take", "squeeze", "unsqueeze", "roll", "flip"],
+  "tests": [],
+  "hints": [
+    "This is like bincount but weighted: build a `[j, n]` boolean matrix comparing every bucket `arange(j)` against `link`.",
+    "Matmuling that mask matrix with `values` instead of a ones vector sums the linked values per bucket — 1 line, broadcasting only."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcast equality + weighted matmul",
+      "explanation": "`arange(j)[:, None] == link[None, :]` gives a `[j, n]` matrix that is $1$ at $(p,k)$ exactly when $\\text{link}_k=p$. Matmuling with `values` sums the weights routed to each bucket $p$, which is exactly a scatter-add, without ever indexing on the left-hand side of an assignment.",
+      "code": "import torch\n\ndef scatter_add(values, link, j):\n    return (torch.arange(j)[:, None] == link[None, :]).float() @ values.float()\n",
+      "complexity": "Time O(j*n), Space O(j*n)"
+    }
+  ]
+}

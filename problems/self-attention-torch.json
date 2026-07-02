@@ -1,0 +1,30 @@
+{
+  "slug": "self-attention-torch",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Scaled Dot-Product Self-Attention (PyTorch)",
+  "difficulty": "Medium",
+  "concepts": ["attention"],
+  "libraries": ["torch"],
+  "description": "Implement single-head scaled dot-product self-attention in PyTorch for queries, keys, and values $Q, K, V \\in \\mathbb{R}^{n \\times d}$ (sequence length $n$, head dim $d$):\n$$\\text{Attention}(Q,K,V) = \\text{softmax}\\!\\left(\\frac{QK^\\top}{\\sqrt{d}}\\right)V$$\n\nThe softmax is applied over the key axis (the last axis of the $n \\times n$ score matrix, i.e. row-wise). `Q`, `K`, `V` are `torch.Tensor`s; use `torch.softmax` (which is already numerically stable).\n\nImplement `self_attention(Q, K, V)` returning the attention output tensor of shape `(n, d)`.\n\n**Shapes**: `Q`, `K`, `V`: `(4, 8)` (seq_len=4, d=8) -> returns `(4, 8)`.",
+  "entry_point": "self_attention",
+  "starter_code": "import torch\n\ndef self_attention(Q, K, V):\n    # TODO: torch.softmax(Q @ K.T / sqrt(d), dim=-1) @ V\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import torch\n\ndef self_attention(Q, K, V):\n    Q = Q.to(torch.float64)\n    K = K.to(torch.float64)\n    V = V.to(torch.float64)\n    d = Q.shape[-1]\n    scores = (Q @ K.transpose(-2, -1)) / (d ** 0.5)\n    weights = torch.softmax(scores, dim=-1)\n    return weights @ V\n",
+  "random_tests": {"count": 20, "shapes": {"Q": [4, 8], "K": [4, 8], "V": [4, 8]}, "dtype": "float32", "range": [-2, 2], "seed": 7},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute raw scores with Q @ K.transpose(-2, -1), scale by 1/sqrt(d) where d is Q's last dimension, then apply torch.softmax over dim=-1 (the key axis).",
+    "The output is the (n x n) attention-weight matrix times V (n x d): weights @ V."
+  ],
+  "solutions": [
+    {
+      "name": "Scaled dot-product attention (torch)",
+      "explanation": "Same computation as the numpy version but using torch ops: $QK^\\top$ gives raw similarities, scaling by $1/\\sqrt{d}$ keeps the softmax input's variance roughly constant, and `torch.softmax` normalizes each query's weights over the key axis before mixing $V$'s rows.",
+      "code": "import torch\ndef self_attention(Q, K, V):\n    Q = Q.to(torch.float64)\n    K = K.to(torch.float64)\n    V = V.to(torch.float64)\n    d = Q.shape[-1]\n    scores = (Q @ K.transpose(-2, -1)) / (d ** 0.5)\n    weights = torch.softmax(scores, dim=-1)\n    return weights @ V\n",
+      "complexity": "Time O(n^2 d), Space O(n^2)"
+    }
+  ]
+}
