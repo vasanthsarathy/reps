@@ -1,0 +1,32 @@
+{
+  "slug": "merge-k-sorted-lists",
+  "title": "Merge k Sorted Lists",
+  "difficulty": "Hard",
+  "concepts": ["linked-list", "heap", "divide-and-conquer"],
+  "source": "Blind75",
+  "description": "You're handed `lists`, a collection of `k` singly linked lists, each one already arranged in non-decreasing order and represented as a plain list of its values. Weave all `k` of them together into one combined list that stays sorted the whole way through, and return its values from head to tail.\n\n**Example**\n\n```\nlists = [[1, 4, 5], [1, 3, 4], [2, 6]]\nmerge_k_lists(lists)  ->  [1, 1, 2, 3, 4, 4, 5, 6]\n```",
+  "entry_point": "merge_k_lists",
+  "starter_code": "def merge_k_lists(lists):\n    # lists: list of k sorted lists of values, each representing a linked list.\n    # Return the fully merged, sorted list of values.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[[1, 4, 5], [1, 3, 4], [2, 6]]], "expected": [1, 1, 2, 3, 4, 4, 5, 6]},
+    {"args": [[]], "expected": []},
+    {"args": [[[]]], "expected": []},
+    {"args": [[[], []]], "expected": []},
+    {"args": [[[1]]], "expected": [1]},
+    {"args": [[[2, 2], [1], [], [1, 3]]], "expected": [1, 1, 2, 2, 3]},
+    {"args": [[[5, 10], [1, 2, 3], [0]]], "expected": [0, 1, 2, 3, 5, 10]}
+  ],
+  "hints": [
+    "Build each of the k lists as real nodes, then push the head of every non-empty list into a min-heap keyed by value (with a tiebreaker index to keep tuples comparable when values are equal).",
+    "Repeatedly pop the smallest node from the heap, append its value to the output, and if that node has a next, push the next node into the heap — this is the k-way merge, O(n log k)."
+  ],
+  "solutions": [
+    {
+      "name": "Min-heap k-way merge",
+      "explanation": "Build each input list into real linked-list nodes. Push a (value, tiebreak_index, node) tuple for the head of every non-empty list onto a min-heap; the tiebreak index prevents comparing node objects directly when values tie. Repeatedly pop the smallest tuple, append its value to the result, and if that node has a next node, push it onto the heap (reusing a fresh unique tiebreak index). This produces the fully sorted output in O(n log k) time, where n is the total number of values and k is the number of lists, since the heap never holds more than k elements.",
+      "code": "import heapq\n\n\nclass _Node:\n    __slots__ = (\"val\", \"next\")\n    def __init__(self, val):\n        self.val = val\n        self.next = None\n\n\ndef _build(values):\n    head = None\n    tail = None\n    for v in values:\n        node = _Node(v)\n        if head is None:\n            head = tail = node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef merge_k_lists(lists):\n    heap = []\n    counter = 0\n    for values in lists:\n        head = _build(values)\n        if head is not None:\n            heapq.heappush(heap, (head.val, counter, head))\n            counter += 1\n\n    out = []\n    while heap:\n        val, _, node = heapq.heappop(heap)\n        out.append(val)\n        if node.next is not None:\n            heapq.heappush(heap, (node.next.val, counter, node.next))\n            counter += 1\n    return out\n",
+      "complexity": "Time O(n log k), Space O(k) for the heap (plus O(n) to build/return the values)"
+    }
+  ]
+}

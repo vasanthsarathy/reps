@@ -1,0 +1,22 @@
+{
+  "slug": "kth-smallest-in-bst",
+  "title": "Kth Smallest Element in a BST",
+  "difficulty": "Medium",
+  "concepts": ["trees", "bst", "dfs"],
+  "source": "Blind75",
+  "description": "You're given a binary search tree as a level-order list where `null` marks a missing child (root first, children filled in level by level, skipping subtrees under a `null`), plus a 1-indexed integer `k`. Return the value of the k-th smallest element in the tree.\n\n**Example**\n\n```\nkth_smallest([5, 3, 6, 2, 4, null, null, 1], 3)\n# -> 3\n#\n#          5\n#         / \\\n#        3   6\n#       / \\\n#      2   4\n#     /\n#    1\n#\n# Sorted order is 1, 2, 3, 4, 5, 6 -- the 3rd smallest is 3.\n```",
+  "entry_point": "kth_smallest",
+  "starter_code": "def kth_smallest(root, k):\n    # root: level-order list of a BST with None for missing nodes.\n    # k: 1-indexed rank to find.\n    # Return the value of the k-th smallest node.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[3, 1, 4, null, 2], 1], "expected": 1},
+    {"args": [[5, 3, 6, 2, 4, null, null, 1], 3], "expected": 3},
+    {"args": [[1], 1], "expected": 1},
+    {"args": [[3, 1, 4, null, 2], 4], "expected": 4},
+    {"args": [[2, 1, 3], 2], "expected": 2}
+  ],
+  "hints": ["An in-order traversal (left, node, right) of a BST visits values in strictly ascending order.", "You don't need to collect the entire traversal into a list -- an iterative in-order walk with an explicit stack lets you stop the instant you've visited the k-th node.", "Push all the way down the left spine onto the stack first; each pop is the next value in ascending order, and after each pop you push its right child's left spine before continuing."],
+  "solutions": [
+    {"name": "Iterative in-order traversal with early stop", "explanation": "Rebuild the tree, then perform an iterative in-order traversal using an explicit stack instead of recursion, so we can stop as soon as we've counted k values. Repeatedly push the current node and move left until hitting None, building up the left spine. Then pop a node -- this pop order is exactly ascending BST order -- increment a counter, and return that node's value the instant the counter reaches k. Otherwise, move to the popped node's right child and repeat (pushing its left spine before continuing to pop).", "code": "from collections import deque\n\n\nclass _N:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, v): self.val = v; self.left = None; self.right = None\n\n\ndef _build(vals):\n    if not vals or vals[0] is None: return None\n    root = _N(vals[0]); q = deque([root]); i = 1\n    while q and i < len(vals):\n        n = q.popleft()\n        if i < len(vals):\n            if vals[i] is not None: n.left = _N(vals[i]); q.append(n.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] is not None: n.right = _N(vals[i]); q.append(n.right)\n            i += 1\n    return root\n\n\ndef kth_smallest(root, k):\n    node = _build(root)\n    stack = []\n    count = 0\n    while stack or node:\n        while node:\n            stack.append(node)\n            node = node.left\n        node = stack.pop()\n        count += 1\n        if count == k:\n            return node.val\n        node = node.right\n    return None\n", "complexity": "Time O(h + k), Space O(h)"}
+  ]
+}

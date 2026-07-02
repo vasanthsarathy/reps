@@ -1,0 +1,23 @@
+{
+  "slug": "minimum-window-substring",
+  "title": "Minimum Window Substring",
+  "difficulty": "Hard",
+  "concepts": ["sliding window", "hashing", "strings"],
+  "source": "Blind75",
+  "description": "Given two strings `s` and `t`, hunt for the shortest run of consecutive characters inside `s` that covers every character `t` contains -- matching not just which letters appear but how many times each one does, in whatever order works. When no stretch of `s` can cover `t`, answer with an empty string, and if several minimal-length windows tie, hand back whichever one begins earliest.\n\n**Example**\n\n```\nmin_window(\"ADOBECODEBANC\", \"ABC\")\n# -> \"BANC\"   (shortest window of s containing an 'A', a 'B', and a 'C')\n\nmin_window(\"a\", \"aa\")\n# -> \"\"        (s doesn't have two 'a's, so no window can satisfy t)\n```",
+  "entry_point": "min_window",
+  "starter_code": "def min_window(s, t):\n    # Return the shortest substring of s containing all characters of t, or \"\" if none exists.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": ["ADOBECODEBANC", "ABC"], "expected": "BANC"},
+    {"args": ["a", "aa"], "expected": ""},
+    {"args": ["a", "a"], "expected": "a"},
+    {"args": ["", "a"], "expected": ""},
+    {"args": ["ab", ""], "expected": ""},
+    {"args": ["aa", "aa"], "expected": "aa"}
+  ],
+  "hints": ["Use a sliding window with two pointers, tracking how many of t's required characters are currently satisfied in the window.", "Expand the right pointer until the window satisfies all of t's character counts, then try to shrink from the left while it still stays valid, recording the best window found.", "Keep a target frequency count for t and a running count for the window; a counter of 'how many distinct required characters currently have enough copies' tells you in O(1) whether the window is valid."],
+  "solutions": [
+    {"name": "Sliding window with frequency counters", "explanation": "Build a target frequency map of t. Slide a right pointer across s, updating a window frequency map, and track how many distinct characters in t currently have their required count satisfied. Once all are satisfied, shrink the window from the left as far as possible while remaining valid, recording the smallest valid window seen. If t is empty or no valid window is ever found, return an empty string.", "code": "from collections import Counter\n\ndef min_window(s, t):\n    if not t or not s:\n        return \"\"\n    need = Counter(t)\n    missing = len(need)\n    window = Counter()\n    left = 0\n    best_len = float('inf')\n    best_start = 0\n    for right, ch in enumerate(s):\n        window[ch] += 1\n        if ch in need and window[ch] == need[ch]:\n            missing -= 1\n        while missing == 0:\n            if right - left + 1 < best_len:\n                best_len = right - left + 1\n                best_start = left\n            left_ch = s[left]\n            window[left_ch] -= 1\n            if left_ch in need and window[left_ch] < need[left_ch]:\n                missing += 1\n            left += 1\n    if best_len == float('inf'):\n        return \"\"\n    return s[best_start:best_start + best_len]\n", "complexity": "Time O(n + m), Space O(m) where n = len(s), m = len(t)"}
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "slug": "graph-valid-tree",
+  "title": "Graph Valid Tree",
+  "difficulty": "Medium",
+  "concepts": ["graphs", "union-find", "bfs-dfs"],
+  "source": "Blind75",
+  "description": "You have `n` nodes, labeled `0` through `n - 1`, joined by a list of undirected edges `[a, b]`. In graph terms, a tree is a structure where exactly one route connects any pair of nodes: not zero (that would mean the graph splits into disconnected pieces) and not more than one (that would mean a cycle exists). Decide whether the given edges assemble all `n` nodes into precisely that kind of structure.\n\n**Example**\n\n```\nn = 5, edges = [[0,1],[0,2],[0,3],[1,4]]  ->  true   (connected, no cycle, 4 edges = n-1)\nn = 5, edges = [[0,1],[1,2],[2,3],[1,3],[1,4]]  ->  false  (1-2-3-1 is a cycle)\n```",
+  "entry_point": "valid_tree",
+  "starter_code": "def valid_tree(n, edges):\n    # n: number of nodes (0..n-1). edges: list of [a, b] undirected edges.\n    # Return True if the edges form a single connected, acyclic tree over all n nodes.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [5, [[0,1],[0,2],[0,3],[1,4]]], "expected": true},
+    {"args": [5, [[0,1],[1,2],[2,3],[1,3],[1,4]]], "expected": false},
+    {"args": [4, [[0,1],[2,3]]], "expected": false},
+    {"args": [1, []], "expected": true},
+    {"args": [2, []], "expected": false},
+    {"args": [2, [[0,1]]], "expected": true},
+    {"args": [4, [[0,1],[1,2],[0,2]]], "expected": false}
+  ],
+  "hints": ["A graph on n nodes is a tree if and only if it is connected AND has exactly n-1 edges — check the edge count first as a cheap rejection (too many edges guarantees a cycle, too few guarantees disconnection).", "With exactly n-1 edges, union-find both proves it and checks it in one pass: union every edge's endpoints, and if any union finds the endpoints already in the same set, that edge closes a cycle, so it can't be a tree."],
+  "solutions": [
+    {
+      "name": "Edge-count check + Union-Find cycle detection",
+      "explanation": "A connected acyclic graph over n nodes must have exactly n-1 edges, so any other edge count is immediately rejected. Given exactly n-1 edges, union-find processes each edge by finding the roots of its two endpoints: if they already share a root, this edge would create a cycle, so the graph can't be a tree. If no edge ever creates a cycle, then n-1 successful unions must have merged n initial singleton components down to exactly 1 (each successful union reduces the component count by one), which means the graph is also fully connected — so passing both checks together guarantees a valid tree.",
+      "code": "def valid_tree(n, edges):\n    if len(edges) != n - 1:\n        return False\n    if n <= 1:\n        return True\n\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for a, b in edges:\n        ra, rb = find(a), find(b)\n        if ra == rb:\n            return False\n        parent[ra] = rb\n    return True\n",
+      "complexity": "Time O(n * alpha(n)), Space O(n)"
+    }
+  ]
+}

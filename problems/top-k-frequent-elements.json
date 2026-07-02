@@ -1,0 +1,31 @@
+{
+  "slug": "top-k-frequent-elements",
+  "title": "Top K Frequent Elements",
+  "difficulty": "Medium",
+  "concepts": ["hashing", "bucket sort", "heap"],
+  "source": "Blind75",
+  "description": "You are given a list of integers `nums` and an integer `k`.\n\nReturn the `k` values that occur most often in `nums`. Ties (values with equal counts) may be returned in any order, and the values you return may be in any order overall. It is guaranteed that a unique answer set of size `k` exists.\n\n**Example**\n\n```\nnums = [1, 1, 1, 2, 2, 3], k = 2  ->  [1, 2]   (1 appears 3x, 2 appears 2x, 3 appears 1x)\n```",
+  "entry_point": "top_k_frequent",
+  "starter_code": "def top_k_frequent(nums, k):\n    # Return the k most frequent values in nums (any order).\n    pass\n",
+  "compare": "unordered",
+  "tests": [
+    {"args": [[1, 1, 1, 2, 2, 3], 2], "expected": [1, 2]},
+    {"args": [[1], 1], "expected": [1]},
+    {"args": [[4, 4, 4, 6, 6, 7, 7, 7, 7], 1], "expected": [7]},
+    {"args": [[5, 3, 3, 5, 9, 9, 9], 3], "expected": [5, 3, 9]},
+    {"args": [[-1, -1, 2, 2, 2, 0], 2], "expected": [2, -1]}
+  ],
+  "hints": [
+    "Sorting by frequency costs O(n log n) — can you do better since counts are bounded by n?",
+    "Bucket sort: build an array `buckets` of length n+1 where `buckets[c]` holds every value seen exactly c times, then walk it from the end.",
+    "Count frequencies with a dict first, then place each value into its frequency bucket."
+  ],
+  "solutions": [
+    {
+      "name": "Counting + bucket sort",
+      "explanation": "Count each value's frequency with a dict. Since a frequency can range from 1 to len(nums), create buckets indexed by frequency (index 0 unused) and append each value to buckets[count]. Then scan buckets from the highest frequency down to 1, collecting values until we have k of them. This avoids sorting entirely, giving linear time.",
+      "code": "def top_k_frequent(nums, k):\n    counts = {}\n    for x in nums:\n        counts[x] = counts.get(x, 0) + 1\n    buckets = [[] for _ in range(len(nums) + 1)]\n    for val, c in counts.items():\n        buckets[c].append(val)\n    result = []\n    for c in range(len(buckets) - 1, 0, -1):\n        for val in buckets[c]:\n            result.append(val)\n            if len(result) == k:\n                return result\n    return result\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

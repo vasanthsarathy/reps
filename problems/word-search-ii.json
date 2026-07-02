@@ -1,0 +1,28 @@
+{
+  "slug": "word-search-ii",
+  "title": "Word Search II",
+  "difficulty": "Hard",
+  "concepts": ["graphs", "trie", "backtracking", "bfs-dfs"],
+  "source": "Blind75",
+  "description": "You are given `board`, a 2-D grid of single-character strings, and a list `words`. A word is found on the board if it can be traced by a path that starts at any cell and moves to horizontally or vertically adjacent cells, using each grid cell at most once per path. Return the list of all words from `words` that can be found on the board (each qualifying word appears once, in any order).\n\n**Example**\n\n```\nboard = [\n  [\"o\",\"a\",\"a\",\"n\"],\n  [\"e\",\"t\",\"a\",\"e\"],\n  [\"i\",\"h\",\"k\",\"r\"],\n  [\"i\",\"f\",\"l\",\"v\"]\n]\nwords = [\"oath\",\"pea\",\"eat\",\"rain\"]  ->  [\"oath\",\"eat\"]\n```",
+  "entry_point": "find_words",
+  "starter_code": "def find_words(board, words):\n    # board: list of rows of single-character strings. words: list[str].\n    # Return the list of words from `words` that can be traced on the board.\n    pass\n",
+  "compare": "unordered",
+  "tests": [
+    {"args": [[["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], ["oath","pea","eat","rain"]], "expected": ["oath","eat"]},
+    {"args": [[["a","b"],["c","d"]], ["abdc","abcd"]], "expected": ["abdc"]},
+    {"args": [[["a"]], ["a","b"]], "expected": ["a"]},
+    {"args": [[["a","b"],["c","d"]], ["ab","cd","xyz"]], "expected": ["ab","cd"]},
+    {"args": [[["a","b"],["c","d"]], []], "expected": []},
+    {"args": [[["a","a"]], ["aaa"]], "expected": []}
+  ],
+  "hints": ["Insert all target words into a trie so shared prefixes are explored together instead of re-scanning the board once per word.", "DFS from every board cell walking the trie in step; when a trie node marks the end of a word, record it and delete that marker so it can't be re-added, and prune trie branches (and skip re-descending them) once they have no children left to find."],
+  "solutions": [
+    {
+      "name": "Trie + DFS backtracking with pruning",
+      "explanation": "All words are inserted into a shared trie so that DFS explores the board and the trie in lock-step, sharing work across words with common prefixes. Starting DFS from every board cell, at each step we only continue into a neighbor if the trie has an edge for that neighbor's letter. Whenever a trie node marks the end of a word, that word is recorded in the results and the end-marker is deleted so it can never be added twice (multiple paths could otherwise reach the same word). Trie nodes with no children left after a marker is removed are deleted from their parent, pruning the search space as words are found.",
+      "code": "def find_words(board, words):\n    if not board or not board[0] or not words:\n        return []\n    root = {}\n    for w in words:\n        node = root\n        for ch in w:\n            node = node.setdefault(ch, {})\n        node['$'] = w\n\n    rows, cols = len(board), len(board[0])\n    result = []\n\n    def dfs(r, c, node):\n        ch = board[r][c]\n        if ch not in node:\n            return\n        nxt = node[ch]\n        if '$' in nxt:\n            result.append(nxt['$'])\n            del nxt['$']\n        board[r][c] = '#'\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and board[nr][nc] != '#':\n                dfs(nr, nc, nxt)\n        board[r][c] = ch\n        if not nxt:\n            del node[ch]\n\n    for r in range(rows):\n        for c in range(cols):\n            dfs(r, c, root)\n    return result\n",
+      "complexity": "Time O(rows * cols * 4^L) where L is the longest word length, Space O(sum of word lengths) for the trie"
+    }
+  ]
+}

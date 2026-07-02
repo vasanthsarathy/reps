@@ -1,0 +1,22 @@
+{
+  "slug": "spiral-matrix",
+  "title": "Spiral Matrix",
+  "difficulty": "Medium",
+  "concepts": ["matrix", "arrays"],
+  "source": "Blind75",
+  "description": "`matrix` is a grid of integers with m rows and n columns (not necessarily square). Starting at the top-left corner, trace a clockwise spiral path that visits every cell exactly once, curling further inward each time you complete a lap, and output the values in the order you visited them.\n\n**Example**\n\n```\nmatrix = [\n  [1, 2, 3],\n  [4, 5, 6],\n  [7, 8, 9]\n]  ->  [1, 2, 3, 6, 9, 8, 7, 4, 5]\n```",
+  "entry_point": "spiral_order",
+  "starter_code": "def spiral_order(matrix):\n    # matrix: list of lists of int (m x n). Return elements in clockwise spiral order.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[[1, 2, 3], [4, 5, 6], [7, 8, 9]]], "expected": [1, 2, 3, 6, 9, 8, 7, 4, 5]},
+    {"args": [[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]], "expected": [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]},
+    {"args": [[[1]]], "expected": [1]},
+    {"args": [[[1], [2], [3]]], "expected": [1, 2, 3]},
+    {"args": [[]], "expected": []}
+  ],
+  "hints": ["Maintain four boundaries: top, bottom, left, right. Walk right across the top row, down the right column, left across the bottom row, and up the left column, shrinking the boundary after each pass.", "After each of the four walks, check whether the boundaries have crossed (top > bottom or left > right) before continuing, so you don't re-visit or double-count cells on skinny matrices."],
+  "solutions": [
+    {"name": "Shrinking boundary walk", "explanation": "Track top, bottom, left, right boundaries of the unvisited region. Repeatedly traverse the top row left-to-right, the right column top-to-bottom, (if rows remain) the bottom row right-to-left, and (if columns remain) the left column bottom-to-top, tightening each boundary after its pass. Stop once the boundaries cross, having visited every cell exactly once in spiral order.", "code": "def spiral_order(matrix):\n    if not matrix or not matrix[0]:\n        return []\n    result = []\n    top, bottom = 0, len(matrix) - 1\n    left, right = 0, len(matrix[0]) - 1\n    while top <= bottom and left <= right:\n        for c in range(left, right + 1):\n            result.append(matrix[top][c])\n        top += 1\n        for r in range(top, bottom + 1):\n            result.append(matrix[r][right])\n        right -= 1\n        if top <= bottom:\n            for c in range(right, left - 1, -1):\n                result.append(matrix[bottom][c])\n            bottom -= 1\n        if left <= right:\n            for r in range(bottom, top - 1, -1):\n                result.append(matrix[r][left])\n            left += 1\n    return result\n", "complexity": "Time O(m * n), Space O(1) excluding output"}
+  ]
+}

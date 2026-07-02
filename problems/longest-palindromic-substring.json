@@ -1,0 +1,23 @@
+{
+  "slug": "longest-palindromic-substring",
+  "title": "Longest Palindromic Substring",
+  "difficulty": "Medium",
+  "concepts": ["strings", "two pointers"],
+  "source": "Blind75",
+  "description": "Somewhere inside string `s` lies its longest run of characters that reads identically forward and backward. Find that run and return it; when more than one substring achieves the maximum length, prefer whichever one appears first as you read `s` left to right.\n\n**Example**\n\n```\nlongest_palindrome(\"babad\")\n# -> \"bab\"   (\"aba\" is also a palindrome of the same length, but \"bab\" starts first)\n\nlongest_palindrome(\"cbbd\")\n# -> \"bb\"\n```",
+  "entry_point": "longest_palindrome",
+  "starter_code": "def longest_palindrome(s):\n    # Return the leftmost longest palindromic substring of s.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": ["babad"], "expected": "bab"},
+    {"args": ["cbbd"], "expected": "bb"},
+    {"args": [""], "expected": ""},
+    {"args": ["a"], "expected": "a"},
+    {"args": ["ac"], "expected": "a"},
+    {"args": ["aaaa"], "expected": "aaaa"}
+  ],
+  "hints": ["Every palindrome has a center -- either a single character (odd length) or a gap between two characters (even length). Try expanding around each of the 2n-1 possible centers.", "For each center, grow outward while the characters on both sides match, then compare the resulting length to the best found so far.", "To guarantee the leftmost answer on ties, only update your best result when a strictly longer palindrome is found."],
+  "solutions": [
+    {"name": "Expand around center", "explanation": "A palindrome is symmetric around its middle, which is either a single character (odd-length palindrome) or the gap between two adjacent characters (even-length palindrome). For each of the 2n-1 possible centers, expand outward while the two sides match, and record the substring if it's strictly longer than the best found so far -- scanning centers left to right and only replacing on a strict improvement naturally yields the leftmost longest palindrome.", "code": "def longest_palindrome(s):\n    if not s:\n        return \"\"\n\n    def expand(l, r):\n        while l >= 0 and r < len(s) and s[l] == s[r]:\n            l -= 1\n            r += 1\n        return l + 1, r - 1\n\n    best_start, best_end = 0, 0\n    for i in range(len(s)):\n        l1, r1 = expand(i, i)\n        if r1 - l1 > best_end - best_start:\n            best_start, best_end = l1, r1\n        l2, r2 = expand(i, i + 1)\n        if r2 - l2 > best_end - best_start:\n            best_start, best_end = l2, r2\n    return s[best_start:best_end + 1]\n", "complexity": "Time O(n^2), Space O(1)"}
+  ]
+}

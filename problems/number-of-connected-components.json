@@ -1,0 +1,28 @@
+{
+  "slug": "number-of-connected-components",
+  "title": "Number of Connected Components in an Undirected Graph",
+  "difficulty": "Medium",
+  "concepts": ["graphs", "union-find", "bfs-dfs"],
+  "source": "Blind75",
+  "description": "You have `n` nodes, numbered `0` through `n - 1`, and a list `edges` of undirected connections `[a, b]` between them. Sort the nodes into groups where two nodes land in the same group exactly when some chain of edges links them together. Report how many such groups exist.\n\n**Example**\n\n```\nn = 5, edges = [[0,1],[1,2],[3,4]]  ->  2   ({0,1,2} and {3,4})\n```",
+  "entry_point": "count_components",
+  "starter_code": "def count_components(n, edges):\n    # n: number of nodes (0..n-1). edges: list of [a, b] undirected edges.\n    # Return the number of connected components.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [5, [[0,1],[1,2],[3,4]]], "expected": 2},
+    {"args": [5, [[0,1],[1,2],[2,3],[3,4]]], "expected": 1},
+    {"args": [5, []], "expected": 5},
+    {"args": [1, []], "expected": 1},
+    {"args": [4, [[0,1],[2,3]]], "expected": 2},
+    {"args": [6, [[0,1],[1,2],[3,4],[4,5],[0,2]]], "expected": 2}
+  ],
+  "hints": ["Union-Find (disjoint set union) is the natural fit: start with n separate components and union the two endpoints of every edge.", "Track the component count directly: start at n and decrement it each time a union actually merges two DIFFERENT sets (an edge between two nodes already in the same set doesn't reduce the count)."],
+  "solutions": [
+    {
+      "name": "Union-Find with path compression and union by rank",
+      "explanation": "Each node starts as its own component, so the initial count is n. Every edge is processed with a union-find structure: `find` walks (and compresses) parent pointers up to each node's root, and `union` links the two roots together, using rank to keep the trees shallow. Whenever `union` merges two nodes that had different roots, the component count is decremented, since two previously separate components just became one; an edge connecting nodes already in the same component leaves the count unchanged. After all edges are processed, the running count is exactly the number of connected components.",
+      "code": "def count_components(n, edges):\n    parent = list(range(n))\n    rank = [0] * n\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    def union(a, b):\n        ra, rb = find(a), find(b)\n        if ra == rb:\n            return False\n        if rank[ra] < rank[rb]:\n            ra, rb = rb, ra\n        parent[rb] = ra\n        if rank[ra] == rank[rb]:\n            rank[ra] += 1\n        return True\n\n    count = n\n    for a, b in edges:\n        if union(a, b):\n            count -= 1\n    return count\n",
+      "complexity": "Time O(n + E * alpha(n)), Space O(n)"
+    }
+  ]
+}

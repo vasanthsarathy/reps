@@ -1,0 +1,32 @@
+{
+  "slug": "combination-sum",
+  "title": "Combination Sum",
+  "difficulty": "Medium",
+  "concepts": ["backtracking", "recursion"],
+  "source": "Blind75",
+  "description": "Given a list of distinct positive integers `candidates` and a target integer `target`, return every unique combination of numbers from `candidates` that sums to exactly `target`. You may reuse the same candidate value as many times as you like. Two combinations are the same if they use the same multiset of numbers, so do not return duplicate combinations.\n\nTo keep the result deterministic, sort each individual combination in ascending order, and sort the overall list of combinations (lexicographically, comparing element by element).\n\n**Example**\n\n```\ncandidates = [2, 3, 6, 7], target = 7  ->  [[2, 2, 3], [7]]\n```",
+  "entry_point": "combination_sum",
+  "starter_code": "def combination_sum(candidates, target):\n    # Return all unique combinations (each an ascending list) that sum to target.\n    # Candidates may be reused. Sort each combo and the outer list for determinism.\n    pass\n",
+  "compare": "unordered",
+  "tests": [
+    {"args": [[2, 3, 6, 7], 7], "expected": [[2, 2, 3], [7]]},
+    {"args": [[2, 3, 5], 8], "expected": [[2, 2, 2, 2], [2, 3, 3], [3, 5]]},
+    {"args": [[2], 1], "expected": []},
+    {"args": [[], 5], "expected": []},
+    {"args": [[3], 9], "expected": [[3, 3, 3]]},
+    {"args": [[7, 3, 2], 18], "expected": [[2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 3, 3], [2, 2, 2, 2, 3, 7], [2, 2, 2, 3, 3, 3, 3], [2, 2, 7, 7], [2, 3, 3, 3, 7], [3, 3, 3, 3, 3, 3]]}
+  ],
+  "hints": [
+    "Sort the candidates first, then explore combinations with backtracking, always picking the next candidate from the current index onward (not from the start) so you never revisit smaller values and thus avoid duplicate combinations.",
+    "Since a candidate can be reused, when you recurse after choosing `candidates[i]` pass the same index `i` again (not `i + 1`); only advance the index when you move on to the next distinct candidate.",
+    "Prune as soon as the running sum exceeds target (easy once candidates are sorted), and sort each finished combination plus the final results list before returning."
+  ],
+  "solutions": [
+    {
+      "name": "Backtracking with sorted candidates",
+      "explanation": "Sort candidates so we can prune early and produce ascending combinations for free. Do a depth-first search where at each step we either take the candidate at the current index (staying at that index, since it can be reused) or move on to the next index. Whenever the running sum equals target we record a copy of the current path; if it exceeds target we backtrack immediately. Sorting candidates up front makes each generated combination already ascending, and sorting the final result list makes the overall output deterministic.",
+      "code": "def combination_sum(candidates, target):\n    candidates = sorted(candidates)\n    results = []\n    path = []\n\n    def backtrack(start, remaining):\n        if remaining == 0:\n            results.append(list(path))\n            return\n        for i in range(start, len(candidates)):\n            c = candidates[i]\n            if c > remaining:\n                break\n            path.append(c)\n            backtrack(i, remaining - c)\n            path.pop()\n\n    backtrack(0, target)\n    results.sort()\n    return results\n",
+      "complexity": "Time O(2^target) worst case (bounded by number of valid combinations x combination length), Space O(target) recursion depth plus output size"
+    }
+  ]
+}

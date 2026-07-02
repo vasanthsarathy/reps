@@ -1,0 +1,33 @@
+{
+  "slug": "meeting-rooms-ii",
+  "title": "Meeting Rooms II",
+  "difficulty": "Medium",
+  "concepts": ["intervals", "heap", "sorting", "greedy"],
+  "source": "Blind75",
+  "description": "This time you're scheduling for a whole office, not just yourself. Given the same kind of `intervals` list of `[start, end]` meetings, work out the smallest number of separate rooms needed so that no two meetings assigned to the same room overlap. A room becomes free to reuse the instant its meeting ends -- if a new meeting starts at that exact moment, it can move right in.\n\n**Example**\n\n```\nintervals = [[0,30],[5,10],[15,20]]  ->  2\n```\n(`[0,30]` overlaps both other meetings, but `[5,10]` and `[15,20]` don't overlap each other, so 2 rooms suffice.)",
+  "entry_point": "min_meeting_rooms",
+  "starter_code": "def min_meeting_rooms(intervals):\n    # Return the minimum number of rooms needed to hold all meetings.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[[0, 30], [5, 10], [15, 20]]], "expected": 2},
+    {"args": [[[7, 10], [2, 4]]], "expected": 1},
+    {"args": [[]], "expected": 0},
+    {"args": [[[5, 8]]], "expected": 1},
+    {"args": [[[1, 5], [5, 10]]], "expected": 1},
+    {"args": [[[1, 10], [2, 6], [3, 5], [4, 7]]], "expected": 4},
+    {"args": [[[1, 10], [2, 3], [4, 5], [6, 7]]], "expected": 2}
+  ],
+  "hints": [
+    "Split each interval into a 'start' event and an 'end' event, sort all events by time, and sweep through them left to right.",
+    "When events tie on time, process 'end' events before 'start' events, since a meeting ending at time t frees a room that a meeting starting at time t can immediately reuse.",
+    "Keep a running count of rooms in use (increment on a start event, decrement on an end event) and track the maximum value that count ever reaches — that peak is the answer."
+  ],
+  "solutions": [
+    {
+      "name": "Min-heap of end times",
+      "explanation": "Sort meetings by start time and use a min-heap to track the end times of meetings currently occupying a room. For each meeting in order, if the room that frees up earliest (the heap's smallest end time) has already ended by the time the current meeting starts, pop it off and reuse that room; otherwise a new room is needed, so push the current meeting's end time onto the heap regardless. The heap's size after processing every meeting -- specifically its peak size -- is the minimum number of rooms required.",
+      "code": "import heapq\n\ndef min_meeting_rooms(intervals):\n    if not intervals:\n        return 0\n    ordered = sorted(intervals, key=lambda iv: iv[0])\n    heap = []\n    for start, end in ordered:\n        if heap and heap[0] <= start:\n            heapq.heapreplace(heap, end)\n        else:\n            heapq.heappush(heap, end)\n    return len(heap)\n",
+      "complexity": "Time O(n log n), Space O(n)"
+    }
+  ]
+}

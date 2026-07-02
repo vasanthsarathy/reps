@@ -1,0 +1,24 @@
+{
+  "slug": "maximum-product-subarray",
+  "title": "Maximum Product Subarray",
+  "difficulty": "Medium",
+  "concepts": ["dp"],
+  "source": "Blind75",
+  "description": "Scan through an integer array `nums`, which might contain negatives and zeros, looking for whichever contiguous stretch of elements multiplies together into the biggest possible product, then return that product. This is more subtle than summing: a pair of negative factors cancels out to a positive, so a stretch that currently multiplies to a deeply negative number can flip into the best answer the instant one more negative value joins it, meaning a single running best is not enough to track on its own.\n\n**Example**\n\n```\nnums = [2, 3, -2, 4]  ->  6    (the subarray [2, 3])\nnums = [-2, 3, -4]    ->  24   (the whole array: -2 * 3 * -4)\n```",
+  "entry_point": "max_product",
+  "starter_code": "def max_product(nums):\n    # Return the largest product of any contiguous subarray of nums.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[2, 3, -2, 4]], "expected": 6},
+    {"args": [[-2, 3, -4]], "expected": 24},
+    {"args": [[-2, 0, -1]], "expected": 0},
+    {"args": [[-1, -2, -3]], "expected": 6},
+    {"args": [[-2]], "expected": -2},
+    {"args": [[0, 2]], "expected": 2}
+  ],
+  "hints": ["Because two negative numbers multiply into a positive, track both a running maximum AND a running minimum product ending at each index.", "At each element, the new running max/min is the best/worst of: the element alone, the previous running max times the element, or the previous running min times the element.", "A zero breaks any run -- both running values collapse to zero and the next subarray effectively restarts from the following element."],
+  "solutions": [
+    {"name": "Brute-force all subarrays", "explanation": "Compute the product of every contiguous subarray directly by extending the end pointer for each start pointer, keeping a running best. Straightforward but quadratic.", "code": "def max_product(nums):\n    n = len(nums)\n    best = nums[0]\n    for i in range(n):\n        prod = 1\n        for j in range(i, n):\n            prod *= nums[j]\n            best = max(best, prod)\n    return best\n", "complexity": "Time O(n^2), Space O(1)"},
+    {"name": "Running max and min DP", "explanation": "Scan once, maintaining the maximum and minimum product of a subarray ending at the current index. A negative current element can turn the running minimum into the new running maximum, so both must be updated together from the same three candidates: the element alone, max-so-far * element, and min-so-far * element.", "code": "def max_product(nums):\n    best = cur_max = cur_min = nums[0]\n    for x in nums[1:]:\n        candidates = (x, cur_max * x, cur_min * x)\n        cur_max = max(candidates)\n        cur_min = min(candidates)\n        best = max(best, cur_max)\n    return best\n", "complexity": "Time O(n), Space O(1)"}
+  ]
+}

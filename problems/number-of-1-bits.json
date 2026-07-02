@@ -1,0 +1,22 @@
+{
+  "slug": "number-of-1-bits",
+  "title": "Number of 1 Bits",
+  "difficulty": "Easy",
+  "concepts": ["bit-manipulation"],
+  "source": "Blind75",
+  "description": "Take a non-negative integer `n` and look at its binary form. Count how many of its bits are set to `1` (this count is sometimes called the Hamming weight).\n\n**Example**\n\n```\nn = 11   (binary 1011)  ->  3\nn = 128  (binary 10000000)  ->  1\n```",
+  "entry_point": "hamming_weight",
+  "starter_code": "def hamming_weight(n):\n    # n: non-negative int. Return the count of set bits in its binary form.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [11], "expected": 3},
+    {"args": [128], "expected": 1},
+    {"args": [0], "expected": 0},
+    {"args": [4294967295], "expected": 32},
+    {"args": [1], "expected": 1}
+  ],
+  "hints": ["The trick n & (n - 1) clears the lowest set bit of n. Repeating this until n becomes 0 counts exactly as many times as there are set bits.", "This runs in time proportional to the number of set bits rather than the number of total bits, so it's faster than checking every bit position."],
+  "solutions": [
+    {"name": "Brian Kernighan's bit trick", "explanation": "Repeatedly clear the lowest set bit using n = n & (n - 1); each such operation removes exactly one 1 bit from n's binary representation. Counting how many times this can be done before n reaches 0 gives the Hamming weight, visiting only as many iterations as there are set bits.", "code": "def hamming_weight(n):\n    count = 0\n    while n:\n        n &= n - 1\n        count += 1\n    return count\n", "complexity": "Time O(k) where k is the number of set bits, Space O(1)"}
+  ]
+}

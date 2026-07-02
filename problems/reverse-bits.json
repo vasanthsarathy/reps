@@ -1,0 +1,22 @@
+{
+  "slug": "reverse-bits",
+  "title": "Reverse Bits",
+  "difficulty": "Easy",
+  "concepts": ["bit-manipulation"],
+  "source": "Blind75",
+  "description": "Given an integer `n`, treat it as a 32-bit unsigned integer (pad with leading zeros as needed) and return the integer formed by reversing the order of its 32 bits.\n\n**Example**\n\n```\nn = 43261596   (00000010100101000001111010011100)  ->  964176192   (00111001011110000010100101000000)\nn = 1                                                ->  2147483648\n```",
+  "entry_point": "reverse_bits",
+  "starter_code": "def reverse_bits(n):\n    # n: int, treated as a 32-bit unsigned integer. Return n with its 32 bits\n    # reversed, as an integer.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [43261596], "expected": 964176192},
+    {"args": [1], "expected": 2147483648},
+    {"args": [0], "expected": 0},
+    {"args": [4294967295], "expected": 4294967295},
+    {"args": [2147483648], "expected": 1}
+  ],
+  "hints": ["Build the result one bit at a time: shift the result left, OR in the lowest bit of n, then shift n right, for 32 iterations.", "Python ints are unbounded (no fixed 32-bit width), so nothing wraps automatically — just make sure the final result only ever has bits set within the 32-bit range, which the shift-and-OR construction guarantees."],
+  "solutions": [
+    {"name": "Bit-by-bit shift and OR", "explanation": "Process n's 32 bits one at a time from least significant to most significant. On each of 32 iterations, shift the accumulated result left by one to make room, OR in n's current lowest bit (n & 1), then shift n right to expose the next bit. After 32 iterations the bits have been placed in reverse order, producing the reversed 32-bit value directly (Python's unbounded ints don't need explicit masking here since only 32 bits are ever written into the result).", "code": "def reverse_bits(n):\n    result = 0\n    for _ in range(32):\n        result = (result << 1) | (n & 1)\n        n >>= 1\n    return result\n", "complexity": "Time O(32) = O(1), Space O(1)"}
+  ]
+}

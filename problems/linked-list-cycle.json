@@ -1,0 +1,31 @@
+{
+  "slug": "linked-list-cycle",
+  "title": "Linked List Cycle",
+  "difficulty": "Easy",
+  "concepts": ["linked-list", "two-pointers", "fast-slow-pointers"],
+  "source": "Blind75",
+  "description": "A singly linked list is described by a plain list of values, `values`, in head-to-tail order, plus an integer `pos`: the index (0-based) in `values` that the LAST node's `next` pointer is rewired to, forming a cycle back into the list. If `pos` is `-1`, the list is a normal, cycle-free chain. Determine whether the list (after wiring the cycle) contains a cycle.\n\n**Example**\n\n```\nvalues = [3, 2, 0, -4], pos = 1   (tail's next points back to index 1, value 2)\nhas_cycle(values, pos)  ->  True\n\nvalues = [1, 2], pos = -1        (no cycle)\nhas_cycle(values, pos)  ->  False\n```",
+  "entry_point": "has_cycle",
+  "starter_code": "def has_cycle(values, pos):\n    # values: list of node values head-to-tail.\n    # pos: index the tail's next points to, or -1 for no cycle.\n    # Return True if the list has a cycle, else False.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[3, 2, 0, -4], 1], "expected": true},
+    {"args": [[1, 2], -1], "expected": false},
+    {"args": [[1], 0], "expected": true},
+    {"args": [[1], -1], "expected": false},
+    {"args": [[], -1], "expected": false},
+    {"args": [[1, 2, 3, 4, 5], 0], "expected": true}
+  ],
+  "hints": [
+    "Build the actual nodes first, then wire the last node's next to the node at index pos (skip wiring if pos is -1 or the list is empty) so you have a real, possibly-cyclic linked list to traverse.",
+    "Use Floyd's tortoise-and-hare: a slow pointer moving one step and a fast pointer moving two steps at a time. If they ever meet, there's a cycle; if fast falls off the end (hits None), there isn't."
+  ],
+  "solutions": [
+    {
+      "name": "Build nodes + wire cycle, then fast/slow pointers",
+      "explanation": "Build real nodes for values and link them head-to-tail, keeping a list of node references so we can wire the cycle. If pos != -1 and the list is non-empty, set the last node's next to the node at index pos. Then run Floyd's cycle detection: slow advances one step, fast advances two steps per iteration; if they ever become the same node, a cycle exists. If fast (or fast.next) reaches None, there is no cycle.",
+      "code": "class _Node:\n    __slots__ = (\"val\", \"next\")\n    def __init__(self, val):\n        self.val = val\n        self.next = None\n\n\ndef has_cycle(values, pos):\n    if not values:\n        return False\n\n    nodes = [_Node(v) for v in values]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n    if pos != -1:\n        nodes[-1].next = nodes[pos]\n\n    slow = fast = nodes[0]\n    while fast is not None and fast.next is not None:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False\n",
+      "complexity": "Time O(n), Space O(1) (excluding the O(n) list construction)"
+    }
+  ]
+}

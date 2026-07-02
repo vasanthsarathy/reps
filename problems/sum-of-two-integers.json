@@ -1,0 +1,23 @@
+{
+  "slug": "sum-of-two-integers",
+  "title": "Sum of Two Integers",
+  "difficulty": "Medium",
+  "concepts": ["bit-manipulation"],
+  "source": "Blind75",
+  "description": "You're given two integers `a` and `b`, which might be negative, and asked to compute their sum -- except the `+` and `-` operators are forbidden, so you'll need to reach for bitwise operations instead.\n\n**Example**\n\n```\na = 1, b = 2    ->  3\na = -12, b = 8  ->  -4\n```",
+  "entry_point": "get_sum",
+  "starter_code": "def get_sum(a, b):\n    # a, b: ints (may be negative). Return a + b without using + or -.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [1, 2], "expected": 3},
+    {"args": [-1, 1], "expected": 0},
+    {"args": [-12, 8], "expected": -4},
+    {"args": [0, 0], "expected": 0},
+    {"args": [5, -7], "expected": -2},
+    {"args": [-5, -9], "expected": -14}
+  ],
+  "hints": ["XOR of two bits gives the sum ignoring carry; AND of two bits, shifted left one place, gives the carry that needs to be added in. Repeat until there's no carry left.", "Python integers have unbounded width, so negative numbers don't naturally wrap into two's-complement form the way they do in a fixed 32-bit language. Mask intermediate results to 32 bits with 0xFFFFFFFF, and at the very end, if the masked result's sign bit (bit 31) is set, convert it back to a negative Python int by computing ~(result ^ 0xFFFFFFFF)."],
+  "solutions": [
+    {"name": "Bitwise add with 32-bit masking", "explanation": "Without +/-, addition is simulated bit by bit: XOR produces the sum of each bit position ignoring carries, and AND (shifted left one) produces the carry that must be folded back in. Repeating 'a, b = (a ^ b), carry' until there's no carry left (b becomes 0) computes the full sum. Because Python integers are arbitrary-precision, negative numbers don't behave like fixed-width two's-complement values under these operations, so every intermediate value is masked to 32 bits with 0xFFFFFFFF to emulate 32-bit wraparound. Once the loop ends, if the 32-bit result's top bit is set it represents a negative number in two's complement, so it's converted back to a proper negative Python int via ~(a ^ mask).", "code": "def get_sum(a, b):\n    mask = 0xFFFFFFFF\n    a &= mask\n    b &= mask\n    while b:\n        carry = (a & b) << 1\n        a = (a ^ b) & mask\n        b = carry & mask\n    if a <= 0x7FFFFFFF:\n        return a\n    return ~(a ^ mask)\n", "complexity": "Time O(1) (bounded by 32 bit positions), Space O(1)"}
+  ]
+}

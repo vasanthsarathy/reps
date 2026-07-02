@@ -1,0 +1,32 @@
+{
+  "slug": "add-and-search-words",
+  "title": "Design Add and Search Words Data Structure",
+  "difficulty": "Medium",
+  "concepts": ["trie", "design", "dfs", "strings"],
+  "source": "Blind75",
+  "description": "This is an operation-sequence problem: your function receives `operations`, a list where each element is itself a list `[method, *args]`. The first operation is always `[\"WordDictionary\"]`, the constructor. For each subsequent operation, call the named method with the given args on the same data structure instance, in order. Return a list with one result per operation (constructor and void methods contribute `null`).\n\nImplement a word dictionary supporting:\n- `addWord(word)` — adds `word` to the structure. Void (`null`).\n- `search(word)` — returns `true` if some previously added word matches `word` exactly, where `word` may contain `.` characters that each match any single letter. Returns `false` otherwise.\n\n**Example**\n\n```\noperations = [[\"WordDictionary\"],[\"addWord\",\"bad\"],[\"addWord\",\"dad\"],[\"addWord\",\"mad\"],[\"search\",\"pad\"],[\"search\",\"bad\"],[\"search\",\".ad\"],[\"search\",\"b..\"]]\n->            [null,               null,               null,               null,               false,               true,               true,             true]\n```",
+  "entry_point": "word_dictionary_ops",
+  "starter_code": "def word_dictionary_ops(operations):\n    # operations: list of [method, *args]; operations[0] == [\"WordDictionary\"] is the constructor.\n    # '.' in a search word matches any single letter.\n    # Return a list with one result per operation (null for constructor/void methods).\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[["WordDictionary"],["addWord","bad"],["addWord","dad"],["addWord","mad"],["search","pad"],["search","bad"],["search",".ad"],["search","b.."]]], "expected": [null, null, null, null, false, true, true, true]},
+    {"args": [[["WordDictionary"],["search","a"]]], "expected": [null, false]},
+    {"args": [[["WordDictionary"],["search","."]]], "expected": [null, false]},
+    {"args": [[["WordDictionary"],["addWord",""],["search",""],["search","."]]], "expected": [null, null, true, false]},
+    {"args": [[["WordDictionary"],["addWord","a"],["addWord","a"],["search","."],["search",".."],["search","a"]]], "expected": [null, null, null, true, false, true]},
+    {"args": [[["WordDictionary"],["addWord","abc"],["addWord","abd"],["search","ab."],["search","..."],["search","a.c"],["search","...."]]], "expected": [null, null, null, true, true, true, false]}
+  ],
+  "hints": [
+    "Store words in a trie just like Implement Trie, keyed by character, with an is_word flag at terminal nodes.",
+    "search needs a recursive/DFS helper because a '.' can branch into every child at that position; a plain iterative walk (as in a normal trie search) only works for literal characters.",
+    "At each position: if the current character is '.', recurse into ALL children at that depth and return true if ANY branch succeeds; if it's a literal character, only recurse if that exact child exists. Base case: end of the search string reached AND the current node's is_word flag is set."
+  ],
+  "solutions": [
+    {
+      "name": "Trie + DFS search for wildcard matching",
+      "explanation": "Words are stored in a standard trie of dict-based nodes with an `is_word` flag, exactly as in a plain trie. The difference is in lookup: because `.` can stand for any letter, search is implemented as a recursive DFS over (node, index) pairs rather than a single deterministic walk. At each index, if the character is a literal letter, the search only continues into that one matching child (if it exists); if the character is `.`, the search fans out into every child of the current node, and the overall result is true if ANY of those branches leads to a full match. The recursion bottoms out when the index reaches the end of the query string, at which point the match succeeds only if the current node marks the end of a real word. This DFS is what distinguishes the wildcard dictionary from Implement Trie's simple iterative search.",
+      "code": "def word_dictionary_ops(operations):\n    class TrieNode:\n        __slots__ = (\"children\", \"is_word\")\n\n        def __init__(self):\n            self.children = {}\n            self.is_word = False\n\n    class WordDictionary:\n        def __init__(self):\n            self.root = TrieNode()\n\n        def addWord(self, word):\n            node = self.root\n            for ch in word:\n                if ch not in node.children:\n                    node.children[ch] = TrieNode()\n                node = node.children[ch]\n            node.is_word = True\n\n        def search(self, word):\n            def dfs(node, i):\n                if i == len(word):\n                    return node.is_word\n                ch = word[i]\n                if ch == \".\":\n                    return any(dfs(child, i + 1) for child in node.children.values())\n                child = node.children.get(ch)\n                return child is not None and dfs(child, i + 1)\n\n            return dfs(self.root, 0)\n\n    results = []\n    wd = None\n    for op in operations:\n        method, args = op[0], op[1:]\n        if method == \"WordDictionary\":\n            wd = WordDictionary()\n            results.append(None)\n        elif method == \"addWord\":\n            wd.addWord(*args)\n            results.append(None)\n        elif method == \"search\":\n            results.append(wd.search(*args))\n    return results\n",
+      "complexity": "Time O(26^k * L) worst case per search where k is the number of '.' characters and L the word length, Space O(total characters added)"
+    }
+  ]
+}

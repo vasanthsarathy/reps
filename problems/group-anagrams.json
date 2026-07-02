@@ -1,0 +1,23 @@
+{
+  "slug": "group-anagrams",
+  "title": "Group Anagrams",
+  "difficulty": "Medium",
+  "concepts": ["hashing", "strings", "sorting"],
+  "source": "Blind75",
+  "description": "You are given a list of lowercase strings. Cluster the strings so that every string in a cluster is an anagram of every other string in that cluster (same letters, same counts, different order allowed). Return the clusters.\n\nBecause the grouping itself carries no inherent order, make your output deterministic: within each group, sort the strings alphabetically, and sort the groups themselves alphabetically by their first (smallest) string.\n\n**Example**\n\n```\ngroup_anagrams([\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"])\n# -> [[\"ate\", \"eat\", \"tea\"], [\"bat\"], [\"nat\", \"tan\"]]\n```",
+  "entry_point": "group_anagrams",
+  "starter_code": "def group_anagrams(strs):\n    # Return groups of anagrams; sort each group and sort the groups.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [["eat", "tea", "tan", "ate", "nat", "bat"]], "expected": [["ate", "eat", "tea"], ["bat"], ["nat", "tan"]]},
+    {"args": [[""]], "expected": [[""]]},
+    {"args": [["a"]], "expected": [["a"]]},
+    {"args": [[]], "expected": []},
+    {"args": [["abc", "cba", "bac", "foo"]], "expected": [["abc", "bac", "cba"], ["foo"]]}
+  ],
+  "hints": ["Two strings are anagrams iff their sorted-letter forms are identical -- use that sorted form as a hash-map key.", "After grouping by key, sort each group's strings and then sort the list of groups (e.g. by each group's first element) so the output is deterministic."],
+  "solutions": [
+    {"name": "Brute-force pairwise comparison", "explanation": "Compare every string against every existing group's representative using a sorted-character check, placing it in the first matching group or starting a new one. Then sort everything for a deterministic result.", "code": "def group_anagrams(strs):\n    groups = []\n    for s in strs:\n        placed = False\n        for g in groups:\n            if sorted(g[0]) == sorted(s):\n                g.append(s)\n                placed = True\n                break\n        if not placed:\n            groups.append([s])\n    groups = [sorted(g) for g in groups]\n    groups.sort()\n    return groups\n", "complexity": "Time O(n^2 * k log k), Space O(n * k)"},
+    {"name": "Hash map keyed by sorted letters", "explanation": "For each string, compute its sorted-character signature; strings that are anagrams share the same signature. Group strings in a dict keyed by that signature in a single pass, then sort each group and sort the list of groups for a deterministic result.", "code": "from collections import defaultdict\n\ndef group_anagrams(strs):\n    buckets = defaultdict(list)\n    for s in strs:\n        key = ''.join(sorted(s))\n        buckets[key].append(s)\n    groups = [sorted(g) for g in buckets.values()]\n    groups.sort()\n    return groups\n", "complexity": "Time O(n * k log k), Space O(n * k)"}
+  ]
+}

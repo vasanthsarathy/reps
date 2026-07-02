@@ -1,0 +1,23 @@
+{
+  "slug": "binary-tree-maximum-path-sum",
+  "title": "Binary Tree Maximum Path Sum",
+  "difficulty": "Hard",
+  "concepts": ["trees", "recursion", "dfs"],
+  "source": "Blind75",
+  "description": "You're given a binary tree with at least one node, encoded as a level-order list where `null` stands in for a missing child. Consider a **path** to be any unbroken chain of nodes formed by following parent-child edges, never revisiting a node; it's free to begin and end at any two nodes (or even sit at just one node) and has no obligation to touch the root. Out of every such path the tree contains, report the one whose node values add up to the most.\n\n**Example**\n\n```\nmax_path_sum([-10, 9, 20, null, null, 15, 7])\n# -> 42\n#\n#        -10\n#        /  \\\n#       9   20\n#           /  \\\n#         15    7\n#\n# Best path is 15 -> 20 -> 7 = 42 (skips the root entirely).\n```",
+  "entry_point": "max_path_sum",
+  "starter_code": "def max_path_sum(root):\n    # root: level-order list with None for missing nodes (at least one node).\n    # Return the maximum sum along any node-to-node path.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 3]], "expected": 6},
+    {"args": [[-10, 9, 20, null, null, 15, 7]], "expected": 42},
+    {"args": [[-3]], "expected": -3},
+    {"args": [[2, -1]], "expected": 2},
+    {"args": [[1, -2, -3]], "expected": 1},
+    {"args": [[-3, -2, -1]], "expected": -1}
+  ],
+  "hints": ["For each node, define its 'gain' as the best sum of a path that starts at that node and goes down into at most one child -- this is the only shape usable if the path continues upward through the node's parent.", "A negative gain from a child is worse than not using that child at all, so clamp each child's gain to 0 before adding it.", "The best path THROUGH a node (as its highest point) can use BOTH children at once: node.val + left_gain + right_gain. Track the maximum of this quantity across all nodes as you recurse -- that's the answer -- while the value you RETURN from each call is only node.val + max(left_gain, right_gain), since a path handed to the parent can't branch."],
+  "solutions": [
+    {"name": "Post-order DFS tracking best-through-node sum", "explanation": "Rebuild the tree, then run a post-order DFS. For each node, recursively get the best downward-only gain from its left and right children, clamping negative gains to 0 (better to skip a child than subtract from the path). The best path with this node as its highest point is node.val + left_gain + right_gain -- update a running global maximum with that value at every node. What the call returns to its parent, though, is only node.val + max(left_gain, right_gain), since a path continuing through the parent can extend into just one side of this node, not both. The global maximum after the full traversal is the answer.", "code": "from collections import deque\n\n\nclass _N:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, v): self.val = v; self.left = None; self.right = None\n\n\ndef _build(vals):\n    if not vals or vals[0] is None: return None\n    root = _N(vals[0]); q = deque([root]); i = 1\n    while q and i < len(vals):\n        n = q.popleft()\n        if i < len(vals):\n            if vals[i] is not None: n.left = _N(vals[i]); q.append(n.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] is not None: n.right = _N(vals[i]); q.append(n.right)\n            i += 1\n    return root\n\n\ndef max_path_sum(root):\n    r = _build(root)\n    best = [float('-inf')]\n\n    def gain(node):\n        if node is None:\n            return 0\n        left_gain = max(gain(node.left), 0)\n        right_gain = max(gain(node.right), 0)\n        best[0] = max(best[0], node.val + left_gain + right_gain)\n        return node.val + max(left_gain, right_gain)\n\n    gain(r)\n    return best[0]\n", "complexity": "Time O(n), Space O(h)"}
+  ]
+}
