@@ -218,6 +218,9 @@ def _gen_inputs(rng, spec, use_torch):
     dtype = spec.get("dtype", "float32")
     args = []
     for name, shape in spec["shapes"].items():
+        if isinstance(shape, int):
+            args.append(shape)  # scalar constant arg (e.g. k, a size)
+            continue
         shape = tuple(shape)
         if "int" in dtype:
             a = rng.integers(int(lo), int(hi) + 1, size=shape).astype(dtype)
@@ -253,8 +256,9 @@ def _main():
         shapes = {k: list(np.asarray(_to_np(a) if _to_np(a) is not None else a).shape) for k, a in zip(spec["shapes"], args)}
         row = {"args": shapes}
         try:
-            expected = ref(*[a.clone() if hasattr(a, "clone") else a.copy() for a in args])
-            got = usr(*[a.clone() if hasattr(a, "clone") else a.copy() for a in args])
+            _dup = lambda a: a.clone() if hasattr(a, "clone") else (a.copy() if hasattr(a, "copy") else a)
+            expected = ref(*[_dup(a) for a in args])
+            got = usr(*[_dup(a) for a in args])
             passed, note, mae = _compare(got, expected, mode, rtol, atol)
             row["got"] = _fmt(got); row["expected"] = _fmt(expected); row["passed"] = passed
             if note: row["note"] = note

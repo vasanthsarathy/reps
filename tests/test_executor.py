@@ -213,3 +213,15 @@ def test_autograd_forward_exception_fails_gracefully():
     assert r["error"] == ""
     assert all(row["passed"] is False for row in r["results"])
     assert any("ValueError" in row["got"] for row in r["results"])
+
+
+def test_reference_scalar_const_arg():
+    # random_tests.shapes with an int value passes a constant scalar arg (e.g. k).
+    ref = "import numpy as np\ndef f(x, k):\n    return x * k\n"
+    rt = {"count": 4, "shapes": {"x": [4], "k": 3}, "dtype": "float32", "range": [-2, 2], "seed": 0}
+    from app.executor import run_reference_tests
+    ok = run_reference_tests(ref, "f", ref, rt, "close", ["numpy"])
+    assert ok["all_passed"] is True and ok["total"] == 4
+    wrong = "import numpy as np\ndef f(x, k):\n    return x * (k + 1)\n"
+    bad = run_reference_tests(wrong, "f", ref, rt, "close", ["numpy"])
+    assert bad["all_passed"] is False
