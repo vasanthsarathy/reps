@@ -152,14 +152,180 @@ function wire() {
   $("#browse-close").onclick = closeBrowse;
   $("#browse-search").oninput = (e) => renderBrowse(filterItems(e.target.value));
   $("#browse-overlay").onclick = (e) => { if (e.target.id === "browse-overlay") closeBrowse(); };
+  $("#dashboard-btn").onclick = openDashboard;
+  $("#dashboard-close").onclick = closeDashboard;
+  $("#dashboard-overlay").onclick = (e) => { if (e.target.id === "dashboard-overlay") closeDashboard(); };
   $("#focus-select").onchange = (e) => {
     activeFocus = e.target.value;
     localStorage.setItem("reps_focus", activeFocus);
     goNext();
   };
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !$("#browse-overlay").hidden) closeBrowse();
+    if (e.key !== "Escape") return;
+    if (!$("#browse-overlay").hidden) closeBrowse();
+    if (!$("#dashboard-overlay").hidden) closeDashboard();
   });
+}
+
+// ---- Dashboard panel ----
+async function openDashboard() {
+  const s = await api("/stats");
+  renderDashboard(s);
+  $("#dashboard-overlay").hidden = false;
+}
+
+function closeDashboard() {
+  $("#dashboard-overlay").hidden = true;
+}
+
+function dashSection(title) {
+  const sec = document.createElement("div");
+  sec.className = "dash-section";
+  const h = document.createElement("h3");
+  h.textContent = title;
+  sec.appendChild(h);
+  return sec;
+}
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function renderProgressSection(s) {
+  const sec = dashSection("Progress");
+  const overall = document.createElement("div");
+  overall.className = "dash-line";
+  overall.textContent = `${s.overall.attempted}/${s.overall.total} attempted`;
+  sec.appendChild(overall);
+  [["coding", "Coding"], ["ml", "ML"]].forEach(([key, label]) => {
+    const t = s.by_track[key];
+    if (!t) return;
+    const line = document.createElement("div");
+    line.className = "dash-line dash-line-sub";
+    line.textContent = `${label}: ${t.attempted}/${t.total} attempted · ${t.due} due`;
+    sec.appendChild(line);
+  });
+  return sec;
+}
+
+function renderStagesSection(s) {
+  const sec = dashSection("Stages");
+  const row = document.createElement("div");
+  row.className = "dash-chip-row";
+  ["new", "learning", "reviewing"].forEach((k) => {
+    const chip = document.createElement("span");
+    chip.className = "dash-stage-chip";
+    chip.textContent = `${cap(k)}: ${s.stages[k] || 0}`;
+    row.appendChild(chip);
+  });
+  sec.appendChild(row);
+  return sec;
+}
+
+function renderRatingsSection(s) {
+  const sec = dashSection("Ratings");
+  const row = document.createElement("div");
+  row.className = "dash-chip-row";
+  ["easy", "good", "hard", "hint", "peeked"].forEach((level) => {
+    const chip = document.createElement("span");
+    chip.className = "chip " + level;
+    chip.textContent = `${level}: ${s.ratings[level] || 0}`;
+    row.appendChild(chip);
+  });
+  sec.appendChild(row);
+  return sec;
+}
+
+function renderConceptsSection(s) {
+  const sec = dashSection("Problem areas");
+  const caption = document.createElement("div");
+  caption.className = "dash-caption";
+  caption.textContent = "lowest clean-rate first";
+  sec.appendChild(caption);
+
+  const table = document.createElement("table");
+  table.className = "dash-concepts";
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  ["Concept", "Attempts", "Clean rate"].forEach((h) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  (s.concepts || []).forEach((row) => {
+    const tr = document.createElement("tr");
+    const tagTd = document.createElement("td");
+    tagTd.textContent = row.tag;
+    const attemptsTd = document.createElement("td");
+    attemptsTd.textContent = String(row.attempts);
+    const rateTd = document.createElement("td");
+    const bar = document.createElement("div");
+    bar.className = "rate-bar";
+    const fill = document.createElement("div");
+    fill.className = "rate-bar-fill";
+    fill.style.width = Math.round(row.rate * 100) + "%";
+    bar.appendChild(fill);
+    const pct = document.createElement("span");
+    pct.className = "rate-bar-pct";
+    pct.textContent = Math.round(row.rate * 100) + "%";
+    rateTd.appendChild(bar);
+    rateTd.appendChild(pct);
+    tr.appendChild(tagTd); tr.appendChild(attemptsTd); tr.appendChild(rateTd);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  sec.appendChild(table);
+  return sec;
+}
+
+function shortTime(ts) {
+  if (!ts) return "";
+  const m = String(ts).match(/^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})$/);
+  if (!m) return ts;
+  const d = new Date(`${m[1]}T${m[2]}:${m[3]}:${m[4]}`);
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+    " " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
+function renderRecentSection(s) {
+  const sec = dashSection("Recent");
+  const list = document.createElement("div");
+  list.className = "dash-recent-list";
+  (s.recent || []).forEach((r) => {
+    const row = document.createElement("div");
+    row.className = "dash-recent-row";
+    const slug = document.createElement("span");
+    slug.className = "dash-recent-slug";
+    slug.textContent = r.slug || "";
+    const result = document.createElement("span");
+    result.className = "chip " + (r.result || "");
+    result.textContent = r.result || "";
+    const time = document.createElement("span");
+    time.className = "dash-recent-time";
+    time.textContent = shortTime(r.timestamp);
+    row.appendChild(slug); row.appendChild(result); row.appendChild(time);
+    list.appendChild(row);
+  });
+  if (!(s.recent || []).length) {
+    const empty = document.createElement("div");
+    empty.className = "dash-empty";
+    empty.textContent = "No attempts yet.";
+    list.appendChild(empty);
+  }
+  sec.appendChild(list);
+  return sec;
+}
+
+function renderDashboard(s) {
+  const body = $("#dashboard-body");
+  body.innerHTML = "";
+  body.appendChild(renderProgressSection(s));
+  body.appendChild(renderStagesSection(s));
+  body.appendChild(renderRatingsSection(s));
+  body.appendChild(renderConceptsSection(s));
+  body.appendChild(renderRecentSection(s));
 }
 
 // ---- Browse panel ----

@@ -59,6 +59,17 @@ def append_session(sessions_dir: Path, session: dict) -> Path:
     return path
 
 
+def load_sessions(sessions_dir: Path) -> list[dict]:
+    """Load all attempt-log JSONs from data/sessions/ (empty list if missing/corrupt)."""
+    out = []
+    for path in sorted(Path(sessions_dir).glob("*.json")):
+        try:
+            out.append(json.loads(path.read_text(encoding="utf-8")))
+        except (ValueError, OSError):
+            continue
+    return out
+
+
 def record_attempt(schedule: dict, slug: str, problem: Problem, level: str,
                    today: str, config: dict) -> dict:
     problems = {k: dict(v) for k, v in schedule.get("problems", {}).items()}
