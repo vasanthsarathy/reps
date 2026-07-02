@@ -1,0 +1,31 @@
+{
+  "slug": "rl-softmax-policy",
+  "track": "ml",
+  "source": "RL",
+  "title": "Softmax Policy over Action-Values",
+  "difficulty": "Easy",
+  "concepts": ["reinforcement-learning", "activations"],
+  "libraries": ["numpy"],
+  "description": "Given action-value scores $z \\in \\mathbb{R}^{n\\times k}$ for $n$ states and $k$ discrete actions, convert them into a stochastic policy by applying softmax over the action axis at temperature 1:\n$$\\pi(a|s) = \\dfrac{e^{z_{s,a}}}{\\sum_{a'} e^{z_{s,a'}}}$$\n\nSubtract the row max before exponentiating for numerical stability. Implement `softmax_policy(action_values)` returning the per-state action-probability matrix. **Shape**: `action_values`: (4, 5) -> returns (4, 5), each row summing to 1.",
+  "entry_point": "softmax_policy",
+  "starter_code": "import numpy as np\n\ndef softmax_policy(action_values):\n    # TODO: numerically stable softmax over the last axis\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-5,
+  "atol": 1e-8,
+  "reference": "import numpy as np\n\ndef softmax_policy(action_values):\n    z = np.asarray(action_values, dtype=np.float64)\n    z = z - z.max(axis=-1, keepdims=True)\n    e = np.exp(z)\n    return e / e.sum(axis=-1, keepdims=True)\n",
+  "random_tests": {"count": 20, "shapes": {"action_values": [4, 5]}, "dtype": "float32", "range": [-3, 3], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Subtract `action_values.max(axis=-1, keepdims=True)` before `np.exp` so exponents stay $\\le 0$.",
+    "Normalize by dividing by the row sum with `keepdims=True` so broadcasting stays aligned."
+  ],
+  "solutions": [
+    {
+      "name": "Stable row-wise softmax",
+      "explanation": "Shifting each row by its max before exponentiating leaves the softmax output unchanged (the shift cancels between numerator and denominator) while keeping every exponent $\\le 0$, avoiding overflow; dividing by the row sum turns the action-values into a valid probability distribution over actions per state.",
+      "code": "import numpy as np\n\ndef softmax_policy(action_values):\n    z = np.asarray(action_values, dtype=np.float64)\n    z = z - z.max(axis=-1, keepdims=True)\n    e = np.exp(z)\n    return e / e.sum(axis=-1, keepdims=True)\n",
+      "complexity": "O(n*k)"
+    }
+  ]
+}

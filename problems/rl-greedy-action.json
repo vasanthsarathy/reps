@@ -1,0 +1,31 @@
+{
+  "slug": "rl-greedy-action",
+  "track": "ml",
+  "source": "RL",
+  "title": "Greedy Action Selection from Q-Values",
+  "difficulty": "Easy",
+  "concepts": ["reinforcement-learning"],
+  "libraries": ["numpy"],
+  "description": "Given action-value estimates $Q(s,a)$ for $n$ states and $k$ discrete actions, select the greedy action in each state — the action with the highest $Q$-value:\n$$a^*(s) = \\arg\\max_a Q(s,a)$$\n\nImplement `greedy_action(q_values)` returning a 1-D integer array of the chosen action index per state. **Shape**: `q_values`: (4, 5) -> returns (4,) of integer indices.",
+  "entry_point": "greedy_action",
+  "starter_code": "import numpy as np\n\ndef greedy_action(q_values):\n    # TODO: argmax over the action axis (axis=1)\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef greedy_action(q_values):\n    q_values = np.asarray(q_values)\n    return q_values.argmax(axis=1)\n",
+  "random_tests": {"count": 20, "shapes": {"q_values": [4, 5]}, "dtype": "float32", "range": [-3, 3], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "`np.argmax` along `axis=1` returns the column index of the largest value in each row.",
+    "Ties are broken by NumPy's default (lowest index), matching the reference; random continuous inputs make exact ties vanishingly unlikely."
+  ],
+  "solutions": [
+    {
+      "name": "Row-wise argmax",
+      "explanation": "The greedy policy picks the action with the highest estimated value in each state; `argmax(axis=1)` scans each row of the $Q$-value matrix independently and returns the winning action index per state.",
+      "code": "import numpy as np\n\ndef greedy_action(q_values):\n    q_values = np.asarray(q_values)\n    return q_values.argmax(axis=1)\n",
+      "complexity": "O(n*k)"
+    }
+  ]
+}
