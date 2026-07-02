@@ -225,3 +225,14 @@ def test_reference_scalar_const_arg():
     wrong = "import numpy as np\ndef f(x, k):\n    return x * (k + 1)\n"
     bad = run_reference_tests(wrong, "f", ref, rt, "close", ["numpy"])
     assert bad["all_passed"] is False
+
+
+def test_reference_per_arg_dtype_and_range():
+    # dtype/range may be dicts keyed by input name: float features + int labels.
+    ref = "import numpy as np\ndef f(x, y):\n    return x.sum() + y.sum()\n"
+    rt = {"count": 3, "shapes": {"x": [4], "y": [4]},
+          "dtype": {"x": "float32", "y": "int64"},
+          "range": {"x": [-1, 1], "y": [0, 2]}, "seed": 0}
+    from app.executor import run_reference_tests
+    r = run_reference_tests(ref, "f", ref, rt, "close", ["numpy"])
+    assert r["all_passed"] is True and r["total"] == 3

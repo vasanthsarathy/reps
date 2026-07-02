@@ -214,14 +214,19 @@ def run_tests(code: str, entry_point: str, tests: list[dict],
 _REF_HARNESS = _COMPARE_SRC + r'''
 def _gen_inputs(rng, spec, use_torch):
     import numpy as np
-    lo, hi = spec.get("range", [-1, 1])
-    dtype = spec.get("dtype", "float32")
+    g_range = spec.get("range", [-1, 1])
+    g_dtype = spec.get("dtype", "float32")
+    def _res(v, name, default):
+        # dtype/range may be a single value (global) or a dict keyed by input name.
+        return v.get(name, default) if isinstance(v, dict) else v
     args = []
     for name, shape in spec["shapes"].items():
         if isinstance(shape, int):
             args.append(shape)  # scalar constant arg (e.g. k, a size)
             continue
         shape = tuple(shape)
+        dtype = _res(g_dtype, name, "float32")
+        lo, hi = _res(g_range, name, [-1, 1])
         if "int" in dtype:
             a = rng.integers(int(lo), int(hi) + 1, size=shape).astype(dtype)
         else:
