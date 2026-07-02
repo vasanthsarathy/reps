@@ -268,6 +268,82 @@ _main()
 '''
 
 
+_AUTOGRAD_HARNESS = _COMPARE_SRC + r'''
+def _main():
+    import numpy as np, torch
+    payload = json.loads(sys.stdin.read())
+    spec = payload["random_tests"]
+    rtol = float(payload.get("rtol", 1e-4)); atol = float(payload.get("atol", 1e-6))
+    fns, uns = {}, {}
+    try:
+        exec(payload["forward"], fns); exec(payload["code"], uns)
+    except Exception:
+        print(json.dumps({"harness_error": "Error while loading code:\n" + traceback.format_exc()})); return
+    fwd = fns.get("forward"); usr = uns.get(payload["entry_point"])
+    if not callable(fwd) or not callable(usr):
+        print(json.dumps({"harness_error": "Missing forward or entry_point."})); return
+    rng = np.random.default_rng(spec.get("seed", 0))
+    lo, hi = spec.get("range", [-2, 2]); shape = tuple(next(iter(spec["shapes"].values())))
+    results = []
+    for _ in range(spec.get("count", 5)):
+        xa = (rng.random(shape) * (hi - lo) + lo).astype("float32")
+        x = torch.tensor(xa, requires_grad=True)
+        out = fwd(x)
+        g = torch.tensor((rng.random(tuple(out.shape)) * 2 - 1).astype("float32"))
+        true_dx, = torch.autograd.grad(out, x, grad_outputs=g, retain_graph=False)
+        row = {"args": {"x": list(shape)}}
+        try:
+            got = usr(torch.tensor(xa), torch.tensor(g.detach().numpy()))
+            passed, note, mae = _compare(got, true_dx.detach(), "close", rtol, atol)
+            row["got"] = _fmt(got); row["expected"] = _fmt(true_dx.detach()); row["passed"] = passed
+            if note: row["note"] = note
+            if (not passed) and mae is not None: row["max_abs_err"] = mae
+        except Exception:
+            row["got"] = traceback.format_exc().strip().splitlines()[-1]; row["passed"] = False
+        results.append(row)
+    print(json.dumps({"results": results}))
+_main()
+'''
+
+
+def run_autograd_tests(code: str, entry_point: str, forward: str, random_tests: dict,
+                       timeout: float = 10.0, rtol: float = 1e-4, atol: float = 1e-6) -> dict:
+    payload = json.dumps({"code": code, "entry_point": entry_point, "forward": forward,
+                          "random_tests": random_tests, "rtol": rtol, "atol": atol})
+    total = random_tests.get("count", 5)
+    with tempfile.TemporaryDirectory() as td:
+        harness = Path(td) / "autograd_harness.py"
+        harness.write_text(_AUTOGRAD_HARNESS, encoding="utf-8")
+        start = time.perf_counter()
+        try:
+            proc = subprocess.run(
+                [sys.executable, str(harness)], input=payload,
+                capture_output=True, text=True, timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            return {"results": [], "passed": 0, "total": total,
+                    "all_passed": False, "error": f"Timed out after {timeout:g}s",
+                    "timed_out": True,
+                    "runtime_ms": int((time.perf_counter() - start) * 1000)}
+        runtime_ms = int((time.perf_counter() - start) * 1000)
+        try:
+            out = json.loads(proc.stdout.strip().splitlines()[-1])
+        except (ValueError, IndexError):
+            return {"results": [], "passed": 0, "total": total,
+                    "all_passed": False,
+                    "error": proc.stderr or "No output from test harness.",
+                    "timed_out": False, "runtime_ms": runtime_ms}
+        if "harness_error" in out:
+            return {"results": [], "passed": 0, "total": total,
+                    "all_passed": False, "error": out["harness_error"],
+                    "timed_out": False, "runtime_ms": runtime_ms}
+        results = out["results"]
+        passed = sum(1 for r in results if r["passed"])
+        return {"results": results, "passed": passed, "total": len(results),
+                "all_passed": passed == len(results) and len(results) > 0,
+                "error": "", "timed_out": False, "runtime_ms": runtime_ms}
+
+
 def run_reference_tests(code: str, entry_point: str, reference: str, random_tests: dict,
                         compare: str = "close", libraries: list[str] | None = None,
                         timeout: float = 10.0, rtol: float = 1e-4, atol: float = 1e-6,

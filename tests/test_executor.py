@@ -1,4 +1,4 @@
-from app.executor import run, run_tests, run_reference_tests, check_banned
+from app.executor import run, run_tests, run_reference_tests, run_autograd_tests, check_banned
 
 
 def test_banned_bare_name_detected():
@@ -183,3 +183,20 @@ def test_run_reference_tests_short_circuits_on_banned_token():
     assert "sum" in r["error"]
     assert r["results"] == []
     assert r["total"] == 0
+
+
+RELU_FWD = "import torch\ndef forward(x):\n    return x.relu()\n"
+AUTOGRAD_RT = {"count": 4, "shapes": {"x": [6]}, "dtype": "float32", "range": [-2, 2], "seed": 0, "mode": "autograd"}
+
+
+def test_autograd_correct_grad_passes():
+    # user returns g * (x > 0)
+    user = "import torch\ndef relu_backward(x, g):\n    return g * (x > 0).to(g.dtype)\n"
+    r = run_autograd_tests(user, "relu_backward", RELU_FWD, AUTOGRAD_RT)
+    assert r["all_passed"] is True
+
+
+def test_autograd_wrong_grad_fails():
+    user = "import torch\ndef relu_backward(x, g):\n    return g\n"  # ignores the mask
+    r = run_autograd_tests(user, "relu_backward", RELU_FWD, AUTOGRAD_RT)
+    assert r["all_passed"] is False

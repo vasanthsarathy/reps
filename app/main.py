@@ -76,8 +76,18 @@ def submit(body: SubmitBody):
     p = _problems().get(body.slug)
     if not p:
         raise HTTPException(404, f"No problem {body.slug!r}")
-    return executor.run_tests(body.code, p.entry_point,
-                              [t.model_dump() for t in p.tests], p.compare)
+    rt = p.random_tests
+    if p.reference and rt and rt.get("mode") == "autograd":
+        result = executor.run_autograd_tests(body.code, p.entry_point, p.reference, rt,
+                                             rtol=p.rtol, atol=p.atol)
+    elif p.reference and rt:
+        result = executor.run_reference_tests(body.code, p.entry_point, p.reference, rt,
+                                              p.compare, p.libraries, rtol=p.rtol, atol=p.atol,
+                                              banned=p.banned)
+    else:
+        result = executor.run_tests(body.code, p.entry_point, [t.model_dump() for t in p.tests],
+                                    p.compare, rtol=p.rtol, atol=p.atol, banned=p.banned)
+    return result
 
 
 @app.post("/api/attempt")
