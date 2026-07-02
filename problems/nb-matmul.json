@@ -1,0 +1,37 @@
+{
+  "slug": "nb-matmul",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Matrix Multiplication",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics", "linear-algebra"],
+  "libraries": ["numpy"],
+  "description": "Given two 2-D arrays $a$ with shape $(m, k)$ and $b$ with shape $(k, n)$, return their matrix product $c = a @ b$ with shape $(m, n)$, where $c_{ij} = \\sum_{t=1}^{k} a_{it} b_{tj}$.\n\n**Example**: `a = [[1, 2], [3, 4]]`, `b = [[5, 6], [7, 8]]` -> `matmul(a, b) = [[19, 22], [43, 50]]`.\n\nImplement `matmul(a, b)`. **Shapes**: `a`: (3, 4), `b`: (4, 5) -> returns (3, 5).",
+  "entry_point": "matmul",
+  "starter_code": "import numpy as np\n\ndef matmul(a, b):\n    # TODO: return the matrix product a @ b\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef matmul(a, b):\n    a = np.asarray(a)\n    b = np.asarray(b)\n    return a @ b\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"a": [3, 4], "b": [4, 5]},
+    "dtype": "float32",
+    "range": [-3, 3],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "The `@` operator (or `np.matmul` / `np.dot` for 2-D arrays) performs standard matrix multiplication.",
+    "The inner dimensions must match: `a` is $(m, k)$ and `b` is $(k, n)$; do not confuse this with elementwise multiplication (`*`)."
+  ],
+  "solutions": [
+    {
+      "name": "The @ operator",
+      "explanation": "`a @ b` computes the standard matrix product, summing over the shared inner dimension $k$, and is equivalent to `np.matmul(a, b)`.",
+      "code": "import numpy as np\ndef matmul(a, b):\n    a = np.asarray(a)\n    b = np.asarray(b)\n    return a @ b\n",
+      "complexity": "Time O(mkn), Space O(mn)"
+    }
+  ]
+}

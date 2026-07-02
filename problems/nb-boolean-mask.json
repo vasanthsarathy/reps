@@ -1,0 +1,37 @@
+{
+  "slug": "nb-boolean-mask",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Select Positive Values",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics"],
+  "libraries": ["numpy"],
+  "description": "Given a 1-D array $x$, return a new 1-D array containing only the elements of $x$ that are strictly greater than 0, keeping their original relative order.\n\n**Example**: `x = [-1, 2, 0, -3, 4]` -> `positive_values(x) = [2, 4]`.\n\nImplement `positive_values(x)`. **Shape**: `x`: (8,) -> returns a 1-D array of the positive entries (length varies per input).",
+  "entry_point": "positive_values",
+  "starter_code": "import numpy as np\n\ndef positive_values(x):\n    # TODO: return the elements of x that are > 0, in order\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef positive_values(x):\n    x = np.asarray(x)\n    return x[x > 0]\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [8]},
+    "dtype": "float32",
+    "range": [-3, 3],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "`x > 0` produces a boolean array the same shape as `x` marking which elements satisfy the condition.",
+    "Indexing an array with a boolean array of the same shape (boolean masking) keeps only the `True` positions, in order."
+  ],
+  "solutions": [
+    {
+      "name": "Boolean mask indexing",
+      "explanation": "`x > 0` creates a boolean mask that is `True` wherever an element is positive. Using that mask to index `x` (`x[x > 0]`) selects exactly those elements, preserving their original order.",
+      "code": "import numpy as np\ndef positive_values(x):\n    x = np.asarray(x)\n    return x[x > 0]\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

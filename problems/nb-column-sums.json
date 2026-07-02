@@ -1,0 +1,37 @@
+{
+  "slug": "nb-column-sums",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Sum Each Column",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics"],
+  "libraries": ["numpy"],
+  "description": "Given a 2-D array $x$ with shape $(m, n)$, return a 1-D array of length $n$ where each entry is the sum of the corresponding column of $x$ (i.e. sum over axis 0, across rows).\n\n**Example**: `x = [[1, 2], [3, 4], [5, 6]]` -> `column_sums(x) = [9, 12]` (1+3+5=9, 2+4+6=12).\n\nImplement `column_sums(x)`. **Shape**: `x`: (4, 5) -> returns (5,).",
+  "entry_point": "column_sums",
+  "starter_code": "import numpy as np\n\ndef column_sums(x):\n    # TODO: sum over rows (axis 0), one value per column\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef column_sums(x):\n    x = np.asarray(x)\n    return x.sum(axis=0)\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [4, 5]},
+    "dtype": "float32",
+    "range": [-5, 5],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "`np.sum` (or the `.sum` method) accepts an `axis` argument that tells NumPy which axis to collapse.",
+    "Axis 0 runs down the rows, so summing over axis 0 collapses each column into a single value."
+  ],
+  "solutions": [
+    {
+      "name": "Sum over axis 0",
+      "explanation": "`x.sum(axis=0)` collapses the row axis (axis 0), leaving one summed value per column, which is exactly the vector of column sums.",
+      "code": "import numpy as np\ndef column_sums(x):\n    x = np.asarray(x)\n    return x.sum(axis=0)\n",
+      "complexity": "Time O(mn), Space O(n)"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "nb-one-hot",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "One-Hot Encode Labels",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics"],
+  "libraries": ["numpy"],
+  "description": "Given a 1-D integer array $labels$ of length $m$ with values in $\\{0, \\dots, n-1\\}$, and the number of classes $n$, return an $(m, n)$ one-hot matrix $r$ where $r_{ij} = 1$ if $labels_i = j$ and $r_{ij} = 0$ otherwise.\n\n**Example**: `labels = [0, 2, 1]`, `n = 3` -> `one_hot(labels, n) = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]`.\n\nImplement `one_hot(labels, n)`. **Shapes**: `labels`: (6,) int in $\\{0,\\dots,3\\}$, `n`: 4 (scalar) -> returns (6, 4).",
+  "entry_point": "one_hot",
+  "starter_code": "import numpy as np\n\ndef one_hot(labels, n):\n    # TODO: build the (len(labels), n) one-hot matrix\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef one_hot(labels, n):\n    labels = np.asarray(labels).astype(np.int64)\n    m = labels.shape[0]\n    result = np.zeros((m, n))\n    result[np.arange(m), labels] = 1\n    return result\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"labels": [6], "n": 4},
+    "dtype": {"labels": "int64"},
+    "range": {"labels": [0, 3]},
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Start from a zero matrix of shape (len(labels), n) built with `np.zeros`.",
+    "Use fancy indexing to set the right entries at once: `result[np.arange(len(labels)), labels] = 1` sets row i, column labels[i] to 1 for every row simultaneously."
+  ],
+  "solutions": [
+    {
+      "name": "Fancy-index into a zero matrix",
+      "explanation": "Allocating an all-zero (m, n) matrix and then using paired fancy indexing `result[np.arange(m), labels] = 1` sets exactly one entry per row (the column named by that row's label) to 1, producing the one-hot encoding.",
+      "code": "import numpy as np\ndef one_hot(labels, n):\n    labels = np.asarray(labels).astype(np.int64)\n    m = labels.shape[0]\n    result = np.zeros((m, n))\n    result[np.arange(m), labels] = 1\n    return result\n",
+      "complexity": "Time O(mn), Space O(mn)"
+    }
+  ]
+}

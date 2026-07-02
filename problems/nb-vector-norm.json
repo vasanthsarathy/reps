@@ -1,0 +1,37 @@
+{
+  "slug": "nb-vector-norm",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Euclidean Norm of a Vector",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics", "linear-algebra"],
+  "libraries": ["numpy"],
+  "description": "Given a 1-D vector $x$ with $n$ entries, return its Euclidean (L2) norm, a single scalar defined as $\\|x\\|_2 = \\sqrt{\\sum_{i=1}^{n} x_i^2}$.\n\n**Example**: `x = [3, 4]` -> `l2_norm(x) = 5.0` (since $\\sqrt{3^2 + 4^2} = \\sqrt{25} = 5$).\n\nImplement `l2_norm(x)`. **Shape**: `x`: (6,) -> returns a scalar.",
+  "entry_point": "l2_norm",
+  "starter_code": "import numpy as np\n\ndef l2_norm(x):\n    # TODO: return the Euclidean (L2) norm of vector x\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef l2_norm(x):\n    x = np.asarray(x)\n    return np.sqrt(np.sum(x ** 2))\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [6]},
+    "dtype": "float32",
+    "range": [-5, 5],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "`np.linalg.norm(x)` computes the L2 norm of a vector directly.",
+    "Equivalently, you can square each element, sum them, and take the square root: `np.sqrt(np.sum(x ** 2))`."
+  ],
+  "solutions": [
+    {
+      "name": "np.linalg.norm",
+      "explanation": "`np.linalg.norm(x)` computes $\\sqrt{\\sum_i x_i^2}$ for a 1-D array by default, which is exactly the Euclidean (L2) norm.",
+      "code": "import numpy as np\ndef l2_norm(x):\n    x = np.asarray(x)\n    return np.linalg.norm(x)\n",
+      "complexity": "Time O(n), Space O(1)"
+    }
+  ]
+}

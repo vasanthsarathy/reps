@@ -1,0 +1,37 @@
+{
+  "slug": "nb-normalize-rows",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Normalize Each Row to Unit Length",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics", "linear-algebra"],
+  "libraries": ["numpy"],
+  "description": "Given a 2-D array $x$ with shape $(m, n)$, divide every row by its own Euclidean (L2) norm, so each output row has unit length: $r_{ij} = x_{ij} / \\|x_i\\|_2$, where $\\|x_i\\|_2 = \\sqrt{\\sum_j x_{ij}^2}$.\n\n**Example**: `x = [[3, 4], [0, 5]]` -> row 0 has norm 5 so becomes `[0.6, 0.8]`; row 1 has norm 5 so becomes `[0.0, 1.0]`. Result: `normalize_rows(x) = [[0.6, 0.8], [0.0, 1.0]]`.\n\nImplement `normalize_rows(x)`. **Shape**: `x`: (4, 5) -> returns (4, 5).",
+  "entry_point": "normalize_rows",
+  "starter_code": "import numpy as np\n\ndef normalize_rows(x):\n    # TODO: divide each row by its own L2 norm\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef normalize_rows(x):\n    x = np.asarray(x)\n    norms = np.sqrt(np.sum(x ** 2, axis=1, keepdims=True))\n    return x / norms\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [4, 5]},
+    "dtype": "float32",
+    "range": [1, 5],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute each row's L2 norm with `np.linalg.norm(x, axis=1, keepdims=True)` (or `np.sqrt((x ** 2).sum(axis=1, keepdims=True))`).",
+    "`keepdims=True` keeps the norm as a column vector of shape (m, 1) so it broadcasts cleanly against x's shape (m, n) when you divide."
+  ],
+  "solutions": [
+    {
+      "name": "Divide by per-row norm",
+      "explanation": "Computing the L2 norm along axis 1 with `keepdims=True` produces a shape-(m, 1) column of row norms, which broadcasts against the shape-(m, n) array so dividing `x` by it scales every row to unit length.",
+      "code": "import numpy as np\ndef normalize_rows(x):\n    x = np.asarray(x)\n    norms = np.linalg.norm(x, axis=1, keepdims=True)\n    return x / norms\n",
+      "complexity": "Time O(mn), Space O(mn)"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "nb-broadcast-add",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Add a Bias Vector to Every Row",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics"],
+  "libraries": ["numpy"],
+  "description": "Given a 2-D array $x$ with shape $(m, n)$ and a 1-D bias vector $b$ with shape $(n,)$, add $b$ to every row of $x$ using broadcasting, so the result $r$ satisfies $r_{ij} = x_{ij} + b_j$.\n\n**Example**: `x = [[1, 2], [3, 4]]`, `b = [10, 100]` -> `add_bias(x, b) = [[11, 102], [13, 104]]`.\n\nImplement `add_bias(x, b)`. **Shapes**: `x`: (4, 5), `b`: (5,) -> returns (4, 5).",
+  "entry_point": "add_bias",
+  "starter_code": "import numpy as np\n\ndef add_bias(x, b):\n    # TODO: add the per-column bias vector b to every row of x\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef add_bias(x, b):\n    x = np.asarray(x)\n    b = np.asarray(b)\n    return x + b\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [4, 5], "b": [5]},
+    "dtype": "float32",
+    "range": [-5, 5],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "NumPy broadcasting automatically lines up a shape-(n,) vector against the last axis of a shape-(m, n) array.",
+    "You don't need a loop or `np.tile`: `x + b` already repeats `b` across every row."
+  ],
+  "solutions": [
+    {
+      "name": "Broadcasted addition",
+      "explanation": "Because `b` has shape `(n,)` and `x` has shape `(m, n)`, NumPy's broadcasting rules stretch `b` across the row axis so `x + b` adds `b` to every row without an explicit loop.",
+      "code": "import numpy as np\ndef add_bias(x, b):\n    x = np.asarray(x)\n    b = np.asarray(b)\n    return x + b\n",
+      "complexity": "Time O(mn), Space O(mn)"
+    }
+  ]
+}
