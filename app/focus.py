@@ -16,11 +16,21 @@ FOCUS_GROUPS = [
     {"id": "coding-linked", "label": "Coding · Linked lists", "track": "coding",
      "concepts": {"linked-list", "fast-slow-pointers"}},
     {"id": "ml", "label": "ML — everything", "track": "ml"},
-    {"id": "ml-linalg", "label": "ML · Linear algebra", "track": "ml", "concepts": {"linear-algebra"}},
-    {"id": "ml-numpy", "label": "ML · NumPy from scratch", "track": "ml", "libraries": {"numpy"}},
-    {"id": "ml-torch", "label": "ML · Tensors & PyTorch", "track": "ml", "libraries": {"torch"}},
+    # ML groups are by TOPIC (not by which library the solution happens to use).
+    {"id": "ml-basics", "label": "ML · NumPy basics (start here)", "track": "ml",
+     "concepts": {"numpy-basics"}},
+    {"id": "ml-tensors", "label": "ML · Tensor & broadcasting", "track": "ml",
+     "sources": {"TensorPuzzles"}},
+    {"id": "ml-activations", "label": "ML · Activations & losses", "track": "ml",
+     "concepts": {"activations", "loss-functions"}},
+    {"id": "ml-norm", "label": "ML · Normalization", "track": "ml", "concepts": {"normalization"}},
     {"id": "ml-autodiff", "label": "ML · Autodiff / backprop", "track": "ml", "concepts": {"autodiff"}},
-    {"id": "ml-attention", "label": "ML · Attention & LLMs", "track": "ml", "concepts": {"attention"}},
+    {"id": "ml-nn", "label": "ML · Neural nets (MLP)", "track": "ml", "concepts": {"neural-networks"}},
+    {"id": "ml-attention", "label": "ML · Attention & transformers", "track": "ml",
+     "concepts": {"attention"}},
+    {"id": "ml-classic", "label": "ML · Classic ML algorithms", "track": "ml",
+     "sources": {"ClassicML"}},
+    {"id": "ml-linalg", "label": "ML · Linear algebra", "track": "ml", "concepts": {"linear-algebra"}},
 ]
 
 _BY_ID = {g["id"]: g for g in FOCUS_GROUPS}
