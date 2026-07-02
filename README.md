@@ -5,9 +5,9 @@
 <p align="center">
   <a href="#"><img alt="Python 3.14" src="https://img.shields.io/badge/python-3.14-3776AB?logo=python&logoColor=white"></a>
   <a href="#"><img alt="uv" src="https://img.shields.io/badge/managed%20by-uv-DE5FE9"></a>
-  <a href="#"><img alt="tests" src="https://img.shields.io/badge/tests-355%20passing-2f9e8b"></a>
+  <a href="#"><img alt="tests" src="https://img.shields.io/badge/tests-397%20passing-2f9e8b"></a>
   <a href="#"><img alt="Blind 75" src="https://img.shields.io/badge/Blind%2075-75%2F75-5fd7bd"></a>
-  <a href="#"><img alt="ML drills" src="https://img.shields.io/badge/ML%20drills-52-5fd7bd"></a>
+  <a href="#"><img alt="ML drills" src="https://img.shields.io/badge/ML%20drills-72-5fd7bd"></a>
   <a href="#-license"><img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-informational"></a>
 </p>
 
@@ -25,7 +25,7 @@
 It has two tracks that share one schedule:
 
 - **Coding** — all **75 Blind 75** problems.
-- **ML** — **52 implementation drills**: turn math into NumPy/PyTorch from a blank editor (softmax,
+- **ML** — **72 implementation drills**: turn math into NumPy/PyTorch from a blank editor (softmax,
   attention, layernorm, an MLP backward pass, k-means, plus Tensor-Puzzles and Autodiff-Puzzles).
 
 ```
@@ -48,8 +48,10 @@ It has two tracks that share one schedule:
 - 🧠 **Spaced repetition (SM-2 + concept tags).** Every session recommends a due review, or — if nothing's
   due — a fresh problem from your **weakest concept**. You never wonder what to do next.
 - 🎯 **Session Focus.** A top-bar dropdown scopes the recommendation to a group — Coding
-  (Arrays · DP · Graphs · Trees · Linked lists) or ML (Linear algebra · NumPy · Tensors & PyTorch ·
-  Autodiff · Attention & LLMs) — so a focused session stays focused. Persisted across sessions.
+  (Arrays · DP · Graphs · Trees · Linked lists) or ML by **topic** (**NumPy basics — start here** ·
+  Tensor & broadcasting · Activations & losses · Normalization · Autodiff · Neural nets ·
+  Attention & transformers · Classic ML · Linear algebra) — so a focused session stays focused.
+  Persisted across sessions.
 - 📊 **Progress dashboard.** See what you've attempted, your stage breakdown (New / Learning / Reviewing),
   rating distribution, and a **problem-areas table** (concept clean-rate, weakest first).
 - 🐍 **Live execution.** Real CPython + NumPy + CPU PyTorch in a timeout-isolated subprocess — real
@@ -102,7 +104,7 @@ resurface soon. Weak concepts surface sooner in "What's next?".
 
 ## Problem library
 
-**128 problems** — 75 Blind 75 (coding) + 52 ML drills — each a single JSON file in [`problems/`](problems/).
+**148 problems** — 76 coding (Blind 75 + a bonus) + 72 ML drills — each a single JSON file in [`problems/`](problems/).
 **Adding one is a drop-in**, no code change. A test guarantees every reference solution passes its own
 tests. See **[`docs/ML_TRACK.md`](docs/ML_TRACK.md)** for the ML schema fields, the decks, and how to
 author an ML drill.
@@ -128,7 +130,7 @@ reps/
 │   ├── stats.py       # dashboard aggregation
 │   ├── tags.py        # canonical concept-tag allow-list
 │   └── frontend/      # index.html · style.css · app.js  (CodeMirror, marked, KaTeX via CDN)
-├── problems/          # 128 problems — one JSON each (coding + ml)
+├── problems/          # 148 problems — one JSON each (coding + ml)
 ├── docs/ML_TRACK.md   # the ML track: schema, decks, authoring guide
 ├── data/              # your progress (gitignored): schedule.json + sessions/
 └── tests/             # pytest suite (comparator, scheduler, focus, stats, problem validity)
@@ -154,7 +156,7 @@ rm data/schedule.json  # scheduling-only reset, keeps your attempt history
 ## Tests
 
 ```bash
-uv run pytest          # ~4 min (many torch subprocesses); all 355 pass
+uv run pytest          # ~4 min (many torch subprocesses); all 397 pass
 ```
 
 ## Roadmap
