@@ -2,7 +2,7 @@
   "slug": "longest-increasing-subsequence",
   "title": "Longest Increasing Subsequence",
   "difficulty": "Medium",
-  "concepts": ["dp", "binary-search"],
+  "concepts": ["dynamic-programming", "binary-search"],
   "source": "Blind75",
   "description": "Imagine walking through `nums` from left to right and choosing, at your discretion, which numbers to keep and which to skip, with one rule: every number you keep must be strictly greater than the previous number you kept, and the relative order they appeared in must stay intact. Work out the largest count of numbers you could possibly keep under that rule.\n\n**Example**\n\n```\nnums = [10, 9, 2, 5, 3, 7, 101, 18]  ->  4   (one such subsequence: [2, 3, 7, 18])\nnums = [7, 7, 7, 7, 7, 7, 7]         ->  1   (no strict increase is possible, so any single element)\n```",
   "entry_point": "length_of_lis",

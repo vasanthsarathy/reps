@@ -2,7 +2,7 @@
   "slug": "number-of-islands",
   "title": "Number of Islands",
   "difficulty": "Medium",
-  "concepts": ["graphs", "bfs-dfs"],
+  "concepts": ["graphs", "bfs", "dfs"],
   "source": "Blind75",
   "description": "You are given `grid`, a list of rows where each row is a list of strings `\"1\"` (land) or `\"0\"` (water). An island is a group of `\"1\"` cells connected horizontally or vertically (not diagonally). Return the number of distinct islands.\n\n**Example**\n\n```\ngrid = [\n  [\"1\",\"1\",\"0\",\"0\"],\n  [\"1\",\"1\",\"0\",\"0\"],\n  [\"0\",\"0\",\"1\",\"0\"],\n  [\"0\",\"0\",\"0\",\"1\"]\n]  ->  3\n```",
   "entry_point": "num_islands",

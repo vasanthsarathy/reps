@@ -2,7 +2,7 @@
   "slug": "missing-number",
   "title": "Missing Number",
   "difficulty": "Easy",
-  "concepts": ["bit manipulation", "math"],
+  "concepts": ["bit-manipulation", "math"],
   "source": "Blind75",
   "description": "You are given a list `nums` containing `n` distinct integers drawn from the range `0` to `n` inclusive, with exactly one value missing.\n\nReturn the missing value. Aim for O(n) time using O(1) extra space (no extra set/array).\n\n**Example**\n\n```\nnums = [3, 0, 1]  ->  2   (n=3, range is 0..3, and 2 is the value not present)\n```",
   "entry_point": "missing_number",

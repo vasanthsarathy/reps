@@ -2,7 +2,7 @@
   "slug": "coin-change",
   "title": "Coin Change",
   "difficulty": "Medium",
-  "concepts": ["dp"],
+  "concepts": ["dynamic-programming"],
   "source": "Blind75",
   "description": "You have coin denominations `coins` (an unlimited supply of each) and need to make exactly `amount` in value. Return the fewest coins needed, or `-1` if `amount` cannot be made with those denominations.\n\n**Example**\n\n```\ncoins = [1, 2, 5], amount = 11  ->  3   (5 + 5 + 1)\ncoins = [2], amount = 3         ->  -1\n```",
   "entry_point": "coin_change",

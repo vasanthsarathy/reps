@@ -2,7 +2,7 @@
   "slug": "course-schedule",
   "title": "Course Schedule",
   "difficulty": "Medium",
-  "concepts": ["graphs", "topological-sort", "bfs-dfs"],
+  "concepts": ["graphs", "topological-sort", "bfs", "dfs"],
   "source": "Blind75",
   "description": "You're registering for `num_courses` courses, numbered `0` through `num_courses - 1`, and `prerequisites` lists pairs `[a, b]` where course `a` cannot be started until course `b` is done. Figure out whether it's possible to work through every single course given these constraints: answer `true` if some valid completion order exists, or `false` if the prerequisites are tangled in a loop that makes at least one course permanently unreachable.\n\n**Example**\n\n```\nnum_courses = 2, prerequisites = [[1,0]]        ->  true   (take 0, then 1)\nnum_courses = 2, prerequisites = [[1,0],[0,1]]  ->  false  (0 needs 1 and 1 needs 0)\n```",
   "entry_point": "can_finish",

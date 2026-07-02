@@ -2,7 +2,7 @@
   "slug": "decode-ways",
   "title": "Decode Ways",
   "difficulty": "Medium",
-  "concepts": ["dp"],
+  "concepts": ["dynamic-programming"],
   "source": "Blind75",
   "description": "An old cipher maps digits to letters: \"1\" through \"26\" spell out A through Z, and a message is encoded by concatenating those numbers with no separators between them. Given the encoded digit string `s`, count how many distinct ways it could have been decoded back into letters. A `'0'` can never stand on its own (there is no letter numbered 0) -- it only makes sense as the second digit of \"10\" or \"20\".\n\n**Example**\n\n```\nnum_decodings(\"12\")   -> 2   (\"AB\" or \"L\")\nnum_decodings(\"226\")  -> 3   (\"BZ\", \"VF\", \"BBF\")\nnum_decodings(\"06\")   -> 0   (a leading zero has no valid decoding at all)\n```",
   "entry_point": "num_decodings",

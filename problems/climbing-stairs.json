@@ -2,7 +2,7 @@
   "slug": "climbing-stairs",
   "title": "Climbing Stairs",
   "difficulty": "Easy",
-  "concepts": ["dp"],
+  "concepts": ["dynamic-programming"],
   "source": "Blind75",
   "description": "A staircase has `n` steps, and on every move you're allowed to advance by either 1 step or 2 steps. Starting from the ground, how many distinct sequences of moves land you exactly on the top step? Write a function that computes that count for a given `n`.\n\n**Example**\n\n```\nclimb_stairs(3)\n# -> 3\n# The three sequences: 1+1+1, 1+2, 2+1\n\nclimb_stairs(2)\n# -> 2\n# The two sequences: 1+1, 2\n```",
   "entry_point": "climb_stairs",

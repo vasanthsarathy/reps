@@ -2,7 +2,7 @@
   "slug": "longest-palindromic-substring",
   "title": "Longest Palindromic Substring",
   "difficulty": "Medium",
-  "concepts": ["strings", "two pointers"],
+  "concepts": ["strings", "two-pointers"],
   "source": "Blind75",
   "description": "Somewhere inside string `s` lies its longest run of characters that reads identically forward and backward. Find that run and return it; when more than one substring achieves the maximum length, prefer whichever one appears first as you read `s` left to right.\n\n**Example**\n\n```\nlongest_palindrome(\"babad\")\n# -> \"bab\"   (\"aba\" is also a palindrome of the same length, but \"bab\" starts first)\n\nlongest_palindrome(\"cbbd\")\n# -> \"bb\"\n```",
   "entry_point": "longest_palindrome",

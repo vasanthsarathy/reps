@@ -2,7 +2,7 @@
   "slug": "valid-palindrome",
   "title": "Valid Palindrome",
   "difficulty": "Easy",
-  "concepts": ["two-pointer", "strings"],
+  "concepts": ["two-pointers", "strings"],
   "source": "Blind75",
   "description": "Given a string `s`, determine whether it reads the same forwards and backwards once you ignore everything except letters and digits, and ignore case. Return `true` or `false`.\n\n**Example**\n\n```\ns = \"A man, a plan, a canal: Panama\"  ->  true\ns = \"race a car\"  ->  false\n```",
   "entry_point": "is_valid_palindrome",

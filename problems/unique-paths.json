@@ -2,7 +2,7 @@
   "slug": "unique-paths",
   "title": "Unique Paths",
   "difficulty": "Medium",
-  "concepts": ["dp"],
+  "concepts": ["dynamic-programming"],
   "source": "Blind75",
   "description": "Picture an `m`-row by `n`-column grid with a robot parked in the top-left cell, trying to reach the bottom-right cell. On every move it may only step one cell to the right or one cell downward, never up, left, or diagonal. Count how many distinct routes exist from start to finish.\n\n**Example**\n\n```\nunique_paths(3, 7)  ->  28\nunique_paths(3, 2)  ->  3\n```",
   "entry_point": "unique_paths",

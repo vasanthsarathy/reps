@@ -2,7 +2,7 @@
   "slug": "minimum-window-substring",
   "title": "Minimum Window Substring",
   "difficulty": "Hard",
-  "concepts": ["sliding window", "hashing", "strings"],
+  "concepts": ["sliding-window", "hashing", "strings"],
   "source": "Blind75",
   "description": "Given two strings `s` and `t`, hunt for the shortest run of consecutive characters inside `s` that covers every character `t` contains -- matching not just which letters appear but how many times each one does, in whatever order works. When no stretch of `s` can cover `t`, answer with an empty string, and if several minimal-length windows tie, hand back whichever one begins earliest.\n\n**Example**\n\n```\nmin_window(\"ADOBECODEBANC\", \"ABC\")\n# -> \"BANC\"   (shortest window of s containing an 'A', a 'B', and a 'C')\n\nmin_window(\"a\", \"aa\")\n# -> \"\"        (s doesn't have two 'a's, so no window can satisfy t)\n```",
   "entry_point": "min_window",

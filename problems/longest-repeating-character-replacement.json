@@ -2,7 +2,7 @@
   "slug": "longest-repeating-character-replacement",
   "title": "Longest Repeating Character Replacement",
   "difficulty": "Medium",
-  "concepts": ["sliding window", "strings"],
+  "concepts": ["sliding-window", "strings"],
   "source": "Blind75",
   "description": "You're given an uppercase string `s` and an integer `k`. You may change up to `k` characters in `s` to any other uppercase letter. Return the length of the longest substring you can make consist of a single repeated letter after performing at most `k` such changes.\n\n**Example**\n\n```\ncharacter_replacement(\"ABAB\", 2)\n# -> 4   (change both 'A's or both 'B's -> \"AAAA\" or \"BBBB\")\n\ncharacter_replacement(\"AABABBA\", 1)\n# -> 4   (change one letter inside \"ABAB\" -> \"AABBBA\", giving a run of 4 B's)\n```",
   "entry_point": "character_replacement",

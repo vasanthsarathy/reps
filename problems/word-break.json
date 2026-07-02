@@ -2,7 +2,7 @@
   "slug": "word-break",
   "title": "Word Break",
   "difficulty": "Medium",
-  "concepts": ["dp"],
+  "concepts": ["dynamic-programming"],
   "source": "Blind75",
   "description": "You're given a string `s` and a dictionary of words `word_dict`. Determine whether `s` can be rebuilt by concatenating one or more words from the dictionary back to back, in any order, with each word reusable as many times as needed. Return `True` if such a segmentation exists, `False` otherwise.\n\n**Example**\n\n```\nword_break(\"leetcode\", [\"leet\", \"code\"])       -> True   (\"leet\" + \"code\")\nword_break(\"applepenapple\", [\"apple\", \"pen\"])  -> True   (\"apple\" + \"pen\" + \"apple\", reusing \"apple\")\nword_break(\"catsandog\", [\"cats\", \"dog\", \"sand\", \"and\", \"cat\"])  -> False\n```",
   "entry_point": "word_break",

@@ -2,7 +2,7 @@
   "slug": "palindromic-substrings",
   "title": "Palindromic Substrings",
   "difficulty": "Medium",
-  "concepts": ["strings", "two pointers"],
+  "concepts": ["strings", "two-pointers"],
   "source": "Blind75",
   "description": "String `s` contains many contiguous substrings; some of them happen to be palindromes (identical when reversed). Tally up how many of those palindromic substrings exist in total. Two substrings occupying different positions count separately even when their characters match, and every lone character is automatically a palindrome of length one.\n\n**Example**\n\n```\ncount_substrings(\"abc\")\n# -> 3   (\"a\", \"b\", \"c\")\n\ncount_substrings(\"aaa\")\n# -> 6   (\"a\", \"a\", \"a\", \"aa\", \"aa\", \"aaa\")\n```",
   "entry_point": "count_substrings",

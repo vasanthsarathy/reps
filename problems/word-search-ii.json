@@ -2,7 +2,7 @@
   "slug": "word-search-ii",
   "title": "Word Search II",
   "difficulty": "Hard",
-  "concepts": ["graphs", "trie", "backtracking", "bfs-dfs"],
+  "concepts": ["graphs", "trie", "backtracking", "bfs", "dfs"],
   "source": "Blind75",
   "description": "You are given `board`, a 2-D grid of single-character strings, and a list `words`. A word is found on the board if it can be traced by a path that starts at any cell and moves to horizontally or vertically adjacent cells, using each grid cell at most once per path. Return the list of all words from `words` that can be found on the board (each qualifying word appears once, in any order).\n\n**Example**\n\n```\nboard = [\n  [\"o\",\"a\",\"a\",\"n\"],\n  [\"e\",\"t\",\"a\",\"e\"],\n  [\"i\",\"h\",\"k\",\"r\"],\n  [\"i\",\"f\",\"l\",\"v\"]\n]\nwords = [\"oath\",\"pea\",\"eat\",\"rain\"]  ->  [\"oath\",\"eat\"]\n```",
   "entry_point": "find_words",
