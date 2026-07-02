@@ -1,0 +1,30 @@
+{
+  "slug": "layernorm-forward",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Layer Normalization Forward Pass",
+  "difficulty": "Medium",
+  "concepts": ["normalization"],
+  "libraries": ["numpy"],
+  "description": "Implement layer normalization over the last axis of $x \\in \\mathbb{R}^{n \\times d}$, with learnable per-feature scale $\\gamma \\in \\mathbb{R}^d$ and shift $\\beta \\in \\mathbb{R}^d$:\n$$\\mu_i = \\frac{1}{d}\\sum_{j=1}^{d} x_{i,j}, \\qquad \\sigma_i^2 = \\frac{1}{d}\\sum_{j=1}^{d} (x_{i,j}-\\mu_i)^2$$\n$$\\hat{x}_{i,j} = \\frac{x_{i,j}-\\mu_i}{\\sqrt{\\sigma_i^2 + \\epsilon}}, \\qquad \\text{out}_{i,j} = \\gamma_j \\hat{x}_{i,j} + \\beta_j$$\n\nUse $\\epsilon = 10^{-5}$. Implement `layernorm(x, gamma, beta)` returning `out` with the same shape as `x`.\n\n**Shapes**: `x`: `(4, 6)`, `gamma`: `(6,)`, `beta`: `(6,)` -> returns `(4, 6)`.",
+  "entry_point": "layernorm",
+  "starter_code": "import numpy as np\n\ndef layernorm(x, gamma, beta):\n    # TODO: normalize each row to zero mean / unit var (eps=1e-5), then scale by gamma and shift by beta\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef layernorm(x, gamma, beta):\n    x = np.asarray(x, dtype=np.float64)\n    gamma = np.asarray(gamma, dtype=np.float64)\n    beta = np.asarray(beta, dtype=np.float64)\n    eps = 1e-5\n    mu = x.mean(axis=-1, keepdims=True)\n    var = x.var(axis=-1, keepdims=True)\n    x_hat = (x - mu) / np.sqrt(var + eps)\n    return gamma * x_hat + beta\n",
+  "random_tests": {"count": 20, "shapes": {"x": [4, 6], "gamma": [6], "beta": [6]}, "dtype": "float32", "range": [-3, 3], "seed": 3},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute per-row mean and (biased, i.e. divide by d not d-1) variance along axis=-1 with keepdims=True so broadcasting works.",
+    "Add eps inside the sqrt, not after: 1/sqrt(var + eps), then scale by gamma and shift by beta elementwise (both broadcast over the row axis)."
+  ],
+  "solutions": [
+    {
+      "name": "Per-row standardize then affine transform",
+      "explanation": "Each row is independently standardized to zero mean and unit variance using the row's own $\\mu_i, \\sigma_i^2$, then an elementwise affine transform $\\gamma \\odot \\hat{x} + \\beta$ is applied, broadcasting the length-$d$ $\\gamma,\\beta$ vectors across rows.",
+      "code": "import numpy as np\ndef layernorm(x, gamma, beta):\n    x = np.asarray(x, dtype=np.float64)\n    gamma = np.asarray(gamma, dtype=np.float64)\n    beta = np.asarray(beta, dtype=np.float64)\n    eps = 1e-5\n    mu = x.mean(axis=-1, keepdims=True)\n    var = x.var(axis=-1, keepdims=True)\n    x_hat = (x - mu) / np.sqrt(var + eps)\n    return gamma * x_hat + beta\n",
+      "complexity": "Time O(n*d), Space O(n*d)"
+    }
+  ]
+}

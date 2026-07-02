@@ -1,0 +1,20 @@
+{
+  "slug": "softmax-stable",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Numerically Stable Softmax",
+  "difficulty": "Easy",
+  "concepts": ["activations", "numerical-stability"],
+  "libraries": ["numpy"],
+  "description": "Implement softmax over the last axis: $\\text{softmax}(x)_i = \\dfrac{e^{x_i}}{\\sum_j e^{x_j}}$.\n\nSubtract the row max before exponentiating for numerical stability. Input `x` has shape `(n, d)`; return shape `(n, d)`.",
+  "entry_point": "softmax",
+  "starter_code": "import numpy as np\n\ndef softmax(x):\n    # TODO\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-5, "atol": 1e-8,
+  "reference": "import numpy as np\n\ndef softmax(x):\n    x = x - x.max(axis=-1, keepdims=True)\n    e = np.exp(x)\n    return e / e.sum(axis=-1, keepdims=True)\n",
+  "random_tests": {"count": 20, "shapes": {"x": [8, 5]}, "dtype": "float32", "range": [-5, 5], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": ["Subtract max along axis=-1 before exp.", "keepdims=True keeps broadcasting clean."],
+  "solutions": [{"name": "Stable softmax", "explanation": "Shift by the row max, exponentiate, normalize. Softmax is invariant to a per-row additive shift since it cancels between numerator and denominator: $\\frac{e^{x-k}}{\\sum e^{x'-k}} = \\frac{e^x}{\\sum e^{x'}}$, and subtracting the max keeps every exponent $\\le 0$.", "code": "import numpy as np\n\ndef softmax(x):\n    x = x - x.max(axis=-1, keepdims=True)\n    e = np.exp(x)\n    return e / e.sum(axis=-1, keepdims=True)\n", "complexity": "O(n*d)"}]
+}

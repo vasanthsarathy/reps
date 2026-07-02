@@ -236,3 +236,23 @@ def test_reference_per_arg_dtype_and_range():
     from app.executor import run_reference_tests
     r = run_reference_tests(ref, "f", ref, rt, "close", ["numpy"])
     assert r["all_passed"] is True and r["total"] == 3
+
+
+def test_ml_wrong_softmax_without_maxsub_fails_on_extreme_logits():
+    from app.executor import run_reference_tests
+    ref = "import numpy as np\ndef softmax(x):\n    x = x - x.max(axis=-1, keepdims=True)\n    e = np.exp(x)\n    return e / e.sum(axis=-1, keepdims=True)\n"
+    wrong = "import numpy as np\ndef softmax(x):\n    e = np.exp(x)\n    return e / e.sum(axis=-1, keepdims=True)\n"
+    rt = {"count": 5, "shapes": {"x": [4, 5]}, "dtype": "float32", "range": [90, 100], "seed": 0}
+    assert run_reference_tests(ref, "softmax", ref, rt, "close", ["numpy"])["all_passed"] is True
+    assert run_reference_tests(wrong, "softmax", ref, rt, "close", ["numpy"])["all_passed"] is False
+
+
+def test_ml_wrong_attention_missing_scale_fails():
+    from app.executor import run_reference_tests
+    ref = ("import numpy as np\ndef attn(Q, K, V):\n    d = Q.shape[-1]\n    s = Q @ K.T / np.sqrt(d)\n"
+           "    s = s - s.max(axis=-1, keepdims=True)\n    w = np.exp(s); w = w / w.sum(axis=-1, keepdims=True)\n    return w @ V\n")
+    wrong = ("import numpy as np\ndef attn(Q, K, V):\n    s = Q @ K.T\n"
+             "    s = s - s.max(axis=-1, keepdims=True)\n    w = np.exp(s); w = w / w.sum(axis=-1, keepdims=True)\n    return w @ V\n")
+    rt = {"count": 5, "shapes": {"Q": [4, 8], "K": [4, 8], "V": [4, 8]}, "dtype": "float32", "range": [-2, 2], "seed": 0}
+    assert run_reference_tests(ref, "attn", ref, rt, "close", ["numpy"])["all_passed"] is True
+    assert run_reference_tests(wrong, "attn", ref, rt, "close", ["numpy"])["all_passed"] is False

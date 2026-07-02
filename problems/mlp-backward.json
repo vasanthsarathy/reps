@@ -1,0 +1,30 @@
+{
+  "slug": "mlp-backward",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Two-Layer MLP Backward Pass",
+  "difficulty": "Hard",
+  "concepts": ["neural-networks", "autodiff"],
+  "libraries": ["numpy"],
+  "description": "Consider the 1-hidden-layer MLP $h = \\text{ReLU}(xW_1+b_1)$, $\\text{out} = hW_2+b_2$, for $x \\in \\mathbb{R}^{n \\times d}$, $W_1 \\in \\mathbb{R}^{d \\times k}$, $b_1 \\in \\mathbb{R}^{k}$, $W_2 \\in \\mathbb{R}^{k \\times o}$, $b_2 \\in \\mathbb{R}^{o}$.\n\nGiven the upstream gradient $\\text{dout} = \\partial L/\\partial \\text{out} \\in \\mathbb{R}^{n \\times o}$, derive the gradients of all four parameters via backpropagation:\n$$dW_2 = h^\\top \\text{dout}, \\qquad db_2 = \\sum_i \\text{dout}_i$$\n$$dh = \\text{dout}\\,W_2^\\top, \\qquad dz_1 = dh \\odot \\mathbb{1}[z_1 > 0] \\;\\text{ where } z_1 = xW_1+b_1$$\n$$dW_1 = x^\\top dz_1, \\qquad db_1 = \\sum_i (dz_1)_i$$\n\nImplement `mlp_backward(x, W1, b1, W2, b2, dout)` returning a SINGLE 1-D array that concatenates the four gradients in this exact order: `np.concatenate([dW1.ravel(), db1, dW2.ravel(), db2])`.\n\n**Shapes**: `x`: `(4, 3)`, `W1`: `(3, 5)`, `b1`: `(5,)`, `W2`: `(5, 2)`, `b2`: `(2,)`, `dout`: `(4, 2)` -> returns a 1-D array of length `15 + 5 + 10 + 2 = 32`.",
+  "entry_point": "mlp_backward",
+  "starter_code": "import numpy as np\n\ndef mlp_backward(x, W1, b1, W2, b2, dout):\n    # TODO: forward to cache z1, h; backprop dout through layer 2, ReLU, layer 1;\n    # return np.concatenate([dW1.ravel(), db1, dW2.ravel(), db2])\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef mlp_backward(x, W1, b1, W2, b2, dout):\n    x = np.asarray(x, dtype=np.float64)\n    W1 = np.asarray(W1, dtype=np.float64); b1 = np.asarray(b1, dtype=np.float64)\n    W2 = np.asarray(W2, dtype=np.float64); b2 = np.asarray(b2, dtype=np.float64)\n    dout = np.asarray(dout, dtype=np.float64)\n    z1 = x @ W1 + b1\n    h = np.maximum(z1, 0.0)\n    dW2 = h.T @ dout\n    db2 = dout.sum(axis=0)\n    dh = dout @ W2.T\n    dz1 = dh * (z1 > 0).astype(np.float64)\n    dW1 = x.T @ dz1\n    db1 = dz1.sum(axis=0)\n    return np.concatenate([dW1.ravel(), db1, dW2.ravel(), db2])\n",
+  "random_tests": {"count": 20, "shapes": {"x": [4, 3], "W1": [3, 5], "b1": [5], "W2": [5, 2], "b2": [2], "dout": [4, 2]}, "dtype": "float32", "range": [-2, 2], "seed": 5},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Recompute the forward pass first (z1 = x@W1+b1, h = relu(z1)) so you have the cached activations needed for backprop.",
+    "Backprop layer-by-layer in reverse: dW2 = h.T @ dout, db2 = dout.sum(axis=0), dh = dout @ W2.T, then apply the ReLU gradient mask (z1 > 0) to dh before computing dW1 = x.T @ dz1 and db1 = dz1.sum(axis=0)."
+  ],
+  "solutions": [
+    {
+      "name": "Manual backpropagation",
+      "explanation": "Backprop applies the chain rule layer by layer in reverse. For the output linear layer $\\text{out}=hW_2+b_2$: $dW_2 = h^\\top \\text{dout}$, $db_2 = \\sum_i \\text{dout}_i$, and the gradient flowing into $h$ is $dh = \\text{dout}\\,W_2^\\top$. ReLU's local gradient is the indicator $\\mathbb{1}[z_1>0]$, so $dz_1 = dh \\odot \\mathbb{1}[z_1>0]$. For the input linear layer $z_1=xW_1+b_1$: $dW_1 = x^\\top dz_1$, $db_1 = \\sum_i (dz_1)_i$.",
+      "code": "import numpy as np\ndef mlp_backward(x, W1, b1, W2, b2, dout):\n    x = np.asarray(x, dtype=np.float64)\n    W1 = np.asarray(W1, dtype=np.float64); b1 = np.asarray(b1, dtype=np.float64)\n    W2 = np.asarray(W2, dtype=np.float64); b2 = np.asarray(b2, dtype=np.float64)\n    dout = np.asarray(dout, dtype=np.float64)\n    z1 = x @ W1 + b1\n    h = np.maximum(z1, 0.0)\n    dW2 = h.T @ dout\n    db2 = dout.sum(axis=0)\n    dh = dout @ W2.T\n    dz1 = dh * (z1 > 0).astype(np.float64)\n    dW1 = x.T @ dz1\n    db1 = dz1.sum(axis=0)\n    return np.concatenate([dW1.ravel(), db1, dW2.ravel(), db2])\n",
+      "complexity": "Time O(n*d*k + n*k*o), Space O(n*k)"
+    }
+  ]
+}

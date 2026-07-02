@@ -1,0 +1,30 @@
+{
+  "slug": "activations-forward",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Stacked Activation Functions",
+  "difficulty": "Easy",
+  "concepts": ["activations"],
+  "libraries": ["numpy"],
+  "description": "Implement three common activation functions applied elementwise to a 1-D input $x \\in \\mathbb{R}^n$:\n$$\\text{ReLU}(x) = \\max(x, 0), \\qquad \\sigma(x) = \\frac{1}{1+e^{-x}}, \\qquad \\tanh(x) = \\frac{e^x - e^{-x}}{e^x + e^{-x}}$$\n\nImplement `activations_forward(x)` returning a stacked array of shape `(3, n)` whose rows are, in order, `relu(x)`, `sigmoid(x)`, `tanh(x)`.\n\n**Shapes**: `x`: `(6,)` -> returns `(3, 6)`.",
+  "entry_point": "activations_forward",
+  "starter_code": "import numpy as np\n\ndef activations_forward(x):\n    # TODO: return np.stack([relu(x), sigmoid(x), tanh(x)])\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-5, "atol": 1e-8,
+  "reference": "import numpy as np\n\ndef activations_forward(x):\n    x = np.asarray(x, dtype=np.float64)\n    relu = np.maximum(x, 0.0)\n    sigmoid = 1.0 / (1.0 + np.exp(-x))\n    tanh = np.tanh(x)\n    return np.stack([relu, sigmoid, tanh])\n",
+  "random_tests": {"count": 20, "shapes": {"x": [6]}, "dtype": "float32", "range": [-5, 5], "seed": 1},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute each activation elementwise first, then combine with np.stack (not np.concatenate) to get shape (3, n).",
+    "sigmoid(x) = 1 / (1 + exp(-x)); np.tanh is available directly as np.tanh."
+  ],
+  "solutions": [
+    {
+      "name": "Stack of elementwise activations",
+      "explanation": "Each activation is applied elementwise to the length-$n$ input, producing three length-$n$ vectors; `np.stack` places them along a new leading axis to give shape $(3, n)$.",
+      "code": "import numpy as np\ndef activations_forward(x):\n    x = np.asarray(x, dtype=np.float64)\n    relu = np.maximum(x, 0.0)\n    sigmoid = 1.0 / (1.0 + np.exp(-x))\n    tanh = np.tanh(x)\n    return np.stack([relu, sigmoid, tanh])\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

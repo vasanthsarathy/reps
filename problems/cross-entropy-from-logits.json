@@ -1,0 +1,36 @@
+{
+  "slug": "cross-entropy-from-logits",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Mean Cross-Entropy From Logits",
+  "difficulty": "Medium",
+  "concepts": ["loss-functions", "numerical-stability"],
+  "libraries": ["numpy"],
+  "description": "Given raw class scores (logits) $Z \\in \\mathbb{R}^{n \\times C}$ and integer class labels $y \\in \\{0,\\dots,C-1\\}^n$, compute the mean softmax cross-entropy loss:\n$$L = \\frac{1}{n}\\sum_{i=1}^{n} \\Big[ \\log\\Big(\\sum_{c=1}^{C} e^{Z_{i,c}}\\Big) - Z_{i,y_i} \\Big]$$\n\nThis is the log-sum-exp form of $-\\log \\text{softmax}(Z_i)_{y_i}$, computed WITHOUT ever forming the full softmax probabilities. Subtract each row's max logit before exponentiating for numerical stability.\n\nImplement `cross_entropy(logits, labels)` returning the scalar mean loss.\n\n**Shapes**: `logits`: `(8, 5)`, `labels`: `(8,)` int in `[0, 4]` -> returns a scalar.",
+  "entry_point": "cross_entropy",
+  "starter_code": "import numpy as np\n\ndef cross_entropy(logits, labels):\n    # TODO: stable log-sum-exp minus the true-class logit, averaged over the batch\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef cross_entropy(logits, labels):\n    logits = np.asarray(logits, dtype=np.float64)\n    labels = np.asarray(labels).astype(np.int64)\n    m = logits.max(axis=-1, keepdims=True)\n    shifted = logits - m\n    logsumexp = np.log(np.sum(np.exp(shifted), axis=-1)) + m.squeeze(-1)\n    n = logits.shape[0]\n    correct = logits[np.arange(n), labels]\n    return float(np.mean(logsumexp - correct))\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"logits": [8, 5], "labels": [8]},
+    "dtype": {"logits": "float32", "labels": "int64"},
+    "range": {"logits": [-3, 3], "labels": [0, 4]},
+    "seed": 2
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Use the log-sum-exp identity: log(sum(exp(z))) is numerically unstable directly, so subtract the row max first and add it back after the log.",
+    "Gather the true-class logit per row with fancy indexing: logits[np.arange(n), labels]."
+  ],
+  "solutions": [
+    {
+      "name": "Log-sum-exp cross-entropy",
+      "explanation": "Softmax cross-entropy for row $i$ is $-\\log\\frac{e^{Z_{i,y_i}}}{\\sum_c e^{Z_{i,c}}} = \\log\\sum_c e^{Z_{i,c}} - Z_{i,y_i}$. Subtracting the row max $m_i$ before exponentiating keeps every exponent $\\le 0$: $\\log\\sum_c e^{Z_{i,c}} = m_i + \\log\\sum_c e^{Z_{i,c}-m_i}$, which is mathematically identical but avoids overflow.",
+      "code": "import numpy as np\ndef cross_entropy(logits, labels):\n    logits = np.asarray(logits, dtype=np.float64)\n    labels = np.asarray(labels).astype(np.int64)\n    m = logits.max(axis=-1, keepdims=True)\n    shifted = logits - m\n    logsumexp = np.log(np.sum(np.exp(shifted), axis=-1)) + m.squeeze(-1)\n    n = logits.shape[0]\n    correct = logits[np.arange(n), labels]\n    return float(np.mean(logsumexp - correct))\n",
+      "complexity": "Time O(n*C), Space O(n*C)"
+    }
+  ]
+}
