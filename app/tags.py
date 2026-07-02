@@ -30,7 +30,7 @@ CANONICAL_TAGS = frozenset({
     "attention", "normalization", "loss-functions", "gradient-descent",
     "neural-networks", "linear-regression", "logistic-regression",
     "softmax-regression", "clustering", "dimensionality-reduction", "knn",
-    "naive-bayes", "decision-trees", "metrics", "linear-algebra",
+    "naive-bayes", "decision-trees", "metrics", "linear-algebra", "numpy-basics",
 })
 
 
