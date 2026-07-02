@@ -24,6 +24,7 @@
       <span id="timer-display">20:00</span>
     </span>
     <select id="focus-select" title="Session focus"></select>
+    <button id="dashboard-btn">Dashboard</button>
     <button id="browse-btn">Browse</button>
     <button id="next-btn">What's next?</button>
   </header>
@@ -73,6 +74,13 @@
         <button id="browse-close" title="Close">✕</button>
       </div>
       <div id="browse-list"></div>
+    </div>
+  </div>
+
+  <div id="dashboard-overlay" hidden>
+    <div id="dashboard-panel">
+      <div id="dashboard-head"><h2>Your progress</h2><button id="dashboard-close" title="Close">✕</button></div>
+      <div id="dashboard-body"></div>
     </div>
   </div>
 

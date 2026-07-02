@@ -146,6 +146,14 @@ def test_problems_focus_filter(client):
     assert items and all(it["track"] == "coding" for it in items)
 
 
+def test_stats_endpoint(client):
+    r = client.get("/api/stats")
+    assert r.status_code == 200
+    body = r.json()
+    for key in ["overall", "by_track", "stages", "ratings", "concepts", "recent"]:
+        assert key in body
+
+
 def test_post_config_persists_merge(client):
     from app import config
     # POST with {"daily_new": 5}

@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from app import config, storage, executor, scheduler
 from app.focus import get_group, matches, group_list as focus_group_list
+from app.stats import compute_stats
 
 app = FastAPI(title="reps")
 
@@ -144,6 +145,14 @@ def next_problem(track: str | None = None, focus: str | None = None):
         filtered = [p for p in prob_dicts if matches(p, group)]
         return scheduler.recommend_next(filtered, schedule, _today(), _config())
     return scheduler.recommend_next(prob_dicts, schedule, _today(), _config(), track=track)
+
+
+@app.get("/api/stats")
+def stats():
+    problems = _problems()
+    schedule = storage.load_schedule(config.SCHEDULE_PATH)
+    sessions = storage.load_sessions(config.SESSIONS_DIR)
+    return compute_stats(problems, schedule, _today(), sessions)
 
 
 @app.get("/api/config")

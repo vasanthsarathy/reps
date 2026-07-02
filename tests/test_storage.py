@@ -70,3 +70,28 @@ def test_record_attempt_miss_does_not_count_as_clean():
     out = storage.record_attempt(schedule, "two-sum", p, "peeked",
                                  "2026-07-01", config.DEFAULT_CONFIG)
     assert out["concepts"]["hashing"] == {"attempts": 1, "cleans": 0}
+
+
+def test_load_sessions_reads_all_json_files(tmp_path):
+    (tmp_path / "2026-07-01T09-00-00-two-sum.json").write_text(
+        json.dumps({"slug": "two-sum", "result": "good", "timestamp": "2026-07-01T09-00-00"}),
+        encoding="utf-8")
+    (tmp_path / "2026-07-01T10-00-00-lru.json").write_text(
+        json.dumps({"slug": "lru", "result": "hard", "timestamp": "2026-07-01T10-00-00"}),
+        encoding="utf-8")
+    sessions = storage.load_sessions(tmp_path)
+    assert len(sessions) == 2
+    assert {s["slug"] for s in sessions} == {"two-sum", "lru"}
+
+
+def test_load_sessions_missing_dir_returns_empty(tmp_path):
+    assert storage.load_sessions(tmp_path / "nope") == []
+
+
+def test_load_sessions_skips_corrupt_files(tmp_path):
+    (tmp_path / "good.json").write_text(
+        json.dumps({"slug": "two-sum", "result": "good", "timestamp": "2026-07-01T09-00-00"}),
+        encoding="utf-8")
+    (tmp_path / "bad.json").write_text("{ not json", encoding="utf-8")
+    sessions = storage.load_sessions(tmp_path)
+    assert len(sessions) == 1
