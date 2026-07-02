@@ -1,10 +1,41 @@
 from __future__ import annotations
+import ast
 import json
 import subprocess
 import sys
 import tempfile
 import time
 from pathlib import Path
+
+
+def check_banned(code: str, banned: list[str]) -> str | None:
+    """Check if code uses any banned names/attributes.
+
+    Returns a message naming the first offending token, or None if all clear.
+    Detects bare names (sum(...)), attribute access (x.view(...)),
+    and dotted calls (np.dot).
+    """
+    if not banned:
+        return None
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return None  # a syntax error surfaces later at exec time
+    bare = {b for b in banned if "." not in b}
+    dotted = {b for b in banned if "." in b}
+    hits = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id in bare:
+            hits.append(node.id)
+        if isinstance(node, ast.Attribute) and node.attr in bare:
+            hits.append(node.attr)
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+            full = f"{node.value.id}.{node.attr}"
+            if full in dotted:
+                hits.append(full)
+    if hits:
+        return f"use of disallowed token {sorted(set(hits))[0]!r}"
+    return None
 
 
 def run(code: str, timeout: float = 10.0) -> dict:
@@ -139,7 +170,11 @@ _main()
 
 def run_tests(code: str, entry_point: str, tests: list[dict],
               compare: str = "exact", timeout: float = 10.0,
-              rtol: float = 1e-4, atol: float = 1e-6) -> dict:
+              rtol: float = 1e-4, atol: float = 1e-6, banned: list[str] = None) -> dict:
+    msg = check_banned(code, banned)
+    if msg:
+        return {"results": [], "passed": 0, "total": 0, "all_passed": False,
+                "error": "Banned: " + msg, "timed_out": False, "runtime_ms": 0}
     payload = json.dumps({"code": code, "entry_point": entry_point,
                           "tests": tests, "compare": compare,
                           "rtol": rtol, "atol": atol})
@@ -235,7 +270,12 @@ _main()
 
 def run_reference_tests(code: str, entry_point: str, reference: str, random_tests: dict,
                         compare: str = "close", libraries: list[str] | None = None,
-                        timeout: float = 10.0, rtol: float = 1e-4, atol: float = 1e-6) -> dict:
+                        timeout: float = 10.0, rtol: float = 1e-4, atol: float = 1e-6,
+                        banned: list[str] = None) -> dict:
+    msg = check_banned(code, banned)
+    if msg:
+        return {"results": [], "passed": 0, "total": 0, "all_passed": False,
+                "error": "Banned: " + msg, "timed_out": False, "runtime_ms": 0}
     payload = json.dumps({"code": code, "entry_point": entry_point, "reference": reference,
                           "random_tests": random_tests, "compare": compare,
                           "libraries": libraries or [], "rtol": rtol, "atol": atol})

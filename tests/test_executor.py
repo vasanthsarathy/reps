@@ -1,4 +1,20 @@
-from app.executor import run, run_tests, run_reference_tests
+from app.executor import run, run_tests, run_reference_tests, check_banned
+
+
+def test_banned_bare_name_detected():
+    assert "sum" in (check_banned("def f(x):\n    return sum(x)\n", ["sum"]) or "")
+
+
+def test_banned_attribute_detected():
+    assert "view" in (check_banned("def f(x):\n    return x.view(-1)\n", ["view"]) or "")
+
+
+def test_banned_dotted_detected():
+    assert (check_banned("import numpy as np\ndef f(x):\n    return np.dot(x, x)\n", ["np.dot"]) or "")
+
+
+def test_not_banned_returns_none():
+    assert check_banned("def f(x):\n    return x + x\n", ["sum", "view"]) is None
 
 
 def test_run_captures_stdout():
@@ -142,3 +158,28 @@ def test_reference_torch_inputs():
     rt = {"count": 3, "shapes": {"x": [5]}, "dtype": "float32", "range": [-2, 2], "seed": 1}
     r = run_reference_tests(ref, "f", ref, rt, "close", ["torch"])
     assert r["all_passed"] is True
+
+
+def test_run_tests_short_circuits_on_banned_token():
+    """Verify that run_tests returns immediately when banned token is detected."""
+    code = "def f(x):\n    return sum(x)\n"
+    tests = [{"args": [[1, 2]], "expected": 3}]
+    r = run_tests(code, "f", tests, banned=["sum"])
+    assert r["all_passed"] is False
+    assert r["error"].startswith("Banned:")
+    assert "sum" in r["error"]
+    assert r["results"] == []
+    assert r["total"] == 0
+
+
+def test_run_reference_tests_short_circuits_on_banned_token():
+    """Verify that run_reference_tests returns immediately when banned token is detected."""
+    code = "def f(x):\n    return sum(x)\n"
+    ref = "def f(x):\n    return sum(x)\n"
+    rt = {"count": 1, "shapes": {"x": [2]}, "dtype": "int32", "range": [1, 2], "seed": 0}
+    r = run_reference_tests(code, "f", ref, rt, banned=["sum"])
+    assert r["all_passed"] is False
+    assert r["error"].startswith("Banned:")
+    assert "sum" in r["error"]
+    assert r["results"] == []
+    assert r["total"] == 0
