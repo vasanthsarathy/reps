@@ -67,6 +67,14 @@ def run(code: str, timeout: float = 10.0) -> dict:
 _COMPARE_SRC = r'''
 import json, sys, traceback, warnings
 
+# Force torch single-threaded so CPU matmul reductions are deterministic across
+# runs (multi-threaded float summation order otherwise makes tensor comparisons flaky).
+try:
+    import torch as _torch
+    _torch.set_num_threads(1)
+except Exception:
+    pass
+
 def _to_np(v):
     try:
         import numpy as np
