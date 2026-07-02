@@ -1,0 +1,22 @@
+{
+  "slug": "merge-intervals",
+  "title": "Merge Intervals",
+  "difficulty": "Medium",
+  "concepts": ["intervals", "sorting", "greedy"],
+  "source": "Blind75",
+  "description": "Given a list of intervals `intervals`, where each interval is `[start, end]`, merge every pair of intervals that overlap (touching endpoints count as overlapping, e.g. `[1,4]` and `[4,5]` merge into `[1,5]`). Return the merged intervals sorted by start.\n\n**Example**\n\n```\nintervals = [[1,3],[2,6],[8,10],[15,18]]  ->  [[1,6],[8,10],[15,18]]\n```",
+  "entry_point": "merge_intervals",
+  "starter_code": "def merge_intervals(intervals):\n    # Return the intervals after merging every overlapping pair.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[[1, 3], [2, 6], [8, 10], [15, 18]]], "expected": [[1, 6], [8, 10], [15, 18]]},
+    {"args": [[[1, 4], [4, 5]]], "expected": [[1, 5]]},
+    {"args": [[]], "expected": []},
+    {"args": [[[1, 4]]], "expected": [[1, 4]]},
+    {"args": [[[1, 4], [0, 4]]], "expected": [[0, 4]]}
+  ],
+  "hints": ["Sort intervals by start first — once sorted, only ever-adjacent intervals in the list can possibly overlap.", "Walk the sorted list keeping a 'current merged interval'; if the next interval's start is <= the current merged end, extend the end (max of the two ends); otherwise close out the current interval and start a new one."],
+  "solutions": [
+    {"name": "Sort then linear merge", "explanation": "Sort intervals by start so any overlap must occur between neighbors in the sorted order. Keep a running merged interval; for each subsequent interval, if its start is at or before the running interval's end, they overlap so extend the end to the max of the two; otherwise the running interval is finished, so save it and start a new running interval.", "code": "def merge_intervals(intervals):\n    if not intervals:\n        return []\n    ordered = sorted(intervals, key=lambda iv: iv[0])\n    merged = [list(ordered[0])]\n    for start, end in ordered[1:]:\n        if start <= merged[-1][1]:\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged\n", "complexity": "Time O(n log n), Space O(n)"}
+  ]
+}

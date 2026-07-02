@@ -1,0 +1,22 @@
+{
+  "slug": "coin-change",
+  "title": "Coin Change",
+  "difficulty": "Medium",
+  "concepts": ["dp"],
+  "source": "Blind75",
+  "description": "You have coin denominations `coins` (an unlimited supply of each) and need to make exactly `amount` in value. Return the fewest coins needed, or `-1` if `amount` cannot be made with those denominations.\n\n**Example**\n\n```\ncoins = [1, 2, 5], amount = 11  ->  3   (5 + 5 + 1)\ncoins = [2], amount = 3         ->  -1\n```",
+  "entry_point": "coin_change",
+  "starter_code": "def coin_change(coins, amount):\n    # Return the minimum number of coins to make amount, or -1 if impossible.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 5], 11], "expected": 3},
+    {"args": [[2], 3], "expected": -1},
+    {"args": [[1], 0], "expected": 0},
+    {"args": [[1], 2], "expected": 2},
+    {"args": [[186, 419, 83, 408], 6249], "expected": 20}
+  ],
+  "hints": ["Let dp[x] be the minimum coins to make amount x; dp[0] = 0.", "For each amount x from 1 up to the target, dp[x] = 1 + min(dp[x - c]) over every coin c <= x that has a finite dp[x - c]."],
+  "solutions": [
+    {"name": "Bottom-up DP over amounts", "explanation": "Build dp[0..amount] where dp[0] = 0 and dp[x] is the minimum coin count to make x, initialized to infinity. For each x from 1 to amount, try every coin c <= x and take dp[x] = min(dp[x], dp[x - c] + 1). The answer is dp[amount], or -1 if it stayed infinite (unreachable).", "code": "def coin_change(coins, amount):\n    INF = float(\"inf\")\n    dp = [0] + [INF] * amount\n    for x in range(1, amount + 1):\n        for c in coins:\n            if c <= x and dp[x - c] + 1 < dp[x]:\n                dp[x] = dp[x - c] + 1\n    return dp[amount] if dp[amount] != INF else -1\n", "complexity": "Time O(amount * len(coins)), Space O(amount)"}
+  ]
+}

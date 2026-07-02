@@ -1,0 +1,28 @@
+{
+  "slug": "two-sum",
+  "title": "Two Sum",
+  "difficulty": "Easy",
+  "concepts": ["hashing", "arrays"],
+  "source": "Blind75",
+  "description": "You are given a list of integers `nums` and an integer `target`.\n\nReturn the indices of the two numbers that add up to `target`. Exactly one such pair exists, and you may not reuse the same index twice. Return them as a list `[i, j]` with `i < j`.\n\n**Example**\n\n```\nnums = [2, 7, 11, 15], target = 9  ->  [0, 1]   (2 + 7 = 9)\n```",
+  "entry_point": "two_sum",
+  "starter_code": "def two_sum(nums, target):\n    # Return [i, j] such that nums[i] + nums[j] == target.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[2, 7, 11, 15], 9], "expected": [0, 1]},
+    {"args": [[3, 2, 4], 6], "expected": [1, 2]},
+    {"args": [[3, 3], 6], "expected": [0, 1]}
+  ],
+  "hints": [
+    "Brute force is every pair — O(n^2). What would let you check 'have I seen the complement?' in O(1)?",
+    "Walk left to right storing value -> index in a dict. For each x, look up target - x."
+  ],
+  "solutions": [
+    {
+      "name": "Hash map (one pass)",
+      "explanation": "Scan once, keeping a dict of value -> index for everything seen so far. For each number x at index j, its partner must be target - x; if that partner is already in the dict at index i, then i < j and [i, j] is the answer. Storing after the lookup guarantees you never pair an element with itself.",
+      "code": "def two_sum(nums, target):\n    seen = {}\n    for j, x in enumerate(nums):\n        if target - x in seen:\n            return [seen[target - x], j]\n        seen[x] = j\n    return []\n",
+      "complexity": "Time O(n), Space O(n)"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "best-time-buy-sell-stock",
+  "title": "Best Time to Buy and Sell Stock",
+  "difficulty": "Easy",
+  "concepts": ["sliding-window", "arrays", "greedy"],
+  "source": "Blind75",
+  "description": "Imagine `prices` recording one stock's closing price for each day in sequence, `prices[i]` being the price on day `i`. You're allowed exactly one buy followed by exactly one later sell -- no short-selling, and no same-day round trip. Write a function that returns the largest profit obtainable this way, or `0` if no choice of buy day and later sell day ever turns a profit.\n\n**Example**\n\n```\nmax_profit([7, 1, 5, 3, 6, 4])\n# -> 5\n# Buy on the day priced 1, sell on the day priced 6: 6 - 1 = 5\n\nmax_profit([7, 6, 4, 3, 1])\n# -> 0\n# Prices only ever fall, so no trade helps\n```",
+  "entry_point": "max_profit",
+  "starter_code": "def max_profit(prices):\n    # Return the maximum profit from one buy followed by one later sell.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[7, 1, 5, 3, 6, 4]], "expected": 5},
+    {"args": [[7, 6, 4, 3, 1]], "expected": 0},
+    {"args": [[]], "expected": 0},
+    {"args": [[5]], "expected": 0},
+    {"args": [[2, 1, 2, 1, 0, 1, 2]], "expected": 2}
+  ],
+  "hints": ["Track the lowest price seen so far as you scan left to right.", "At each day, the best sell-today profit is price[i] minus the minimum price seen before it; keep a running maximum of that."],
+  "solutions": [
+    {"name": "Track running minimum", "explanation": "Walk the prices once, keeping the lowest price seen so far. At each day, the best possible profit if you sold today is today's price minus that running minimum; keep a running maximum of those values. This finds the best buy-low/sell-high pair without checking every pair explicitly.", "code": "def max_profit(prices):\n    if not prices:\n        return 0\n    min_price = prices[0]\n    best = 0\n    for p in prices[1:]:\n        if p - min_price > best:\n            best = p - min_price\n        if p < min_price:\n            min_price = p\n    return best\n", "complexity": "Time O(n), Space O(1)"}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "number-of-islands",
+  "title": "Number of Islands",
+  "difficulty": "Medium",
+  "concepts": ["graphs", "bfs-dfs"],
+  "source": "Blind75",
+  "description": "You are given `grid`, a list of rows where each row is a list of strings `\"1\"` (land) or `\"0\"` (water). An island is a group of `\"1\"` cells connected horizontally or vertically (not diagonally). Return the number of distinct islands.\n\n**Example**\n\n```\ngrid = [\n  [\"1\",\"1\",\"0\",\"0\"],\n  [\"1\",\"1\",\"0\",\"0\"],\n  [\"0\",\"0\",\"1\",\"0\"],\n  [\"0\",\"0\",\"0\",\"1\"]\n]  ->  3\n```",
+  "entry_point": "num_islands",
+  "starter_code": "def num_islands(grid):\n    # grid: list of rows of \"1\"/\"0\" strings. Return the number of islands.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[["1","1","0","0"],["1","1","0","0"],["0","0","1","0"],["0","0","0","1"]]], "expected": 3},
+    {"args": [[["1","1","1"],["0","1","0"],["1","1","1"]]], "expected": 1},
+    {"args": [[["0","0"],["0","0"]]], "expected": 0},
+    {"args": [[]], "expected": 0},
+    {"args": [[["1"]]], "expected": 1}
+  ],
+  "hints": ["Scan every cell; whenever you find an unvisited '1', that's a brand-new island — increment the count.", "From that cell, flood-fill outward (DFS/BFS or just mutate the grid to '0' as you visit) to mark the whole island as visited so it isn't counted again."],
+  "solutions": [
+    {"name": "Flood fill (DFS), sink visited land", "explanation": "Scan the grid cell by cell. Each time an unvisited '1' is found, that starts a new island: increment the count and flood-fill from there using iterative DFS, sinking every connected '1' to '0' (in a copy of the grid) so it's never counted again. Continuing the scan after each flood-fill finds all remaining islands.", "code": "def num_islands(grid):\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    g = [row[:] for row in grid]\n    count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if g[r][c] == \"1\":\n                count += 1\n                stack = [(r, c)]\n                g[r][c] = \"0\"\n                while stack:\n                    cr, cc = stack.pop()\n                    for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                        nr, nc = cr + dr, cc + dc\n                        if 0 <= nr < rows and 0 <= nc < cols and g[nr][nc] == \"1\":\n                            g[nr][nc] = \"0\"\n                            stack.append((nr, nc))\n    return count\n", "complexity": "Time O(rows * cols), Space O(rows * cols)"}
+  ]
+}
