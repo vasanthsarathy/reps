@@ -95,3 +95,30 @@ def test_exact_still_works_for_plain_values():
     code = "def f(a, b):\n    return a + b\n"
     r = run_tests(code, "f", [{"args": [2, 3], "expected": 5}], compare="exact")
     assert r["all_passed"] is True
+
+def test_close_compare_numpy_scalar_float32_passes_within_tol():
+    code = "import numpy as np\ndef f(x):\n    return np.float32(sum(x))\n"
+    tests = [{"args": [[1.0, 2.0, 3.0]], "expected": 6.0}]
+    r = run_tests(code, "f", tests, compare="close")
+    assert r["all_passed"] is True
+
+def test_close_compare_numpy_scalar_float32_fails_and_reports_max_abs_err():
+    code = "import numpy as np\ndef f(x):\n    return np.float32(sum(x))\n"
+    tests = [{"args": [[1.0, 2.0, 3.0]], "expected": 5.0}]  # off by 1.0 > 0.9
+    r = run_tests(code, "f", tests, compare="close")
+    assert r["all_passed"] is False
+    assert r["results"][0].get("max_abs_err", 0) >= 0.9
+
+def test_exact_compare_numpy_bool_scalar_passes():
+    code = "import numpy as np\ndef f(a, b):\n    return np.array_equal(a, b)\n"
+    tests = [{"args": [[1, 2, 3], [1, 2, 3]], "expected": True}]
+    r = run_tests(code, "f", tests, compare="exact")
+    assert r["all_passed"] is True
+    assert r["error"] == ""
+
+def test_exact_compare_numpy_bool_scalar_fails():
+    code = "import numpy as np\ndef f(a, b):\n    return np.array_equal(a, b)\n"
+    tests = [{"args": [[1, 2, 3], [1, 2, 4]], "expected": True}]
+    r = run_tests(code, "f", tests, compare="exact")
+    assert r["all_passed"] is False
+    assert r["error"] == ""

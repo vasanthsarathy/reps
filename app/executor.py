@@ -34,7 +34,7 @@ def run(code: str, timeout: float = 10.0) -> dict:
 
 
 _HARNESS = r'''
-import json, sys, traceback
+import json, sys, traceback, warnings
 
 def _to_np(v):
     try:
@@ -47,12 +47,9 @@ def _to_np(v):
             return v.detach().cpu().numpy()
     except Exception:
         pass
-    if isinstance(v, np.ndarray):
-        return v
+    if isinstance(v, (np.ndarray, np.generic)):
+        return np.asarray(v)
     return None
-
-def _is_array(v):
-    return _to_np(v) is not None
 
 def _fmt(v):
     a = _to_np(v)
@@ -72,8 +69,12 @@ def _compare(got, expected, mode, rtol, atol):
         if ea is None: ea = np.asarray(expected)
         if ga.shape != ea.shape:
             return False, f"shape mismatch: got {tuple(ga.shape)} want {tuple(ea.shape)}", None
-        gf, ef = ga.astype("float64", copy=False), ea.astype("float64", copy=False)
-        with np.errstate(all="ignore"):
+        try:
+            gf, ef = ga.astype("float64", copy=False), ea.astype("float64", copy=False)
+        except (ValueError, TypeError):
+            return False, "non-numeric array output", None
+        with np.errstate(all="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             diff = np.abs(gf - ef)
             mae = float(np.nanmax(diff)) if diff.size else 0.0
         if np.isnan(gf).any() and not np.isnan(ef).any():
@@ -84,6 +85,8 @@ def _compare(got, expected, mode, rtol, atol):
             ok = bool(np.allclose(gf, ef, rtol=rtol, atol=atol, equal_nan=True))
         else:  # exact on arrays
             ok = bool(ga.shape == ea.shape and (ga.dtype == ea.dtype) and np.array_equal(ga, ea))
+            note = "" if ok or ga.dtype == ea.dtype else f"dtype mismatch: got {ga.dtype} want {ea.dtype}"
+            return ok, note, mae
         return ok, "", mae
     # plain python values
     if mode == "unordered" and isinstance(got, list) and isinstance(expected, list):
@@ -126,7 +129,7 @@ def _main():
             row["expected"] = _fmt(t.get("expected"))
             row["passed"] = False
         results.append(row)
-    print(json.dumps({"results": results}))
+    print(json.dumps({"results": results}, default=str))
 
 _main()
 '''
