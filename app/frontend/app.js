@@ -52,8 +52,10 @@ function renderHints(hints) {
     const btn = document.createElement("button");
     btn.textContent = "Hint " + (i + 1);
     btn.onclick = () => {
-      const d = document.createElement("div"); d.className = "hint"; d.textContent = h;
+      const d = document.createElement("div"); d.className = "hint";
+      d.innerHTML = renderMarkdown(h);
       box.replaceChild(d, btn);
+      typesetMath(d);
     };
     box.appendChild(btn);
   });
@@ -63,10 +65,11 @@ function renderSolutions(sols) {
   const box = $("#solutions"); box.innerHTML = "";
   (sols || []).forEach((s) => {
     const el = document.createElement("div");
-    el.innerHTML = "<h4>" + s.name + "</h4><p>" + s.explanation + "</p><pre>" +
+    el.innerHTML = "<h4>" + s.name + "</h4>" + renderMarkdown(s.explanation) + "<pre>" +
       s.code.replace(/</g, "&lt;") + "</pre><em>" + s.complexity + "</em>";
     box.appendChild(el);
   });
+  typesetMath(box);
 }
 
 async function runCode() {
