@@ -6,7 +6,7 @@ PROBLEMS = storage.load_problems(config.PROBLEMS_DIR)
 STATIC = [s for s, p in PROBLEMS.items() if p.tests]
 REFERENCE = [s for s, p in PROBLEMS.items() if p.reference and p.random_tests]
 
-ML_SOURCES = {"TensorPuzzles", "AutodiffPuzzles", "ClassicML", "ML-Impl", "NumpyBasics"}
+ML_SOURCES = {"TensorPuzzles", "AutodiffPuzzles", "ClassicML", "ML-Impl", "NumpyBasics", "RL"}
 
 
 @pytest.mark.parametrize("slug", STATIC)

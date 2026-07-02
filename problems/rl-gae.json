@@ -1,0 +1,31 @@
+{
+  "slug": "rl-gae",
+  "track": "ml",
+  "source": "RL",
+  "title": "Generalized Advantage Estimation (GAE)",
+  "difficulty": "Medium",
+  "concepts": ["reinforcement-learning"],
+  "libraries": ["numpy"],
+  "description": "Given rewards $r_t$, state values $V(s_t)$, and next-state values $V(s'_t)$ along a trajectory, compute the Generalized Advantage Estimate at each timestep. First form the TD errors\n$$\\delta_t = r_t + \\gamma V(s'_t) - V(s_t)$$\nthen the GAE advantage is the exponentially-weighted sum of future TD errors\n$$A_t = \\sum_{l=0}^{T-1-t} (\\gamma\\lambda)^l\\, \\delta_{t+l}$$\nwith $\\gamma = 0.95$ and $\\lambda = 0.9$.\n\nImplement `gae(rewards, values, next_values)` returning the vector $A$. **Shapes**: `rewards`, `values`, `next_values`: (6,) each -> returns (6,).",
+  "entry_point": "gae",
+  "starter_code": "import numpy as np\n\ndef gae(rewards, values, next_values):\n    # TODO: TD errors then backward exponentially-weighted sum, gamma=0.95, lambda=0.9\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef gae(rewards, values, next_values):\n    rewards = np.asarray(rewards, dtype=np.float64)\n    values = np.asarray(values, dtype=np.float64)\n    next_values = np.asarray(next_values, dtype=np.float64)\n    gamma = 0.95\n    lam = 0.9\n    T = rewards.shape[0]\n    deltas = rewards + gamma * next_values - values\n    adv = np.zeros(T, dtype=np.float64)\n    running = 0.0\n    for t in range(T - 1, -1, -1):\n        running = deltas[t] + gamma * lam * running\n        adv[t] = running\n    return adv\n",
+  "random_tests": {"count": 20, "shapes": {"rewards": [6], "values": [6], "next_values": [6]}, "dtype": "float32", "range": [-1, 1], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute the TD-error vector $\\delta$ first (same formula as `td_errors`, but with $\\gamma=0.95$).",
+    "Then run the same backward recursion as reward-to-go but on $\\delta$ with decay $\\gamma\\lambda$: $A_t = \\delta_t + \\gamma\\lambda A_{t+1}$."
+  ],
+  "solutions": [
+    {
+      "name": "TD errors + backward EW sum",
+      "explanation": "GAE first bootstraps a per-step TD error $\\delta_t = r_t + \\gamma V(s'_t) - V(s_t)$, then smooths those errors with an exponentially-decaying backward sum using combined decay $\\gamma\\lambda$, computed via the recursion $A_t = \\delta_t + \\gamma\\lambda A_{t+1}$ (with $A_T = 0$).",
+      "code": "import numpy as np\n\ndef gae(rewards, values, next_values):\n    rewards = np.asarray(rewards, dtype=np.float64)\n    values = np.asarray(values, dtype=np.float64)\n    next_values = np.asarray(next_values, dtype=np.float64)\n    gamma = 0.95\n    lam = 0.9\n    T = rewards.shape[0]\n    deltas = rewards + gamma * next_values - values\n    adv = np.zeros(T, dtype=np.float64)\n    running = 0.0\n    for t in range(T - 1, -1, -1):\n        running = deltas[t] + gamma * lam * running\n        adv[t] = running\n    return adv\n",
+      "complexity": "O(T)"
+    }
+  ]
+}

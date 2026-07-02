@@ -1,0 +1,31 @@
+{
+  "slug": "rl-td-errors",
+  "track": "ml",
+  "source": "RL",
+  "title": "Temporal-Difference (TD) Errors",
+  "difficulty": "Easy",
+  "concepts": ["reinforcement-learning"],
+  "libraries": ["numpy"],
+  "description": "Given per-timestep rewards $r_t$, state values $V(s_t)$, and next-state values $V(s'_t)$ from a trajectory, compute the one-step TD error at each timestep:\n$$\\delta_t = r_t + \\gamma V(s'_t) - V(s_t), \\qquad \\gamma = 0.9$$\n\nImplement `td_errors(rewards, values, next_values)` returning the vector $\\delta$. **Shapes**: `rewards`, `values`, `next_values`: (6,) each -> returns (6,).",
+  "entry_point": "td_errors",
+  "starter_code": "import numpy as np\n\ndef td_errors(rewards, values, next_values):\n    # TODO: delta_t = r_t + gamma * V(s'_t) - V(s_t), gamma = 0.9\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef td_errors(rewards, values, next_values):\n    rewards = np.asarray(rewards, dtype=np.float64)\n    values = np.asarray(values, dtype=np.float64)\n    next_values = np.asarray(next_values, dtype=np.float64)\n    gamma = 0.9\n    return rewards + gamma * next_values - values\n",
+  "random_tests": {"count": 20, "shapes": {"rewards": [6], "values": [6], "next_values": [6]}, "dtype": "float32", "range": [-1, 1], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "This is a fully vectorized elementwise formula — no loop needed.",
+    "$\\delta_t$ is the bootstrapped estimate of the advantage: reward plus discounted next value, minus the current value estimate."
+  ],
+  "solutions": [
+    {
+      "name": "Elementwise TD error",
+      "explanation": "Each TD error compares the one-step bootstrapped target $r_t + \\gamma V(s'_t)$ against the current value estimate $V(s_t)$; all three inputs are already aligned per-timestep so the whole computation is elementwise.",
+      "code": "import numpy as np\n\ndef td_errors(rewards, values, next_values):\n    rewards = np.asarray(rewards, dtype=np.float64)\n    values = np.asarray(values, dtype=np.float64)\n    next_values = np.asarray(next_values, dtype=np.float64)\n    gamma = 0.9\n    return rewards + gamma * next_values - values\n",
+      "complexity": "O(T)"
+    }
+  ]
+}

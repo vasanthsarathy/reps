@@ -1,0 +1,31 @@
+{
+  "slug": "rl-returns-to-go",
+  "track": "ml",
+  "source": "RL",
+  "title": "Reward-to-Go via Reverse Cumulative Discounting",
+  "difficulty": "Easy",
+  "concepts": ["reinforcement-learning"],
+  "libraries": ["numpy"],
+  "description": "Given rewards $r_0, \\ldots, r_{T-1}$ from a trajectory, compute the reward-to-go (return-from-t) at every timestep:\n$$G_t = \\sum_{k=t}^{T-1} \\gamma^{k-t} r_k, \\qquad \\gamma = 0.9$$\n\nImplement `returns_to_go(rewards)` returning a vector $G$ the same length as `rewards`, where $G_t$ is the discounted sum of all rewards from step $t$ onward. **Shape**: `rewards`: (8,) -> returns (8,).",
+  "entry_point": "returns_to_go",
+  "starter_code": "import numpy as np\n\ndef returns_to_go(rewards):\n    # TODO: reverse cumulative discounted sum, gamma = 0.9\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef returns_to_go(rewards):\n    rewards = np.asarray(rewards, dtype=np.float64)\n    gamma = 0.9\n    T = rewards.shape[0]\n    G = np.zeros(T, dtype=np.float64)\n    running = 0.0\n    for t in range(T - 1, -1, -1):\n        running = rewards[t] + gamma * running\n        G[t] = running\n    return G\n",
+  "random_tests": {"count": 20, "shapes": {"rewards": [8]}, "dtype": "float32", "range": [-1, 1], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Work backward from the last timestep: $G_{T-1} = r_{T-1}$ and $G_t = r_t + \\gamma G_{t+1}$.",
+    "A single reverse loop accumulating a running total is simplest; avoid recomputing the full sum at every t."
+  ],
+  "solutions": [
+    {
+      "name": "Backward recursion",
+      "explanation": "The reward-to-go satisfies the recursion $G_t = r_t + \\gamma G_{t+1}$ with $G_T = 0$. Scanning the trajectory in reverse and accumulating a running discounted total fills every $G_t$ in one pass.",
+      "code": "import numpy as np\n\ndef returns_to_go(rewards):\n    rewards = np.asarray(rewards, dtype=np.float64)\n    gamma = 0.9\n    T = rewards.shape[0]\n    G = np.zeros(T, dtype=np.float64)\n    running = 0.0\n    for t in range(T - 1, -1, -1):\n        running = rewards[t] + gamma * running\n        G[t] = running\n    return G\n",
+      "complexity": "O(T)"
+    }
+  ]
+}

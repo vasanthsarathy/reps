@@ -1,0 +1,31 @@
+{
+  "slug": "rl-discounted-return",
+  "track": "ml",
+  "source": "RL",
+  "title": "Discounted Return of a Trajectory",
+  "difficulty": "Easy",
+  "concepts": ["reinforcement-learning"],
+  "libraries": ["numpy"],
+  "description": "Given a sequence of rewards $r_0, r_1, \\ldots, r_{T-1}$ collected along a trajectory, compute the discounted return\n$$G = \\sum_{t=0}^{T-1} \\gamma^t r_t$$\nusing a fixed discount factor $\\gamma = 0.9$.\n\nImplement `discounted_return(rewards)` returning the scalar $G$. **Shape**: `rewards`: (8,) -> returns a scalar.",
+  "entry_point": "discounted_return",
+  "starter_code": "import numpy as np\n\ndef discounted_return(rewards):\n    # TODO: sum_t gamma^t * r_t, gamma = 0.9\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef discounted_return(rewards):\n    rewards = np.asarray(rewards, dtype=np.float64)\n    gamma = 0.9\n    T = rewards.shape[0]\n    discounts = gamma ** np.arange(T)\n    return np.sum(discounts * rewards)\n",
+  "random_tests": {"count": 20, "shapes": {"rewards": [8]}, "dtype": "float32", "range": [-1, 1], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Build the discount vector $[\\gamma^0, \\gamma^1, \\ldots, \\gamma^{T-1}]$ with `gamma ** np.arange(T)`.",
+    "The discounted return is the dot product of the discount vector and the reward vector: `np.sum(discounts * rewards)`."
+  ],
+  "solutions": [
+    {
+      "name": "Discount vector dot product",
+      "explanation": "Raise $\\gamma$ to the power of each time index to form the discount weights, then take a weighted sum: $G = \\sum_t \\gamma^t r_t$.",
+      "code": "import numpy as np\n\ndef discounted_return(rewards):\n    rewards = np.asarray(rewards, dtype=np.float64)\n    gamma = 0.9\n    T = rewards.shape[0]\n    discounts = gamma ** np.arange(T)\n    return np.sum(discounts * rewards)\n",
+      "complexity": "O(T)"
+    }
+  ]
+}

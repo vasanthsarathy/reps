@@ -1,0 +1,31 @@
+{
+  "slug": "rl-value-backup",
+  "track": "ml",
+  "source": "RL",
+  "title": "One-Step Bellman Optimality Backup",
+  "difficulty": "Medium",
+  "concepts": ["reinforcement-learning"],
+  "libraries": ["numpy"],
+  "description": "Given an immediate-reward table $R \\in \\mathbb{R}^{S\\times A}$ and the values of the resulting next states $V' \\in \\mathbb{R}^{S\\times A}$ for every (state, action) pair, compute one synchronous Bellman **optimality** backup for each state:\n$$V(s) = \\max_{a}\\big(R(s,a) + \\gamma\\, V'(s,a)\\big), \\qquad \\gamma = 0.9$$\n\nImplement `value_backup(reward, next_values)` returning the updated state-value vector. **Shapes**: `reward`, `next_values`: (5, 4) each -> returns (5,).",
+  "entry_point": "value_backup",
+  "starter_code": "import numpy as np\n\ndef value_backup(reward, next_values):\n    # TODO: V(s) = max_a( R[s,a] + gamma * next_values[s,a] ), gamma = 0.9\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef value_backup(reward, next_values):\n    reward = np.asarray(reward, dtype=np.float64)\n    next_values = np.asarray(next_values, dtype=np.float64)\n    gamma = 0.9\n    return np.max(reward + gamma * next_values, axis=1)\n",
+  "random_tests": {"count": 20, "shapes": {"reward": [5, 4], "next_values": [5, 4]}, "dtype": "float32", "range": [-1, 1], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Form the elementwise action-value estimate `reward + gamma * next_values`, shape (S, A).",
+    "Take the max over the action axis (`axis=1`) to get the new state value for each of the S states."
+  ],
+  "solutions": [
+    {
+      "name": "Elementwise backup then row max",
+      "explanation": "The Bellman optimality operator evaluates every action's one-step lookahead $R(s,a) + \\gamma V'(s,a)$ and keeps the best one per state; computing the elementwise sum and reducing with `max(axis=1)` implements this directly for all states at once.",
+      "code": "import numpy as np\n\ndef value_backup(reward, next_values):\n    reward = np.asarray(reward, dtype=np.float64)\n    next_values = np.asarray(next_values, dtype=np.float64)\n    gamma = 0.9\n    return np.max(reward + gamma * next_values, axis=1)\n",
+      "complexity": "O(S*A)"
+    }
+  ]
+}

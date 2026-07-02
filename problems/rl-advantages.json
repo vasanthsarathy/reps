@@ -1,0 +1,31 @@
+{
+  "slug": "rl-advantages",
+  "track": "ml",
+  "source": "RL",
+  "title": "Action Advantage from Q- and State-Values",
+  "difficulty": "Easy",
+  "concepts": ["reinforcement-learning"],
+  "libraries": ["numpy"],
+  "description": "Given action-value estimates $Q(s,a)$ and state-value estimates $V(s)$ for the same set of states, compute the advantage of each action:\n$$A(s,a) = Q(s,a) - V(s)$$\n\nImplement `advantages(q_values, state_values)` returning the elementwise advantage. **Shapes**: `q_values`, `state_values`: (6,) each -> returns (6,).",
+  "entry_point": "advantages",
+  "starter_code": "import numpy as np\n\ndef advantages(q_values, state_values):\n    # TODO: A = Q - V, elementwise\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef advantages(q_values, state_values):\n    q_values = np.asarray(q_values, dtype=np.float64)\n    state_values = np.asarray(state_values, dtype=np.float64)\n    return q_values - state_values\n",
+  "random_tests": {"count": 20, "shapes": {"q_values": [6], "state_values": [6]}, "dtype": "float32", "range": [-1, 1], "seed": 0},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "This is plain elementwise subtraction — no reduction or loop required.",
+    "A positive advantage means the action is better than the policy's average (the state value); negative means worse."
+  ],
+  "solutions": [
+    {
+      "name": "Elementwise subtraction",
+      "explanation": "The advantage function measures how much better (or worse) an action is compared to the state's baseline value: $A(s,a) = Q(s,a) - V(s)$, computed elementwise across the aligned arrays.",
+      "code": "import numpy as np\n\ndef advantages(q_values, state_values):\n    q_values = np.asarray(q_values, dtype=np.float64)\n    state_values = np.asarray(state_values, dtype=np.float64)\n    return q_values - state_values\n",
+      "complexity": "O(n)"
+    }
+  ]
+}
