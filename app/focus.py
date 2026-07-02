@@ -31,6 +31,8 @@ FOCUS_GROUPS = [
     {"id": "ml-classic", "label": "ML · Classic ML algorithms", "track": "ml",
      "sources": {"ClassicML"}},
     {"id": "ml-linalg", "label": "ML · Linear algebra", "track": "ml", "concepts": {"linear-algebra"}},
+    {"id": "ml-rl", "label": "ML · Reinforcement learning", "track": "ml",
+     "concepts": {"reinforcement-learning"}},
 ]
 
 _BY_ID = {g["id"]: g for g in FOCUS_GROUPS}

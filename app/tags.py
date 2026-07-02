@@ -31,6 +31,7 @@ CANONICAL_TAGS = frozenset({
     "neural-networks", "linear-regression", "logistic-regression",
     "softmax-regression", "clustering", "dimensionality-reduction", "knn",
     "naive-bayes", "decision-trees", "metrics", "linear-algebra", "numpy-basics",
+    "reinforcement-learning",
 })
 
 
