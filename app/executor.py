@@ -286,13 +286,13 @@ def _main():
     lo, hi = spec.get("range", [-2, 2]); shape = tuple(next(iter(spec["shapes"].values())))
     results = []
     for _ in range(spec.get("count", 5)):
-        xa = (rng.random(shape) * (hi - lo) + lo).astype("float32")
+        xa = (rng.random(shape) * (hi - lo) + lo).astype("float32")  # autograd inputs are always float32 (grads require float)
         x = torch.tensor(xa, requires_grad=True)
-        out = fwd(x)
-        g = torch.tensor((rng.random(tuple(out.shape)) * 2 - 1).astype("float32"))
-        true_dx, = torch.autograd.grad(out, x, grad_outputs=g, retain_graph=False)
         row = {"args": {"x": list(shape)}}
         try:
+            out = fwd(x)
+            g = torch.tensor((rng.random(tuple(out.shape)) * 2 - 1).astype("float32"))
+            true_dx, = torch.autograd.grad(out, x, grad_outputs=g, retain_graph=False)
             got = usr(torch.tensor(xa), torch.tensor(g.detach().numpy()))
             passed, note, mae = _compare(got, true_dx.detach(), "close", rtol, atol)
             row["got"] = _fmt(got); row["expected"] = _fmt(true_dx.detach()); row["passed"] = passed

@@ -200,3 +200,16 @@ def test_autograd_wrong_grad_fails():
     user = "import torch\ndef relu_backward(x, g):\n    return g\n"  # ignores the mask
     r = run_autograd_tests(user, "relu_backward", RELU_FWD, AUTOGRAD_RT)
     assert r["all_passed"] is False
+
+
+def test_autograd_forward_exception_fails_gracefully():
+    # forward() raises on every sampled input; this must not crash the whole
+    # subprocess run (no JSON output) — each row should fail individually.
+    bad_fwd = "def forward(x):\n    raise ValueError('boom')\n"
+    user = "import torch\ndef relu_backward(x, g):\n    return g\n"
+    r = run_autograd_tests(user, "relu_backward", bad_fwd, AUTOGRAD_RT)
+    assert r["all_passed"] is False
+    assert r["results"] != []
+    assert r["error"] == ""
+    assert all(row["passed"] is False for row in r["results"])
+    assert any("ValueError" in row["got"] for row in r["results"])
