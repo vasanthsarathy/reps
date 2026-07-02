@@ -1,0 +1,37 @@
+{
+  "slug": "nb-row-means",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Average Each Row",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics"],
+  "libraries": ["numpy"],
+  "description": "Given a 2-D array $x$ with shape $(m, n)$, return a 1-D array of length $m$ where each entry is the mean of the corresponding row of $x$ (i.e. mean over axis 1, across columns).\n\n**Example**: `x = [[1, 2, 3], [4, 4, 4]]` -> `row_means(x) = [2.0, 4.0]` (mean of 1,2,3 is 2.0; mean of 4,4,4 is 4.0).\n\nImplement `row_means(x)`. **Shape**: `x`: (4, 5) -> returns (4,).",
+  "entry_point": "row_means",
+  "starter_code": "import numpy as np\n\ndef row_means(x):\n    # TODO: mean over columns (axis 1), one value per row\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef row_means(x):\n    x = np.asarray(x)\n    return x.mean(axis=1)\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [4, 5]},
+    "dtype": "float32",
+    "range": [-5, 5],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "`np.mean` (or the `.mean` method) accepts an `axis` argument, just like `np.sum`.",
+    "Axis 1 runs across the columns of each row, so averaging over axis 1 collapses each row into a single value."
+  ],
+  "solutions": [
+    {
+      "name": "Mean over axis 1",
+      "explanation": "`x.mean(axis=1)` collapses the column axis (axis 1) for each row, leaving one averaged value per row.",
+      "code": "import numpy as np\ndef row_means(x):\n    x = np.asarray(x)\n    return x.mean(axis=1)\n",
+      "complexity": "Time O(mn), Space O(m)"
+    }
+  ]
+}

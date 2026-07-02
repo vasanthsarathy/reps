@@ -1,0 +1,37 @@
+{
+  "slug": "nb-argmax-rows",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Index of the Max in Each Row",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics"],
+  "libraries": ["numpy"],
+  "description": "Given a 2-D array $x$ with shape $(m, n)$, return a 1-D integer array of length $m$ where each entry is the column index of the largest value in that row.\n\n**Example**: `x = [[1, 5, 3], [9, 2, 4]]` -> `argmax_per_row(x) = [1, 0]` (row 0's max 5 is at column 1; row 1's max 9 is at column 0).\n\nImplement `argmax_per_row(x)`. **Shape**: `x`: (4, 5) -> returns (4,) of integer indices.",
+  "entry_point": "argmax_per_row",
+  "starter_code": "import numpy as np\n\ndef argmax_per_row(x):\n    # TODO: index of the max value in each row\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef argmax_per_row(x):\n    x = np.asarray(x)\n    return x.argmax(axis=1)\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [4, 5]},
+    "dtype": "float32",
+    "range": [-5, 5],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "`np.argmax` (or the `.argmax` method) returns the index of the largest element rather than the value itself.",
+    "Passing `axis=1` makes `argmax` operate independently within each row, giving one index per row."
+  ],
+  "solutions": [
+    {
+      "name": "Argmax over axis 1",
+      "explanation": "`x.argmax(axis=1)` scans each row independently and returns the column index of that row's largest value.",
+      "code": "import numpy as np\ndef argmax_per_row(x):\n    x = np.asarray(x)\n    return x.argmax(axis=1)\n",
+      "complexity": "Time O(mn), Space O(m)"
+    }
+  ]
+}

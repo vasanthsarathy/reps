@@ -1,0 +1,30 @@
+{
+  "slug": "multi-head-attention",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Multi-Head Self-Attention",
+  "difficulty": "Medium",
+  "concepts": ["attention"],
+  "libraries": ["numpy"],
+  "description": "Implement multi-head scaled dot-product self-attention for queries, keys, and values $Q, K, V \\in \\mathbb{R}^{n \\times d}$ (sequence length $n$, model dim $d$) split into $h$ heads of size $d_h = d/h$.\n\nFor head $k = 0, \\dots, h-1$, let $Q_k, K_k, V_k \\in \\mathbb{R}^{n \\times d_h}$ be the columns $[k \\cdot d_h : (k+1) \\cdot d_h]$ of $Q, K, V$. Compute\n$$\\text{head}_k = \\text{softmax}\\!\\left(\\frac{Q_k K_k^\\top}{\\sqrt{d_h}}\\right)V_k$$\nusing a numerically stable row-wise softmax (subtract the row max first), then concatenate the heads along the last axis:\n$$\\text{MultiHead}(Q,K,V) = [\\text{head}_0, \\dots, \\text{head}_{h-1}] \\in \\mathbb{R}^{n \\times d}$$\n\nImplement `multi_head_attention(Q, K, V, num_heads)` returning the output of shape `(n, d)`.\n\n**Shapes**: `Q`, `K`, `V`: `(4, 8)` (seq_len=4, d=8), `num_heads`: `2` (constant; d/num_heads=4) -> returns `(4, 8)`.",
+  "entry_point": "multi_head_attention",
+  "starter_code": "import numpy as np\n\ndef multi_head_attention(Q, K, V, num_heads):\n    # TODO: split last dim of Q,K,V into num_heads chunks, run scaled dot-product attention per head, concatenate\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef multi_head_attention(Q, K, V, num_heads):\n    Q = np.asarray(Q, dtype=np.float64)\n    K = np.asarray(K, dtype=np.float64)\n    V = np.asarray(V, dtype=np.float64)\n    d = Q.shape[-1]\n    h = num_heads\n    dh = d // h\n    outputs = []\n    for k in range(h):\n        Qk = Q[:, k*dh:(k+1)*dh]\n        Kk = K[:, k*dh:(k+1)*dh]\n        Vk = V[:, k*dh:(k+1)*dh]\n        scores = (Qk @ Kk.T) / np.sqrt(dh)\n        scores = scores - scores.max(axis=-1, keepdims=True)\n        e = np.exp(scores)\n        weights = e / e.sum(axis=-1, keepdims=True)\n        outputs.append(weights @ Vk)\n    return np.concatenate(outputs, axis=-1)\n",
+  "random_tests": {"count": 20, "shapes": {"Q": [4, 8], "K": [4, 8], "V": [4, 8], "num_heads": 2}, "dtype": "float32", "range": [-2, 2], "seed": 12},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Slice the last dimension (size d) of Q, K, V into num_heads contiguous chunks of size d/num_heads, one per head.",
+    "Run the standard scaled dot-product attention (softmax(Qk @ Kk.T / sqrt(head_dim)) @ Vk) independently on each head's chunks, then np.concatenate the per-head outputs along the last axis in head order."
+  ],
+  "solutions": [
+    {
+      "name": "Split into heads, attend independently, concatenate",
+      "explanation": "Multi-head attention runs $h$ independent scaled dot-product attentions, each on a $d/h$-sized slice of $Q,K,V$, so every head can learn to attend over a different subspace. The per-head outputs (each $n \\times d_h$) are concatenated back along the feature axis to restore the original width $d$.",
+      "code": "import numpy as np\ndef multi_head_attention(Q, K, V, num_heads):\n    Q = np.asarray(Q, dtype=np.float64)\n    K = np.asarray(K, dtype=np.float64)\n    V = np.asarray(V, dtype=np.float64)\n    d = Q.shape[-1]\n    h = num_heads\n    dh = d // h\n    outputs = []\n    for k in range(h):\n        Qk = Q[:, k*dh:(k+1)*dh]\n        Kk = K[:, k*dh:(k+1)*dh]\n        Vk = V[:, k*dh:(k+1)*dh]\n        scores = (Qk @ Kk.T) / np.sqrt(dh)\n        scores = scores - scores.max(axis=-1, keepdims=True)\n        e = np.exp(scores)\n        weights = e / e.sum(axis=-1, keepdims=True)\n        outputs.append(weights @ Vk)\n    return np.concatenate(outputs, axis=-1)\n",
+      "complexity": "Time O(h * n^2 * d_h) = O(n^2 * d), Space O(n^2)"
+    }
+  ]
+}

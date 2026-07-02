@@ -1,0 +1,37 @@
+{
+  "slug": "nb-reshape",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Reshape Into Rows",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics"],
+  "libraries": ["numpy"],
+  "description": "Given a 2-D array $x$ and an integer $rows$, reshape $x$ into a new array with exactly $rows$ rows, letting NumPy infer the number of columns so the total number of elements is preserved.\n\n**Example**: `x` has shape (4, 6) (24 elements) and `rows = 2` -> the result has shape (2, 12), containing the same 24 elements laid out in the new shape (row-major order).\n\nImplement `reshape_rows(x, rows)`. **Shapes**: `x`: (4, 6), `rows`: 2 (scalar) -> returns (2, 12).",
+  "entry_point": "reshape_rows",
+  "starter_code": "import numpy as np\n\ndef reshape_rows(x, rows):\n    # TODO: reshape x into `rows` rows, inferring the column count\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef reshape_rows(x, rows):\n    x = np.asarray(x)\n    return x.reshape(rows, -1)\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [4, 6], "rows": 2},
+    "dtype": "float32",
+    "range": [-5, 5],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "`np.reshape` (or the `.reshape` method) lets you pass `-1` for one dimension and NumPy computes it automatically from the total element count.",
+    "The total number of elements must stay the same before and after reshaping."
+  ],
+  "solutions": [
+    {
+      "name": "Reshape with inferred dimension",
+      "explanation": "Calling `x.reshape(rows, -1)` tells NumPy to use exactly `rows` rows and to compute the number of columns automatically so that `rows * cols` equals the total element count of `x`.",
+      "code": "import numpy as np\ndef reshape_rows(x, rows):\n    x = np.asarray(x)\n    return x.reshape(rows, -1)\n",
+      "complexity": "Time O(mn), Space O(mn)"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "nb-transpose",
+  "track": "ml",
+  "source": "NumpyBasics",
+  "title": "Transpose a Matrix",
+  "difficulty": "Easy",
+  "concepts": ["numpy-basics"],
+  "libraries": ["numpy"],
+  "description": "Given a 2-D array $x$ with shape $(m, n)$, return its transpose $x^T$ with shape $(n, m)$, where $x^T_{ij} = x_{ji}$.\n\n**Example**: `x = [[1, 2, 3], [4, 5, 6]]` (shape (2,3)) -> `transpose(x) = [[1, 4], [2, 5], [3, 6]]` (shape (3,2)).\n\nImplement `transpose(x)`. **Shape**: `x`: (3, 4) -> returns (4, 3).",
+  "entry_point": "transpose",
+  "starter_code": "import numpy as np\n\ndef transpose(x):\n    # TODO: return x transposed\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4,
+  "atol": 1e-6,
+  "reference": "import numpy as np\ndef transpose(x):\n    x = np.asarray(x)\n    return x.T\n",
+  "random_tests": {
+    "count": 20,
+    "shapes": {"x": [3, 4]},
+    "dtype": "float32",
+    "range": [-5, 5],
+    "seed": 0
+  },
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "NumPy arrays have a built-in `.T` attribute that returns the transpose.",
+    "You can also use `np.transpose(x)`; for a 2-D array this swaps rows and columns."
+  ],
+  "solutions": [
+    {
+      "name": "Use .T",
+      "explanation": "The `.T` attribute (or equivalently `np.transpose`) swaps the two axes of a 2-D array, turning rows into columns and vice versa.",
+      "code": "import numpy as np\ndef transpose(x):\n    x = np.asarray(x)\n    return x.T\n",
+      "complexity": "Time O(mn), Space O(mn)"
+    }
+  ]
+}

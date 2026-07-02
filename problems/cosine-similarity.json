@@ -1,0 +1,30 @@
+{
+  "slug": "cosine-similarity",
+  "track": "ml",
+  "source": "ML-Impl",
+  "title": "Cosine Similarity",
+  "difficulty": "Easy",
+  "concepts": ["linear-algebra"],
+  "libraries": ["numpy"],
+  "description": "Implement cosine similarity between two vectors $a, b \\in \\mathbb{R}^n$:\n$$\\text{cosine\\_similarity}(a,b) = \\frac{a \\cdot b}{\\lVert a \\rVert \\, \\lVert b \\rVert}$$\nwhere $a \\cdot b = \\sum_{i=1}^n a_i b_i$ and $\\lVert a \\rVert = \\sqrt{\\sum_{i=1}^n a_i^2}$ is the Euclidean norm.\n\nImplement `cosine_similarity(a, b)` returning a single scalar.\n\n**Shapes**: `a`, `b`: `(6,)` -> returns a scalar.",
+  "entry_point": "cosine_similarity",
+  "starter_code": "import numpy as np\n\ndef cosine_similarity(a, b):\n    # TODO: dot(a, b) / (norm(a) * norm(b))\n    pass\n",
+  "compare": "close",
+  "rtol": 1e-4, "atol": 1e-6,
+  "reference": "import numpy as np\n\ndef cosine_similarity(a, b):\n    a = np.asarray(a, dtype=np.float64)\n    b = np.asarray(b, dtype=np.float64)\n    dot = np.dot(a, b)\n    norm_a = np.sqrt(np.sum(a * a))\n    norm_b = np.sqrt(np.sum(b * b))\n    return dot / (norm_a * norm_b)\n",
+  "random_tests": {"count": 20, "shapes": {"a": [6], "b": [6]}, "dtype": "float32", "range": [-3, 3], "seed": 14},
+  "banned": [],
+  "tests": [],
+  "hints": [
+    "Compute the dot product a . b and the two Euclidean norms ||a|| = sqrt(sum(a**2)) and ||b|| = sqrt(sum(b**2)) separately.",
+    "Divide the dot product by the product of the two norms; the result is a single scalar in [-1, 1]."
+  ],
+  "solutions": [
+    {
+      "name": "Dot product over product of norms",
+      "explanation": "Cosine similarity measures the cosine of the angle between $a$ and $b$: the dot product $a \\cdot b = \\lVert a\\rVert \\lVert b\\rVert \\cos\\theta$, so dividing the dot product by the product of the norms isolates $\\cos\\theta$, a scale-invariant similarity in $[-1,1]$.",
+      "code": "import numpy as np\ndef cosine_similarity(a, b):\n    a = np.asarray(a, dtype=np.float64)\n    b = np.asarray(b, dtype=np.float64)\n    dot = np.dot(a, b)\n    norm_a = np.sqrt(np.sum(a * a))\n    norm_b = np.sqrt(np.sum(b * b))\n    return dot / (norm_a * norm_b)\n",
+      "complexity": "Time O(n), Space O(1)"
+    }
+  ]
+}
