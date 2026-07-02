@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from app import config, storage, executor, scheduler
+from app.focus import get_group, matches, group_list as focus_group_list
 
 app = FastAPI(title="reps")
 
@@ -42,21 +43,30 @@ class AttemptBody(BaseModel):
     notes: dict = {}
     test_summary: dict | None = None
     track: str | None = None
+    focus: str | None = None
+
+
+@app.get("/api/focus-groups")
+def focus_groups():
+    return focus_group_list()
 
 
 @app.get("/api/problems")
-def list_problems():
+def list_problems(focus: str | None = None):
     schedule = storage.load_schedule(config.SCHEDULE_PATH)
     seen = schedule["problems"]
+    group = get_group(focus)
     out = []
     for slug, p in _problems().items():
         st = seen.get(slug)
-        out.append({"slug": slug, "title": p.title, "difficulty": p.difficulty,
-                    "concepts": p.concepts, "seen": st is not None,
-                    "due": st.get("due") if st else None,
-                    "last_result": st.get("last_result") if st else None,
-                    "repetitions": st.get("repetitions", 0) if st else 0,
-                    "track": p.track})
+        item = {"slug": slug, "title": p.title, "difficulty": p.difficulty,
+                "concepts": p.concepts, "seen": st is not None,
+                "due": st.get("due") if st else None,
+                "last_result": st.get("last_result") if st else None,
+                "repetitions": st.get("repetitions", 0) if st else 0,
+                "track": p.track, "libraries": p.libraries, "source": p.source}
+        if matches(item, group):
+            out.append(item)
     return out
 
 
@@ -108,19 +118,31 @@ def attempt(body: AttemptBody):
         "elapsed_ms": body.elapsed_ms, "code": body.code, "notes": body.notes,
         "test_summary": body.test_summary,
     })
-    prob_dicts = [{"slug": s, "difficulty": pr.difficulty, "concepts": pr.concepts, "track": pr.track}
+    prob_dicts = [{"slug": s, "difficulty": pr.difficulty, "concepts": pr.concepts, "track": pr.track,
+                   "libraries": pr.libraries, "source": pr.source}
                   for s, pr in problems.items()]
-    nxt = scheduler.recommend_next(prob_dicts, schedule, today, cfg, track=(body.track or None))
+    focus_group = get_group(body.focus)
+    if body.focus:
+        filtered = [pd for pd in prob_dicts if matches(pd, focus_group)]
+        nxt = scheduler.recommend_next(filtered, schedule, today, cfg)
+    else:
+        nxt = scheduler.recommend_next(prob_dicts, schedule, today, cfg, track=(body.track or None))
     return {"schedule_state": schedule["problems"][body.slug], "next": nxt}
 
 
 @app.get("/api/next")
-def next_problem(track: str | None = None):
+def next_problem(track: str | None = None, focus: str | None = None):
     track = track or None
+    focus = focus or None
     problems = _problems()
     schedule = storage.load_schedule(config.SCHEDULE_PATH)
-    prob_dicts = [{"slug": s, "difficulty": p.difficulty, "concepts": p.concepts, "track": p.track}
+    prob_dicts = [{"slug": s, "difficulty": p.difficulty, "concepts": p.concepts, "track": p.track,
+                   "libraries": p.libraries, "source": p.source}
                   for s, p in problems.items()]
+    if focus is not None:
+        group = get_group(focus)
+        filtered = [p for p in prob_dicts if matches(p, group)]
+        return scheduler.recommend_next(filtered, schedule, _today(), _config())
     return scheduler.recommend_next(prob_dicts, schedule, _today(), _config(), track=track)
 
 

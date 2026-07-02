@@ -1,6 +1,6 @@
 const $ = (sel) => document.querySelector(sel);
 let editor, currentProblem = null, attemptLogged = false;
-let activeTrack = "";
+let activeFocus = localStorage.getItem("reps_focus") || "all";
 
 async function api(path, opts) {
   const r = await fetch("/api" + path, opts);
@@ -33,7 +33,15 @@ async function loadProblem(slug) {
 }
 
 function renderMarkdown(md) {
-  const html = window.marked ? marked.parse(md || "") : (md || "");
+  // Protect LaTeX ($$...$$ and $...$) from the markdown pass so marked can't
+  // mangle math (e.g. eat underscores in scores_{i,j} as emphasis). KaTeX
+  // typesets the restored spans afterwards (see typesetMath).
+  let s = md || "";
+  const math = [];
+  s = s.replace(/\$\$[\s\S]+?\$\$/g, (m) => { math.push(m); return "@@MATH" + (math.length - 1) + "@@"; });
+  s = s.replace(/\$[^$\n]+?\$/g, (m) => { math.push(m); return "@@MATH" + (math.length - 1) + "@@"; });
+  let html = window.marked ? marked.parse(s) : s;
+  html = html.replace(/@@MATH(\d+)@@/g, (_, i) => math[+i]);
   return html;
 }
 function typesetMath(el) {
@@ -121,6 +129,18 @@ async function submitCode() {
   window._lastSubmit = { passed: r.passed, total: r.total, all_passed: r.all_passed };
 }
 
+async function loadFocusGroups() {
+  const groups = await api("/focus-groups");
+  const sel = $("#focus-select");
+  sel.innerHTML = "";
+  groups.forEach((g) => {
+    const opt = document.createElement("option");
+    opt.value = g.id; opt.textContent = g.label;
+    sel.appendChild(opt);
+  });
+  sel.value = activeFocus;
+}
+
 function wire() {
   $("#run-btn").onclick = runCode;
   $("#submit-btn").onclick = submitCode;
@@ -132,12 +152,11 @@ function wire() {
   $("#browse-close").onclick = closeBrowse;
   $("#browse-search").oninput = (e) => renderBrowse(filterItems(e.target.value));
   $("#browse-overlay").onclick = (e) => { if (e.target.id === "browse-overlay") closeBrowse(); };
-  document.querySelectorAll("#deck-toggle button[data-track]").forEach((b) =>
-    b.onclick = () => {
-      activeTrack = b.dataset.track;
-      document.querySelectorAll("#deck-toggle button").forEach((x) => x.classList.toggle("active", x === b));
-      renderBrowse(filterItems($("#browse-search").value));
-    });
+  $("#focus-select").onchange = (e) => {
+    activeFocus = e.target.value;
+    localStorage.setItem("reps_focus", activeFocus);
+    goNext();
+  };
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !$("#browse-overlay").hidden) closeBrowse();
   });
@@ -162,7 +181,6 @@ function closeBrowse() {
 function filterItems(query) {
   const q = query.trim().toLowerCase();
   return browseItems.filter((item) =>
-    (!activeTrack || item.track === activeTrack) &&
     (!q || item.title.toLowerCase().includes(q) ||
      (item.concepts || []).some((c) => c.toLowerCase().includes(q))));
 }
@@ -281,7 +299,7 @@ async function finishAttempt(result) {
     slug: currentProblem.slug, code: editor.getValue(),
     elapsed_ms: getElapsedMs(), result, notes: getNotes(),
     test_summary: window._lastSubmit || null,
-    track: activeTrack || null,
+    focus: activeFocus || null,
   };
   const res = await post("/attempt", body);
   const n = res.next;
@@ -294,7 +312,7 @@ async function finishAttempt(result) {
 }
 
 async function goNext() {
-  const q = activeTrack ? "?track=" + activeTrack : "";
+  const q = activeFocus && activeFocus !== "all" ? "?focus=" + activeFocus : "";
   const n = await api("/next" + q);
   if (!n.recommended) { alert("Nothing due right now. Add problems or come back later."); return; }
   clearNotes(); resetTimer(); loadProblem(n.recommended);
@@ -303,9 +321,10 @@ async function goNext() {
 window.addEventListener("DOMContentLoaded", async () => {
   initEditor();
   wire();
+  await loadFocusGroups();
   try {
     // Load the recommended next problem on open (falls back to first problem).
-    const q = activeTrack ? "?track=" + activeTrack : "";
+    const q = activeFocus && activeFocus !== "all" ? "?focus=" + activeFocus : "";
     const nxt = await api("/next" + q);
     const slug = nxt.recommended || (await api("/problems"))[0]?.slug;
     if (slug) loadProblem(slug);

@@ -127,6 +127,25 @@ def test_get_config_returns_defaults(client):
     assert "target_minutes" in cfg
 
 
+def test_focus_groups_endpoint(client):
+    ids = {g["id"] for g in client.get("/api/focus-groups").json()}
+    assert "ml-attention" in ids and "coding-dp" in ids
+
+
+def test_next_focus_scopes_to_group(client):
+    # coding-dp focus -> recommended problem (if any) is a dp coding problem or 'done'
+    out = client.get("/api/next?focus=coding-dp").json()
+    assert out["reason"] in {"new", "review", "done"}
+    if out["recommended"]:
+        p = client.get("/api/problem/" + out["recommended"]).json()
+        assert p["track"] == "coding" and "dynamic-programming" in p["concepts"]
+
+
+def test_problems_focus_filter(client):
+    items = client.get("/api/problems?focus=coding").json()
+    assert items and all(it["track"] == "coding" for it in items)
+
+
 def test_post_config_persists_merge(client):
     from app import config
     # POST with {"daily_new": 5}
