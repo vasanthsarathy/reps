@@ -1,0 +1,28 @@
+{
+  "slug": "alien-dictionary",
+  "title": "Alien Dictionary",
+  "difficulty": "Hard",
+  "concepts": ["graphs", "topological-sort", "heap"],
+  "source": "Blind75",
+  "description": "Somewhere, an alien society writes using the same 26 lowercase letters English does, just ranked in some unknown sequence. You're handed `words`, entries pulled straight from that language's dictionary and already listed in the order the aliens would alphabetize them. Work backward from that ordering to reconstruct a full ranking of the alphabet that's consistent with it. Several different rankings might all fit the evidence; in that case, output whichever one would sort earliest under everyday English alphabetical comparison. Two situations make the input impossible to have come from a real dictionary: the inferred letter order loops back on itself (a cycle), or a word is listed immediately ahead of its own prefix (like `\"abc\"` coming before `\"ab\"`). Either way, respond with an empty string.\n\n**Example**\n\n```\nwords = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]  ->  \"wertf\"\nwords = [\"z\",\"x\",\"z\"]                    ->  \"\"     (z before x and x before z: a cycle)\nwords = [\"abc\",\"ab\"]                      ->  \"\"     (\"ab\" is a prefix of \"abc\" but comes after it)\n```",
+  "entry_point": "alien_order",
+  "starter_code": "def alien_order(words):\n    # words: list[str], already sorted per the alien alphabet's order.\n    # Return the lexicographically-smallest valid alphabet ordering as a string,\n    # or \"\" if the ordering is impossible (cycle or prefix violation).\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [["wrt","wrf","er","ett","rftt"]], "expected": "wertf"},
+    {"args": [["z","x"]], "expected": "zx"},
+    {"args": [["z","x","z"]], "expected": ""},
+    {"args": [["abc","ab"]], "expected": ""},
+    {"args": [["abc"]], "expected": "abc"},
+    {"args": [[]], "expected": ""}
+  ],
+  "hints": ["Compare each pair of ADJACENT words to find the first differing character — that gives one directed edge (earlier word's letter comes before later word's letter). If two adjacent words differ within their shared length but the earlier one is longer, the input is invalid.", "Run Kahn's topological sort, but use a min-heap (instead of a plain queue) for the set of letters with indegree 0, always popping the alphabetically-smallest available letter — that's what makes the result deterministic and lexicographically smallest."],
+  "solutions": [
+    {
+      "name": "Build order graph from adjacent pairs, Kahn's with a min-heap",
+      "explanation": "Every letter that appears anywhere in `words` becomes a graph node. Comparing each pair of adjacent words finds their first differing character (if any): that gives a directed edge from the earlier word's letter to the later word's letter, since the alien ordering must place it first. Duplicate edges are skipped so indegree isn't double-counted. If two adjacent words share their entire shorter length as a prefix but the earlier word is the longer one, no valid ordering can exist (a real dictionary would never have a longer word sort before its own prefix), so the result is immediately \"\". Once the graph is built, a topological sort collects all letters with indegree 0 into a min-heap and repeatedly pops the alphabetically-smallest one, appending it to the order and decrementing its neighbors' indegree (pushing any that reach 0); using a heap instead of an arbitrary queue guarantees the lexicographically-smallest valid order. If the produced order doesn't include every letter, the leftover letters are stuck in a cycle and the answer is \"\".",
+      "code": "def alien_order(words):\n    import heapq\n\n    chars = set()\n    for w in words:\n        chars.update(w)\n\n    adj = {c: set() for c in chars}\n    indegree = {c: 0 for c in chars}\n\n    for w1, w2 in zip(words, words[1:]):\n        min_len = min(len(w1), len(w2))\n        found_diff = False\n        for i in range(min_len):\n            if w1[i] != w2[i]:\n                if w2[i] not in adj[w1[i]]:\n                    adj[w1[i]].add(w2[i])\n                    indegree[w2[i]] += 1\n                found_diff = True\n                break\n        if not found_diff and len(w1) > len(w2):\n            return \"\"\n\n    heap = [c for c in chars if indegree[c] == 0]\n    heapq.heapify(heap)\n    order = []\n    while heap:\n        c = heapq.heappop(heap)\n        order.append(c)\n        for nxt in adj[c]:\n            indegree[nxt] -= 1\n            if indegree[nxt] == 0:\n                heapq.heappush(heap, nxt)\n\n    if len(order) != len(chars):\n        return \"\"\n    return \"\".join(order)\n",
+      "complexity": "Time O(C + total letters in words) where C is alphabet size, Space O(C)"
+    }
+  ]
+}

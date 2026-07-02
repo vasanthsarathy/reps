@@ -1,0 +1,22 @@
+{
+  "slug": "counting-bits",
+  "title": "Counting Bits",
+  "difficulty": "Easy",
+  "concepts": ["bit-manipulation", "dynamic-programming"],
+  "source": "Blind75",
+  "description": "For a non-negative integer `n`, build a list `ans` with `n + 1` entries, one for every integer from `0` up through `n`. Each entry `ans[i]` should hold the popcount of `i` -- that is, how many `1` bits appear in `i`'s binary representation.\n\n**Example**\n\n```\nn = 5  ->  [0, 1, 1, 2, 1, 2]\n```",
+  "entry_point": "count_bits",
+  "starter_code": "def count_bits(n):\n    # n: non-negative int. Return a list of length n + 1 with the popcount of\n    # every integer from 0 to n.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [5], "expected": [0, 1, 1, 2, 1, 2]},
+    {"args": [0], "expected": [0]},
+    {"args": [2], "expected": [0, 1, 1]},
+    {"args": [8], "expected": [0, 1, 1, 2, 1, 2, 2, 3, 1]},
+    {"args": [1], "expected": [0, 1]}
+  ],
+  "hints": ["For any i > 0, i and i >> 1 (i with its lowest bit dropped) differ only by whether i's lowest bit is set: popcount(i) = popcount(i >> 1) + (i & 1).", "Build the answer array bottom-up from ans[0] = 0, reusing already-computed smaller entries instead of recomputing popcount from scratch for each i."],
+  "solutions": [
+    {"name": "DP via lowest-bit relation", "explanation": "Right-shifting i by one bit drops its least significant bit, so popcount(i) equals popcount(i >> 1) plus 1 if that dropped bit was a 1 (i.e. i is odd), or plus 0 if it was even. Since i >> 1 is always a smaller index already computed earlier in the array, this recurrence lets every entry be derived in O(1) from a previous entry, filling the whole table in one linear pass.", "code": "def count_bits(n):\n    ans = [0] * (n + 1)\n    for i in range(1, n + 1):\n        ans[i] = ans[i >> 1] + (i & 1)\n    return ans\n", "complexity": "Time O(n), Space O(n) for the output"}
+  ]
+}

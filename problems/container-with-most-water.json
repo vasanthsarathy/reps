@@ -1,0 +1,31 @@
+{
+  "slug": "container-with-most-water",
+  "title": "Container With Most Water",
+  "difficulty": "Medium",
+  "concepts": ["two pointers", "greedy"],
+  "source": "Blind75",
+  "description": "Picture `heights`, a list of non-negative integers where the value at each index is the height of a vertical wall standing at that position along the x-axis. Pick any two walls; together with the ground between them they trap water, bounded above by whichever of the two walls is shorter. Among every possible pair of walls, report the largest amount of water that could be trapped.\n\n**Example**\n\n```\nheights = [1, 8, 6, 2, 5, 4, 8, 3, 7]  ->  49\n(lines at index 1 (height 8) and index 8 (height 7): width 7 * height min(8,7)=7 -> 49)\n```",
+  "entry_point": "max_area",
+  "starter_code": "def max_area(heights):\n    # Return the maximum water area formed by any two lines in heights.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 8, 6, 2, 5, 4, 8, 3, 7]], "expected": 49},
+    {"args": [[1, 1]], "expected": 1},
+    {"args": [[4, 3, 2, 1, 4]], "expected": 16},
+    {"args": [[1, 2, 1]], "expected": 2},
+    {"args": [[0, 0]], "expected": 0}
+  ],
+  "hints": [
+    "Checking every pair is O(n^2) — can two pointers starting at the ends narrow it down in one pass?",
+    "The area is limited by the shorter line, so moving the pointer at the TALLER line inward can only shrink or keep the width without ever helping — always move the pointer at the SHORTER line.",
+    "Track the best area seen as you move the pointers toward each other."
+  ],
+  "solutions": [
+    {
+      "name": "Two pointers from both ends",
+      "explanation": "Start pointers at the two ends of the array. At each step compute the area using the width between the pointers and the shorter of the two heights, updating the best seen. Then advance whichever pointer points at the shorter line inward: since the container's height is capped by the shorter side, keeping that shorter line and only shrinking the width can never beat what we already measured, so moving the shorter pointer is the only move that can possibly find a larger area. Repeat until the pointers meet.",
+      "code": "def max_area(heights):\n    left, right = 0, len(heights) - 1\n    best = 0\n    while left < right:\n        width = right - left\n        area = width * min(heights[left], heights[right])\n        best = max(best, area)\n        if heights[left] < heights[right]:\n            left += 1\n        else:\n            right -= 1\n    return best\n",
+      "complexity": "Time O(n), Space O(1)"
+    }
+  ]
+}

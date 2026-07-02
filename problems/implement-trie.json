@@ -1,0 +1,31 @@
+{
+  "slug": "implement-trie",
+  "title": "Implement Trie (Prefix Tree)",
+  "difficulty": "Medium",
+  "concepts": ["trie", "design", "strings"],
+  "source": "Blind75",
+  "description": "This is an operation-sequence problem: your function receives `operations`, a list where each element is itself a list `[method, *args]`. The first operation is always `[\"Trie\"]`, the constructor. For each subsequent operation, call the named method with the given args on the same trie instance, in order. Return a list with one result per operation (constructor and void methods contribute `null`).\n\nImplement a trie (prefix tree) supporting:\n- `insert(word)` — adds `word` to the trie. Void (`null`).\n- `search(word)` — returns `true` if `word` was previously inserted (exact match), else `false`.\n- `startsWith(prefix)` — returns `true` if any inserted word starts with `prefix`, else `false`.\n\n**Example**\n\n```\noperations = [[\"Trie\"],[\"insert\",\"apple\"],[\"search\",\"apple\"],[\"search\",\"app\"],[\"startsWith\",\"app\"],[\"insert\",\"app\"],[\"search\",\"app\"]]\n->            [null,      null,               true,               false,             true,                   null,             true]\n```",
+  "entry_point": "trie_ops",
+  "starter_code": "def trie_ops(operations):\n    # operations: list of [method, *args]; operations[0] == [\"Trie\"] is the constructor.\n    # Return a list with one result per operation (null for constructor/void methods).\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[["Trie"],["insert","apple"],["search","apple"],["search","app"],["startsWith","app"],["insert","app"],["search","app"]]], "expected": [null, null, true, false, true, null, true]},
+    {"args": [[["Trie"],["search","a"],["startsWith","a"]]], "expected": [null, false, false]},
+    {"args": [[["Trie"],["insert",""],["search",""],["startsWith",""]]], "expected": [null, null, true, true]},
+    {"args": [[["Trie"],["insert","cat"],["insert","car"],["insert","card"],["startsWith","ca"],["startsWith","care"],["search","car"],["search","ca"]]], "expected": [null, null, null, null, true, false, true, false]},
+    {"args": [[["Trie"],["insert","abc"],["insert","abc"],["search","abc"],["startsWith","abc"],["startsWith","abcd"]]], "expected": [null, null, null, true, true, false]}
+  ],
+  "hints": [
+    "Each trie node needs a mapping from character to child node plus a flag marking whether a word ends at that node.",
+    "insert walks/creates a chain of nodes for each character; search walks the chain and requires both reaching the end AND the end-of-word flag being set; startsWith only requires reaching the end of the chain, no flag check.",
+    "Drive all three methods off one shared 'walk to the node for this string' helper, since search and startsWith differ only in what they check once the walk finishes (or fails)."
+  ],
+  "solutions": [
+    {
+      "name": "Trie with per-node child dict",
+      "explanation": "A trie node is a dict of children (char -> node) plus an `is_word` boolean. `insert` walks the string, creating a child node whenever a character isn't present yet, then marks `is_word = True` on the final node. Both `search` and `startsWith` share a `_find` helper that walks the string from the root, returning `None` the moment a character is missing, else returning the node reached after consuming the whole string. `search` additionally requires that node's `is_word` flag to be true (so 'app' isn't reported as found just because 'apple' was inserted), while `startsWith` only needs the walk to succeed. The operation-sequence driver dispatches each op to the matching method, appending `None` for the constructor and for `insert` (void), and the method's return value for `search`/`startsWith`.",
+      "code": "def trie_ops(operations):\n    class TrieNode:\n        __slots__ = (\"children\", \"is_word\")\n\n        def __init__(self):\n            self.children = {}\n            self.is_word = False\n\n    class Trie:\n        def __init__(self):\n            self.root = TrieNode()\n\n        def insert(self, word):\n            node = self.root\n            for ch in word:\n                if ch not in node.children:\n                    node.children[ch] = TrieNode()\n                node = node.children[ch]\n            node.is_word = True\n\n        def _find(self, s):\n            node = self.root\n            for ch in s:\n                if ch not in node.children:\n                    return None\n                node = node.children[ch]\n            return node\n\n        def search(self, word):\n            node = self._find(word)\n            return node is not None and node.is_word\n\n        def startsWith(self, prefix):\n            return self._find(prefix) is not None\n\n    results = []\n    trie = None\n    for op in operations:\n        method, args = op[0], op[1:]\n        if method == \"Trie\":\n            trie = Trie()\n            results.append(None)\n        elif method == \"insert\":\n            trie.insert(*args)\n            results.append(None)\n        elif method == \"search\":\n            results.append(trie.search(*args))\n        elif method == \"startsWith\":\n            results.append(trie.startsWith(*args))\n    return results\n",
+      "complexity": "Time O(L) per operation where L is the word/prefix length, Space O(total characters inserted)"
+    }
+  ]
+}

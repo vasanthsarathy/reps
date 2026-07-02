@@ -1,0 +1,24 @@
+{
+  "slug": "jump-game",
+  "title": "Jump Game",
+  "difficulty": "Medium",
+  "concepts": ["dp"],
+  "source": "Blind75",
+  "description": "You start at index `0` of an array `nums`, where `nums[i]` is the farthest you're allowed to jump forward from index `i` (you may jump anywhere from `1` up to `nums[i]` steps, or stay put with a jump of `0`). Determine whether you can reach the last index of the array.\n\n**Example**\n\n```\ncan_jump([2, 3, 1, 1, 4])  ->  True    (jump 1 step to index 1, then 3 steps to the last index)\ncan_jump([3, 2, 1, 0, 4])  ->  False   (you always get stuck on the 0 at index 3)\n```",
+  "entry_point": "can_jump",
+  "starter_code": "def can_jump(nums):\n    # nums[i] is the max jump length from index i. Return True if index 0 can\n    # reach the last index.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[2, 3, 1, 1, 4]], "expected": true},
+    {"args": [[3, 2, 1, 0, 4]], "expected": false},
+    {"args": [[0]], "expected": true},
+    {"args": [[0, 1]], "expected": false},
+    {"args": [[2, 0, 0]], "expected": true},
+    {"args": [[1, 1, 1, 1]], "expected": true}
+  ],
+  "hints": ["Rather than trying every possible jump length from every index, track the single farthest index reachable so far as you scan left to right.", "If you ever reach an index that is beyond the farthest index reached so far, you're stuck there and can't finish.", "You can stop early and return True the moment the farthest reachable index covers the last index."],
+  "solutions": [
+    {"name": "Brute-force recursion over jump lengths", "explanation": "From each index, try every jump length from the maximum allowed down to 1, recursing to see if any choice eventually reaches or passes the last index. This explores an exponential number of jump sequences.", "code": "def can_jump(nums):\n    n = len(nums)\n\n    def helper(i):\n        if i >= n - 1:\n            return True\n        for step in range(nums[i], 0, -1):\n            if helper(i + step):\n                return True\n        return False\n\n    return helper(0)\n", "complexity": "Time O(2^n) worst case, Space O(n) recursion depth"},
+    {"name": "Greedy farthest-reach scan", "explanation": "Walk through the array once, maintaining the farthest index reachable given everything seen so far. If the current index is ever beyond that farthest reach, the walk is stuck and the last index is unreachable. Otherwise, extend the farthest reach using the current index's jump power, and stop as soon as it covers the last index.", "code": "def can_jump(nums):\n    n = len(nums)\n    farthest = 0\n    for i, x in enumerate(nums):\n        if i > farthest:\n            return False\n        farthest = max(farthest, i + x)\n        if farthest >= n - 1:\n            return True\n    return True\n", "complexity": "Time O(n), Space O(1)"}
+  ]
+}

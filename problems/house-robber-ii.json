@@ -1,0 +1,25 @@
+{
+  "slug": "house-robber-ii",
+  "title": "House Robber II",
+  "difficulty": "Medium",
+  "concepts": ["dp"],
+  "source": "Blind75",
+  "description": "This time the houses aren't in a line -- they're arranged in a circle, so the first and last houses are neighbors too. As before, adjacent houses share a security system and can't both be robbed on the same night. Given `nums[i]`, the cash sitting in house `i`, return the maximum total you can steal without ever robbing two adjacent houses (remembering that house 0 and the last house count as adjacent on the circle).\n\n**Example**\n\n```\nnums = [2, 3, 2]     ->  3   (robbing houses 0 and 2 is illegal since they're adjacent on the circle; best is house 1)\nnums = [1, 2, 3, 1]  ->  4   (rob houses 0 and 2: 1 + 3)\n```",
+  "entry_point": "rob",
+  "starter_code": "def rob(nums):\n    # Houses are arranged in a circle; nums[0] and nums[-1] are adjacent.\n    # Return the max sum obtainable without robbing two adjacent houses.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[2, 3, 2]], "expected": 3},
+    {"args": [[1, 2, 3, 1]], "expected": 4},
+    {"args": [[]], "expected": 0},
+    {"args": [[5]], "expected": 5},
+    {"args": [[5, 10]], "expected": 10},
+    {"args": [[1, 2, 3]], "expected": 3},
+    {"args": [[200, 3, 140, 20, 10]], "expected": 340}
+  ],
+  "hints": ["Breaking the circle: robbing house 0 rules out robbing the last house, and vice versa, so the circular problem splits into two ordinary linear ones.", "Run the plain (linear) House Robber DP once on nums[:-1] and once on nums[1:], and take the better of the two results.", "Handle n <= 1 as a special case before splitting, since a single house has no circular constraint to worry about."],
+  "solutions": [
+    {"name": "Brute-force subset search", "explanation": "Try every subset of houses (as a bitmask), reject any subset that includes two houses adjacent on the circle (including the wraparound pair house 0 / house n-1), and keep the best sum among the valid subsets.", "code": "def rob(nums):\n    n = len(nums)\n    if n == 0:\n        return 0\n    if n == 1:\n        return nums[0]\n    best = 0\n    for mask in range(1 << n):\n        total = 0\n        valid = True\n        for i in range(n):\n            if mask & (1 << i):\n                total += nums[i]\n                if mask & (1 << ((i + 1) % n)):\n                    valid = False\n                    break\n        if valid:\n            best = max(best, total)\n    return best\n", "complexity": "Time O(2^n * n), Space O(1)"},
+    {"name": "Two linear House Robber passes", "explanation": "Since house 0 and the last house are adjacent, no valid selection can include both. So the answer is the better of: the best linear House Robber result while excluding the last house, or the best linear House Robber result while excluding the first house. Each linear pass is the standard rolling-max DP.", "code": "def rob(nums):\n    n = len(nums)\n    if n == 0:\n        return 0\n    if n == 1:\n        return nums[0]\n\n    def rob_linear(houses):\n        prev, curr = 0, 0\n        for x in houses:\n            prev, curr = curr, max(curr, prev + x)\n        return curr\n\n    return max(rob_linear(nums[:-1]), rob_linear(nums[1:]))\n", "complexity": "Time O(n), Space O(1)"}
+  ]
+}

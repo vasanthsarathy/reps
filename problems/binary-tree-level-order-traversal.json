@@ -1,0 +1,22 @@
+{
+  "slug": "binary-tree-level-order-traversal",
+  "title": "Binary Tree Level Order Traversal",
+  "difficulty": "Medium",
+  "concepts": ["trees", "bfs"],
+  "source": "Blind75",
+  "description": "A binary tree is given as a level-order list where `null` marks a missing child (root first, children filled in level by level, skipping subtrees under a `null`). Return the tree's values grouped level by level, top to bottom, with each level's values listed left to right.\n\n**Example**\n\n```\nlevel_order([3, 9, 20, null, null, 15, 7])\n# ->  [[3], [9, 20], [15, 7]]\n#\n#         3\n#        / \\\n#       9  20\n#          /  \\\n#        15    7\n```",
+  "entry_point": "level_order",
+  "starter_code": "def level_order(root):\n    # root: level-order list with None for missing nodes.\n    # Return a list of levels, each a list of node values left to right.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[3, 9, 20, null, null, 15, 7]], "expected": [[3], [9, 20], [15, 7]]},
+    {"args": [[1]], "expected": [[1]]},
+    {"args": [[]], "expected": []},
+    {"args": [[1, 2, 3, 4, 5]], "expected": [[1], [2, 3], [4, 5]]},
+    {"args": [[1, null, 2, null, 3]], "expected": [[1], [2], [3]]}
+  ],
+  "hints": ["Rebuild the tree from the level-order list, then run a standard BFS with a queue.", "Process the queue one full level at a time: capture how many nodes are currently queued before the inner loop starts, so you know exactly where one level ends and the next begins.", "For each node popped, record its value into the current level's list and enqueue its non-null children for the next level."],
+  "solutions": [
+    {"name": "Build tree, level-by-level BFS", "explanation": "Reconstruct real node structures from the level-order list. Then run BFS with a queue: for each round, snapshot the current queue length as the number of nodes on this level, pop exactly that many nodes, collect their values into a level list, and enqueue any non-null children for the next round. Repeat until the queue is empty.", "code": "from collections import deque\n\n\nclass _N:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, v): self.val = v; self.left = None; self.right = None\n\n\ndef _build(vals):\n    if not vals or vals[0] is None: return None\n    root = _N(vals[0]); q = deque([root]); i = 1\n    while q and i < len(vals):\n        n = q.popleft()\n        if i < len(vals):\n            if vals[i] is not None: n.left = _N(vals[i]); q.append(n.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] is not None: n.right = _N(vals[i]); q.append(n.right)\n            i += 1\n    return root\n\n\ndef level_order(root):\n    r = _build(root)\n    if r is None:\n        return []\n    result = []\n    q = deque([r])\n    while q:\n        level = []\n        for _ in range(len(q)):\n            node = q.popleft()\n            level.append(node.val)\n            if node.left:\n                q.append(node.left)\n            if node.right:\n                q.append(node.right)\n        result.append(level)\n    return result\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

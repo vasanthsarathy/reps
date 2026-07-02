@@ -1,0 +1,22 @@
+{
+  "slug": "subtree-of-another-tree",
+  "title": "Subtree of Another Tree",
+  "difficulty": "Easy",
+  "concepts": ["trees", "recursion"],
+  "source": "Blind75",
+  "description": "You're given two binary trees, `root` and `sub_root`, each as a level-order list where `null` marks a missing child (root first, children filled in level by level, skipping subtrees under a `null`). Return `true` if `sub_root` appears anywhere inside `root` as an exact match -- meaning there's some node in `root` such that the subtree rooted there has identical structure and identical values to `sub_root`. Return `false` otherwise.\n\n**Example**\n\n```\nroot = [3, 4, 5, 1, 2], sub_root = [4, 1, 2]  ->  true\n# (the node 4 with children 1, 2 matches sub_root exactly)\n\nroot = [3, 4, 5, 1, 2, null, null, null, null, 0], sub_root = [4, 1, 2]  ->  false\n# (node 4's subtree now has an extra node 0, so it no longer matches)\n```",
+  "entry_point": "is_subtree",
+  "starter_code": "def is_subtree(root, sub_root):\n    # root, sub_root: level-order lists with None for missing nodes.\n    # Return True if sub_root matches some node's subtree in root exactly.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[3, 4, 5, 1, 2], [4, 1, 2]], "expected": true},
+    {"args": [[3, 4, 5, 1, 2, null, null, null, null, 0], [4, 1, 2]], "expected": false},
+    {"args": [[1, 1], [1]], "expected": true},
+    {"args": [[], []], "expected": true},
+    {"args": [[], [1]], "expected": false}
+  ],
+  "hints": ["Rebuild both trees from their level-order lists first.", "Write a helper that checks whether two trees are exactly identical (same recursive check as Same Tree).", "Walk every node of root; at each one, test if the subtree rooted there is identical to sub_root. If sub_root is empty, it trivially matches (including when root is also empty)."],
+  "solutions": [
+    {"name": "Build trees, check every node for an identical match", "explanation": "Reconstruct real node structures for both lists. Define a helper `same(a, b)` that recursively confirms two subtrees are structurally identical with equal values -- both None matches, one None doesn't, otherwise values must match and both children must recursively match. Then walk root with a DFS: at each node, if `same(node, sub_root)` succeeds we're done; otherwise recurse into that node's left and right children. An empty sub_root trivially matches whenever we reach a None node, so an empty sub_root is always found.", "code": "from collections import deque\n\n\nclass _N:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, v): self.val = v; self.left = None; self.right = None\n\n\ndef _build(vals):\n    if not vals or vals[0] is None: return None\n    root = _N(vals[0]); q = deque([root]); i = 1\n    while q and i < len(vals):\n        n = q.popleft()\n        if i < len(vals):\n            if vals[i] is not None: n.left = _N(vals[i]); q.append(n.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] is not None: n.right = _N(vals[i]); q.append(n.right)\n            i += 1\n    return root\n\n\ndef is_subtree(root, sub_root):\n    r = _build(root)\n    s = _build(sub_root)\n\n    def same(a, b):\n        if a is None and b is None:\n            return True\n        if a is None or b is None:\n            return False\n        return a.val == b.val and same(a.left, b.left) and same(a.right, b.right)\n\n    def contains(node):\n        if node is None:\n            return s is None\n        if same(node, s):\n            return True\n        return contains(node.left) or contains(node.right)\n\n    return contains(r)\n", "complexity": "Time O(m*n), Space O(m+n)"}
+  ]
+}

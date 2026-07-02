@@ -1,0 +1,24 @@
+{
+  "slug": "unique-paths",
+  "title": "Unique Paths",
+  "difficulty": "Medium",
+  "concepts": ["dp"],
+  "source": "Blind75",
+  "description": "Picture an `m`-row by `n`-column grid with a robot parked in the top-left cell, trying to reach the bottom-right cell. On every move it may only step one cell to the right or one cell downward, never up, left, or diagonal. Count how many distinct routes exist from start to finish.\n\n**Example**\n\n```\nunique_paths(3, 7)  ->  28\nunique_paths(3, 2)  ->  3\n```",
+  "entry_point": "unique_paths",
+  "starter_code": "def unique_paths(m, n):\n    # m rows, n columns. Return the number of distinct paths from the top-left\n    # corner to the bottom-right corner moving only right or down.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [3, 7], "expected": 28},
+    {"args": [3, 2], "expected": 3},
+    {"args": [7, 3], "expected": 28},
+    {"args": [1, 1], "expected": 1},
+    {"args": [1, 10], "expected": 1},
+    {"args": [10, 1], "expected": 1}
+  ],
+  "hints": ["The number of paths to any cell equals the sum of the paths to the cell above it and the cell to its left, since those are the only two ways to arrive.", "Every cell in the top row or the left column has exactly one path to it (a straight line), which gives you the base cases.", "You only need to keep one row of the DP table in memory at a time if you update it left to right in place."],
+  "solutions": [
+    {"name": "Brute-force recursion without memoization", "explanation": "From each cell, the number of remaining paths is the sum of the paths from moving down one and moving right one. Any cell in the last row or last column has exactly one remaining path (a straight run to the corner). Without caching, the same cells are revisited from many different routes.", "code": "def unique_paths(m, n):\n    def helper(r, c):\n        if r == m - 1 or c == n - 1:\n            return 1\n        return helper(r + 1, c) + helper(r, c + 1)\n\n    return helper(0, 0)\n", "complexity": "Time O(2^(m+n)) worst case, Space O(m + n) recursion depth"},
+    {"name": "Bottom-up row DP", "explanation": "Keep a single row of path counts, initialized to all 1s (the top row, where every cell has exactly one path straight across). For each subsequent row, update the row in place left to right: each cell's new count is its old count (paths arriving from above) plus the just-updated cell to its left (paths arriving from the left). After processing all rows, the last entry holds the answer.", "code": "def unique_paths(m, n):\n    row = [1] * n\n    for _ in range(1, m):\n        for c in range(1, n):\n            row[c] += row[c - 1]\n    return row[-1]\n", "complexity": "Time O(m * n), Space O(n)"}
+  ]
+}

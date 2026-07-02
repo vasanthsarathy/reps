@@ -1,0 +1,32 @@
+{
+  "slug": "meeting-rooms",
+  "title": "Meeting Rooms",
+  "difficulty": "Easy",
+  "concepts": ["intervals", "sorting", "greedy"],
+  "source": "Blind75",
+  "description": "You have a single calendar and a list of proposed meetings, `intervals`, formatted as `[start, end]` pairs. Decide whether it's physically possible for you to attend every one of them without any two overlapping on your schedule. A meeting ending at the exact moment another starts is not a scheduling conflict.\n\n**Example**\n\n```\nintervals = [[0,30],[5,10],[15,20]]  ->  false\n```\n(`[0,30]` overlaps both `[5,10]` and `[15,20]`.)",
+  "entry_point": "can_attend_meetings",
+  "starter_code": "def can_attend_meetings(intervals):\n    # Return True if one person can attend all the given meetings.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[[0, 30], [5, 10], [15, 20]]], "expected": false},
+    {"args": [[[7, 10], [2, 4]]], "expected": true},
+    {"args": [[]], "expected": true},
+    {"args": [[[5, 8]]], "expected": true},
+    {"args": [[[1, 5], [5, 10]]], "expected": true},
+    {"args": [[[1, 10], [2, 3], [4, 5]]], "expected": false}
+  ],
+  "hints": [
+    "Sort the meetings by start time; once sorted, any conflict must show up between consecutive meetings in that order.",
+    "Walk through the sorted meetings and check whether the current meeting's start is strictly before the previous meeting's end — if so, they overlap.",
+    "Touching endpoints (one meeting ends exactly when the next starts) are fine, so use a strict `<` comparison, not `<=`."
+  ],
+  "solutions": [
+    {
+      "name": "Sort by start, check consecutive pairs",
+      "explanation": "If we sort meetings by start time, a person can attend all of them exactly when no meeting starts before the previous one (in sorted order) has ended. So after sorting, we only need to compare each meeting to its immediate predecessor: if the current meeting's start is strictly less than the previous meeting's end, they overlap and one person cannot attend both.",
+      "code": "def can_attend_meetings(intervals):\n    ordered = sorted(intervals, key=lambda iv: iv[0])\n    for i in range(1, len(ordered)):\n        if ordered[i][0] < ordered[i - 1][1]:\n            return False\n    return True\n",
+      "complexity": "Time O(n log n), Space O(n)"
+    }
+  ]
+}

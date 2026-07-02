@@ -1,0 +1,22 @@
+{
+  "slug": "find-minimum-in-rotated-sorted-array",
+  "title": "Find Minimum in Rotated Sorted Array",
+  "difficulty": "Medium",
+  "concepts": ["binary-search", "arrays"],
+  "source": "Blind75",
+  "description": "Take an ascending array of distinct integers and rotate it some unknown number of times between 1 and its length (so `[1,2,3,4,5]` might become `[3,4,5,1,2]`). Given only the rotated result `nums`, work out its smallest value -- and do it in logarithmic time rather than scanning the whole array.\n\n**Example**\n\n```\nnums = [3, 4, 5, 1, 2]  ->  1\nnums = [4, 5, 6, 7, 0, 1, 2]  ->  0\n```",
+  "entry_point": "find_min",
+  "starter_code": "def find_min(nums):\n    # nums: rotated sorted list of distinct ints. Return the minimum element in O(log n).\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[3, 4, 5, 1, 2]], "expected": 1},
+    {"args": [[4, 5, 6, 7, 0, 1, 2]], "expected": 0},
+    {"args": [[11, 13, 15, 17]], "expected": 11},
+    {"args": [[1]], "expected": 1},
+    {"args": [[2, 1]], "expected": 1}
+  ],
+  "hints": ["Compare nums[mid] to nums[right]. If nums[mid] > nums[right], the minimum must be somewhere in mid+1..right (the rotation point is to the right of mid); otherwise the minimum is at mid or to its left.", "Since values are distinct, you never need an equality tiebreak: nums[mid] can never equal nums[right] unless mid == right."],
+  "solutions": [
+    {"name": "Binary search on the rotation point", "explanation": "Binary search for the pivot by comparing the midpoint to the rightmost remaining element. If nums[mid] is greater than nums[right], the array is still 'rotated' within mid+1..right, so the minimum lies strictly to the right of mid. Otherwise nums[mid..right] is already sorted ascending, so the minimum is at mid or somewhere to its left, and we can safely keep mid in the search range. The loop ends when left == right, which is the index of the minimum.", "code": "def find_min(nums):\n    left, right = 0, len(nums) - 1\n    while left < right:\n        mid = (left + right) // 2\n        if nums[mid] > nums[right]:\n            left = mid + 1\n        else:\n            right = mid\n    return nums[left]\n", "complexity": "Time O(log n), Space O(1)"}
+  ]
+}

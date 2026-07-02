@@ -1,0 +1,31 @@
+{
+  "slug": "merge-two-sorted-lists",
+  "title": "Merge Two Sorted Lists",
+  "difficulty": "Easy",
+  "concepts": ["linked-list", "two-pointers"],
+  "source": "Blind75",
+  "description": "Two singly linked lists are each given as a plain list of values, `l1` and `l2`, where each list is already sorted in non-decreasing order. Splice the two lists together into a single sorted linked list and return its values (head-to-tail).\n\n**Example**\n\n```\nl1 = [1, 2, 4]\nl2 = [1, 3, 4]\nmerge_two_lists(l1, l2)  ->  [1, 1, 2, 3, 4, 4]\n```",
+  "entry_point": "merge_two_lists",
+  "starter_code": "def merge_two_lists(l1, l2):\n    # l1, l2: sorted lists of values representing linked lists.\n    # Return the merged, sorted list of values.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 4], [1, 3, 4]], "expected": [1, 1, 2, 3, 4, 4]},
+    {"args": [[], []], "expected": []},
+    {"args": [[], [0]], "expected": [0]},
+    {"args": [[5], []], "expected": [5]},
+    {"args": [[1, 1, 1], [1, 1]], "expected": [1, 1, 1, 1, 1]},
+    {"args": [[2, 4, 6], [1, 3, 5, 7, 9]], "expected": [1, 2, 3, 4, 5, 6, 7, 9]}
+  ],
+  "hints": [
+    "Build actual nodes for both lists, then walk both with two pointers, always attaching the smaller current node to the tail of a dummy result list.",
+    "Once one list runs out, splice the remainder of the other list directly onto the tail — no need to keep comparing."
+  ],
+  "solutions": [
+    {
+      "name": "Build nodes, two-pointer splice",
+      "explanation": "Build real singly linked lists from l1 and l2. Use a dummy head node and a tail pointer for the result. Walk both lists with pointers p1 and p2: at each step, attach whichever node has the smaller value to tail.next and advance that pointer (and the tail). When one pointer runs out, attach the rest of the other list wholesale. Finally read the values back out from dummy.next.",
+      "code": "class _Node:\n    __slots__ = (\"val\", \"next\")\n    def __init__(self, val):\n        self.val = val\n        self.next = None\n\n\ndef _build(values):\n    head = None\n    tail = None\n    for v in values:\n        node = _Node(v)\n        if head is None:\n            head = tail = node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef merge_two_lists(l1, l2):\n    p1 = _build(l1)\n    p2 = _build(l2)\n\n    dummy = _Node(None)\n    tail = dummy\n    while p1 is not None and p2 is not None:\n        if p1.val <= p2.val:\n            tail.next = p1\n            p1 = p1.next\n        else:\n            tail.next = p2\n            p2 = p2.next\n        tail = tail.next\n    tail.next = p1 if p1 is not None else p2\n\n    out = []\n    node = dummy.next\n    while node is not None:\n        out.append(node.val)\n        node = node.next\n    return out\n",
+      "complexity": "Time O(n + m), Space O(n + m)"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "slug": "palindromic-substrings",
+  "title": "Palindromic Substrings",
+  "difficulty": "Medium",
+  "concepts": ["strings", "two pointers"],
+  "source": "Blind75",
+  "description": "String `s` contains many contiguous substrings; some of them happen to be palindromes (identical when reversed). Tally up how many of those palindromic substrings exist in total. Two substrings occupying different positions count separately even when their characters match, and every lone character is automatically a palindrome of length one.\n\n**Example**\n\n```\ncount_substrings(\"abc\")\n# -> 3   (\"a\", \"b\", \"c\")\n\ncount_substrings(\"aaa\")\n# -> 6   (\"a\", \"a\", \"a\", \"aa\", \"aa\", \"aaa\")\n```",
+  "entry_point": "count_substrings",
+  "starter_code": "def count_substrings(s):\n    # Return the number of palindromic substrings of s.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": ["abc"], "expected": 3},
+    {"args": ["aaa"], "expected": 6},
+    {"args": [""], "expected": 0},
+    {"args": ["a"], "expected": 1},
+    {"args": ["aa"], "expected": 3},
+    {"args": ["abba"], "expected": 6}
+  ],
+  "hints": ["Every palindrome expands symmetrically from a center -- either a single character or the gap between two characters -- so there are 2n-1 centers to check.", "For each center, expand outward while the characters match; every successful expansion is one more palindromic substring.", "Add up the counts from all odd-length and even-length centers."],
+  "solutions": [
+    {"name": "Expand around center", "explanation": "Every palindromic substring is centered either on a single character (odd length) or on the gap between two adjacent characters (even length), giving 2n-1 centers total. For each center, expand outward while the two sides match; each successful expansion step is itself a distinct palindromic substring, so tally one for every match found across all centers.", "code": "def count_substrings(s):\n    n = len(s)\n    count = 0\n\n    def expand(l, r):\n        nonlocal count\n        while l >= 0 and r < n and s[l] == s[r]:\n            count += 1\n            l -= 1\n            r += 1\n\n    for i in range(n):\n        expand(i, i)\n        expand(i, i + 1)\n    return count\n", "complexity": "Time O(n^2), Space O(1)"}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "slug": "word-break",
+  "title": "Word Break",
+  "difficulty": "Medium",
+  "concepts": ["dp"],
+  "source": "Blind75",
+  "description": "You're given a string `s` and a dictionary of words `word_dict`. Determine whether `s` can be rebuilt by concatenating one or more words from the dictionary back to back, in any order, with each word reusable as many times as needed. Return `True` if such a segmentation exists, `False` otherwise.\n\n**Example**\n\n```\nword_break(\"leetcode\", [\"leet\", \"code\"])       -> True   (\"leet\" + \"code\")\nword_break(\"applepenapple\", [\"apple\", \"pen\"])  -> True   (\"apple\" + \"pen\" + \"apple\", reusing \"apple\")\nword_break(\"catsandog\", [\"cats\", \"dog\", \"sand\", \"and\", \"cat\"])  -> False\n```",
+  "entry_point": "word_break",
+  "starter_code": "def word_break(s, word_dict):\n    # Return True if s can be segmented into one or more words from word_dict.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": ["leetcode", ["leet", "code"]], "expected": true},
+    {"args": ["applepenapple", ["apple", "pen"]], "expected": true},
+    {"args": ["catsandog", ["cats", "dog", "sand", "and", "cat"]], "expected": false},
+    {"args": ["a", ["a"]], "expected": true},
+    {"args": ["a", ["b"]], "expected": false},
+    {"args": ["aaaaaaa", ["aaaa", "aaa"]], "expected": true},
+    {"args": ["", ["a"]], "expected": true}
+  ],
+  "hints": ["Let dp[i] be True if the prefix s[:i] can be fully segmented into dictionary words; dp[0] = True (the empty prefix needs no words).", "dp[i] is True if there is some earlier split point j < i where dp[j] is True and the substring s[j:i] is in the dictionary.", "Words can be reused as many times as needed, so there's no bookkeeping to remove a word from the dictionary once it's used."],
+  "solutions": [
+    {"name": "Brute-force recursion without memoization", "explanation": "From each starting index, try every possible next word boundary and recurse on the remainder; succeed if any branch reaches the end of the string. Without caching, overlapping subproblems (the same starting index reached via different splits) are recomputed repeatedly.", "code": "def word_break(s, word_dict):\n    words = set(word_dict)\n    n = len(s)\n\n    def helper(i):\n        if i == n:\n            return True\n        for j in range(i + 1, n + 1):\n            if s[i:j] in words and helper(j):\n                return True\n        return False\n\n    return helper(0)\n", "complexity": "Time O(2^n) worst case, Space O(n) recursion depth"},
+    {"name": "Bottom-up segmentation DP", "explanation": "Build dp[0..n] where dp[i] means the prefix of length i is segmentable. dp[0] is trivially True. For each end position i, scan every earlier split point j and set dp[i] True as soon as dp[j] is True and s[j:i] is a dictionary word. The final answer is dp[n].", "code": "def word_break(s, word_dict):\n    words = set(word_dict)\n    n = len(s)\n    dp = [False] * (n + 1)\n    dp[0] = True\n    for i in range(1, n + 1):\n        for j in range(i):\n            if dp[j] and s[j:i] in words:\n                dp[i] = True\n                break\n    return dp[n]\n", "complexity": "Time O(n^2) (ignoring substring-hash cost), Space O(n)"}
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "slug": "word-search",
+  "title": "Word Search",
+  "difficulty": "Medium",
+  "concepts": ["graphs", "backtracking", "bfs-dfs"],
+  "source": "Blind75",
+  "description": "You are given `board`, a 2-D grid of single-character strings, and a string `word`. Determine whether `word` can be traced out by a path that starts at any cell and moves to horizontally or vertically adjacent cells, using each grid cell at most once per path. Return `true` if such a path exists, `false` otherwise.\n\n**Example**\n\n```\nboard = [\n  [\"A\",\"B\",\"C\",\"E\"],\n  [\"S\",\"F\",\"C\",\"S\"],\n  [\"A\",\"D\",\"E\",\"E\"]\n]\nword = \"ABCCED\"  ->  true   (A->B->C->C->E->D, each cell used once)\nword = \"ABCB\"    ->  false  (would need to reuse the 'B' cell)\n```",
+  "entry_point": "exist",
+  "starter_code": "def exist(board, word):\n    # board: list of rows of single-character strings. Return True if word traces a path\n    # through orthogonally-adjacent, non-reused cells.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], "ABCCED"], "expected": true},
+    {"args": [[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], "SEE"], "expected": true},
+    {"args": [[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], "ABCB"], "expected": false},
+    {"args": [[["a"]], "a"], "expected": true},
+    {"args": [[["a"]], "ab"], "expected": false},
+    {"args": [[["A","B"],["C","D"]], "ACDB"], "expected": true}
+  ],
+  "hints": ["Try starting a DFS from every cell that matches the word's first letter, walking to the four orthogonal neighbors while matching successive letters.", "To stop a path from reusing a cell, temporarily overwrite the visited cell with a sentinel character before recursing and restore it afterward (backtrack) — this avoids needing a separate visited set."],
+  "solutions": [
+    {
+      "name": "DFS backtracking with in-place cell marking",
+      "explanation": "For every starting cell, run a DFS that matches the word character by character against the current cell, recursing into the four orthogonal neighbors for the next character. Before recursing, the current cell is temporarily overwritten with a sentinel so it cannot be revisited within this path; after the recursive calls return, the original character is restored so other starting points can use that cell. If any starting cell's DFS matches the entire word, the search returns true immediately.",
+      "code": "def exist(board, word):\n    if not board or not board[0] or not word:\n        return False\n    rows, cols = len(board), len(board[0])\n\n    def dfs(r, c, i):\n        if i == len(word):\n            return True\n        if r < 0 or r >= rows or c < 0 or c >= cols or board[r][c] != word[i]:\n            return False\n        tmp = board[r][c]\n        board[r][c] = '#'\n        found = (\n            dfs(r + 1, c, i + 1)\n            or dfs(r - 1, c, i + 1)\n            or dfs(r, c + 1, i + 1)\n            or dfs(r, c - 1, i + 1)\n        )\n        board[r][c] = tmp\n        return found\n\n    for r in range(rows):\n        for c in range(cols):\n            if dfs(r, c, 0):\n                return True\n    return False\n",
+      "complexity": "Time O(rows * cols * 4^L) where L is len(word), Space O(L) for the recursion stack"
+    }
+  ]
+}

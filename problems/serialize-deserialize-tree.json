@@ -1,0 +1,22 @@
+{
+  "slug": "serialize-deserialize-tree",
+  "title": "Serialize and Deserialize Binary Tree",
+  "difficulty": "Hard",
+  "concepts": ["trees", "design", "dfs"],
+  "source": "Blind75",
+  "description": "Design a scheme that serializes a binary tree into a single string, and a matching deserializer that rebuilds an identical tree from that string. Your encoding must round-trip correctly for any tree, including ones with `null` children in any arrangement.\n\nTo demonstrate both halves at once, implement a function that takes a tree as a level-order list (root first, children filled in level by level, skipping subtrees under a `null`, `null` marking a missing child), serializes it, deserializes the result, and returns the rebuilt tree as a level-order list.\n\n**Example**\n\n```\ncodec([1, 2, 3, null, null, 4, 5])\n# -> [1, 2, 3, null, null, 4, 5]\n#\n#        1\n#       / \\\n#      2   3\n#         / \\\n#        4   5\n```",
+  "entry_point": "codec",
+  "starter_code": "def codec(vals):\n    # vals: level-order list with None for missing nodes.\n    # Build the tree, serialize it, deserialize it back, and return the\n    # rebuilt tree as a level-order list.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 3, null, null, 4, 5]], "expected": [1, 2, 3, null, null, 4, 5]},
+    {"args": [[]], "expected": []},
+    {"args": [[1]], "expected": [1]},
+    {"args": [[1, 2]], "expected": [1, 2]},
+    {"args": [[1, null, 2, null, 3]], "expected": [1, null, 2, null, 3]}
+  ],
+  "hints": ["A preorder traversal (root, then left, then right) that explicitly writes a marker for every None child can be deserialized unambiguously, because you always know when a subtree ends.", "Serialize by walking the tree preorder, emitting each node's value or a sentinel like '#' for a missing child, joined with a delimiter such as ','.", "Deserialize by splitting on the delimiter into an iterator and consuming it recursively in the same preorder shape used to write it: read one token for the current node (or None if it's the sentinel), then recursively build its left subtree, then its right subtree."],
+  "solutions": [
+    {"name": "Preorder serialization with None sentinels", "explanation": "Serialize the tree with a preorder DFS: for each node, emit its value, then recursively emit its left subtree, then its right subtree; a missing child emits the sentinel '#'. Joining all emitted tokens with commas gives an unambiguous string, since every subtree (including empty ones) is explicitly marked. Deserializing walks the same shape in reverse: split the string into a token iterator, and recursively consume it -- read one token, and if it's '#' the subtree is None; otherwise build a node with that value, then recursively consume the iterator for its left child and again for its right child. Because both directions replay the exact same preorder structure, the round trip reproduces the tree exactly.", "code": "from collections import deque\n\n\nclass _N:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, v): self.val = v; self.left = None; self.right = None\n\n\ndef _build(vals):\n    if not vals or vals[0] is None: return None\n    root = _N(vals[0]); q = deque([root]); i = 1\n    while q and i < len(vals):\n        n = q.popleft()\n        if i < len(vals):\n            if vals[i] is not None: n.left = _N(vals[i]); q.append(n.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] is not None: n.right = _N(vals[i]); q.append(n.right)\n            i += 1\n    return root\n\n\ndef _serialize(root):\n    if not root: return []\n    out = []; q = deque([root])\n    while q:\n        n = q.popleft()\n        if n is None: out.append(None); continue\n        out.append(n.val); q.append(n.left); q.append(n.right)\n    while out and out[-1] is None: out.pop()\n    return out\n\n\ndef codec(vals):\n    def encode(node):\n        if node is None:\n            return \"#\"\n        return f\"{node.val},{encode(node.left)},{encode(node.right)}\"\n\n    def decode(data):\n        tokens = iter(data.split(\",\"))\n\n        def build():\n            tok = next(tokens)\n            if tok == \"#\":\n                return None\n            node = _N(int(tok))\n            node.left = build()\n            node.right = build()\n            return node\n\n        return build()\n\n    tree = _build(vals)\n    encoded = encode(tree)\n    rebuilt = decode(encoded)\n    return _serialize(rebuilt)\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

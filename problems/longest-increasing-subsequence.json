@@ -1,0 +1,25 @@
+{
+  "slug": "longest-increasing-subsequence",
+  "title": "Longest Increasing Subsequence",
+  "difficulty": "Medium",
+  "concepts": ["dp", "binary-search"],
+  "source": "Blind75",
+  "description": "Imagine walking through `nums` from left to right and choosing, at your discretion, which numbers to keep and which to skip, with one rule: every number you keep must be strictly greater than the previous number you kept, and the relative order they appeared in must stay intact. Work out the largest count of numbers you could possibly keep under that rule.\n\n**Example**\n\n```\nnums = [10, 9, 2, 5, 3, 7, 101, 18]  ->  4   (one such subsequence: [2, 3, 7, 18])\nnums = [7, 7, 7, 7, 7, 7, 7]         ->  1   (no strict increase is possible, so any single element)\n```",
+  "entry_point": "length_of_lis",
+  "starter_code": "def length_of_lis(nums):\n    # Return the length of the longest strictly increasing subsequence in nums.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[10, 9, 2, 5, 3, 7, 101, 18]], "expected": 4},
+    {"args": [[0, 1, 0, 3, 2, 3]], "expected": 4},
+    {"args": [[7, 7, 7, 7, 7, 7, 7]], "expected": 1},
+    {"args": [[]], "expected": 0},
+    {"args": [[5]], "expected": 1},
+    {"args": [[5, 4, 3, 2, 1]], "expected": 1},
+    {"args": [[1, 3, 6, 7, 9, 4, 10, 5, 6]], "expected": 6}
+  ],
+  "hints": ["The O(n^2) DP defines dp[i] as the length of the longest increasing subsequence ending exactly at index i, built from every dp[j] with j < i and nums[j] < nums[i].", "For the faster approach, maintain a list `tails` where tails[k] is the smallest possible tail value among all increasing subsequences of length k + 1 found so far.", "For each new number, binary-search `tails` for the leftmost position it can occupy (replacing that entry, or extending `tails` if it's larger than everything); the final length of `tails` is the answer."],
+  "solutions": [
+    {"name": "O(n^2) DP", "explanation": "dp[i] holds the length of the longest increasing subsequence that ends at index i. For each i, look back over every earlier index j; if nums[j] < nums[i], index i can extend that subsequence, so dp[i] can become dp[j] + 1. The answer is the largest value in dp (or 0 for an empty array).", "code": "def length_of_lis(nums):\n    n = len(nums)\n    if n == 0:\n        return 0\n    dp = [1] * n\n    for i in range(n):\n        for j in range(i):\n            if nums[j] < nums[i]:\n                dp[i] = max(dp[i], dp[j] + 1)\n    return max(dp)\n", "complexity": "Time O(n^2), Space O(n)"},
+    {"name": "Patience sorting with binary search", "explanation": "Maintain `tails`, where tails[k] is the smallest tail value achievable by an increasing subsequence of length k + 1 seen so far. For each number, binary-search for the leftmost tail that is >= it: if found, that subsequence length's best tail improves (gets replaced by the smaller/equal value); if not found, the number extends the longest subsequence found so far by one. `tails` is not itself a valid subsequence, but its length always equals the true LIS length.", "code": "import bisect\n\ndef length_of_lis(nums):\n    tails = []\n    for x in nums:\n        idx = bisect.bisect_left(tails, x)\n        if idx == len(tails):\n            tails.append(x)\n        else:\n            tails[idx] = x\n    return len(tails)\n", "complexity": "Time O(n log n), Space O(n)"}
+  ]
+}

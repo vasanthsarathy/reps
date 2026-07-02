@@ -1,0 +1,31 @@
+{
+  "slug": "missing-number",
+  "title": "Missing Number",
+  "difficulty": "Easy",
+  "concepts": ["bit manipulation", "math"],
+  "source": "Blind75",
+  "description": "You are given a list `nums` containing `n` distinct integers drawn from the range `0` to `n` inclusive, with exactly one value missing.\n\nReturn the missing value. Aim for O(n) time using O(1) extra space (no extra set/array).\n\n**Example**\n\n```\nnums = [3, 0, 1]  ->  2   (n=3, range is 0..3, and 2 is the value not present)\n```",
+  "entry_point": "missing_number",
+  "starter_code": "def missing_number(nums):\n    # nums has n distinct values from 0..n with exactly one missing; return it.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[3, 0, 1]], "expected": 2},
+    {"args": [[0, 1]], "expected": 2},
+    {"args": [[9, 6, 4, 2, 3, 5, 7, 0, 1]], "expected": 8},
+    {"args": [[0]], "expected": 1},
+    {"args": [[1]], "expected": 0}
+  ],
+  "hints": [
+    "If nothing were missing, nums would be a permutation of 0..n — what does that set's sum or XOR equal?",
+    "XOR every index 0..n together with every value in nums; matching pairs cancel out (x XOR x = 0), leaving only the missing number.",
+    "Equivalently, the expected sum of 0..n minus the actual sum of nums gives the missing value, but XOR avoids any overflow concerns."
+  ],
+  "solutions": [
+    {
+      "name": "XOR of indices and values",
+      "explanation": "Start an accumulator with n itself (the extra index not covered by enumerate over a list of length n). Then XOR in every index i from 0..n-1 together with every value nums[i]. Because a value equal to its own index cancels via XOR (x ^ x = 0), and XOR is commutative/associative, every present index-value pair that matches cancels out, leaving only the one index or value that has no partner: the missing number.",
+      "code": "def missing_number(nums):\n    n = len(nums)\n    result = n\n    for i, x in enumerate(nums):\n        result ^= i ^ x\n    return result\n",
+      "complexity": "Time O(n), Space O(1)"
+    }
+  ]
+}

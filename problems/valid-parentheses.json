@@ -1,0 +1,24 @@
+{
+  "slug": "valid-parentheses",
+  "title": "Valid Parentheses",
+  "difficulty": "Easy",
+  "concepts": ["stack", "strings"],
+  "source": "Blind75",
+  "description": "You receive a string built entirely from six bracket characters: `(`, `)`, `{`, `}`, `[`, `]`. Decide if it's well-formed -- every closing bracket must match the most recently opened bracket of the same kind, and by the end nothing should be left dangling open.\n\n**Example**\n\n```\nis_valid(\"{[()]}\")\n# -> True   (each bracket closes its matching partner in order)\n\nis_valid(\"{[(])}\")\n# -> False  (the ']' closes before the '(' that's still open)\n```",
+  "entry_point": "is_valid",
+  "starter_code": "def is_valid(s):\n    # Return True if the brackets in s are balanced and properly nested.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": ["{[()]}"], "expected": true},
+    {"args": ["{[(])}"], "expected": false},
+    {"args": ["()[]{}"], "expected": true},
+    {"args": [""], "expected": true},
+    {"args": ["("], "expected": false},
+    {"args": [")"], "expected": false},
+    {"args": ["((("], "expected": false}
+  ],
+  "hints": ["Push opening brackets onto a stack as you see them.", "On a closing bracket, it must match the type on top of the stack -- otherwise, or if the stack is empty, the string is invalid.", "At the end, the stack must be empty for the string to be valid."],
+  "solutions": [
+    {"name": "Stack with matching pairs", "explanation": "Walk the string, pushing each opening bracket onto a stack. When a closing bracket appears, pop the stack and check that it matches the corresponding opening bracket; if it doesn't match, or the stack is empty, the string is invalid. At the end the stack must be empty -- any unmatched opener means it's invalid.", "code": "def is_valid(s):\n    pairs = {')': '(', ']': '[', '}': '{'}\n    stack = []\n    for ch in s:\n        if ch in '([{':\n            stack.append(ch)\n        elif ch in pairs:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n        else:\n            continue\n    return not stack\n", "complexity": "Time O(n), Space O(n)"}
+  ]
+}

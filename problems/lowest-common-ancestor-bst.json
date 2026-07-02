@@ -1,0 +1,22 @@
+{
+  "slug": "lowest-common-ancestor-bst",
+  "title": "Lowest Common Ancestor of a Binary Search Tree",
+  "difficulty": "Medium",
+  "concepts": ["trees", "bst"],
+  "source": "Blind75",
+  "description": "You're given a binary search tree as a level-order list where `null` marks a missing child (root first, children filled in level by level, skipping subtrees under a `null`), along with two values `p` and `q` that are guaranteed to exist in the tree. Return the value of their lowest common ancestor -- the deepest node that has both `p` and `q` somewhere in its subtree (a node counts as being in its own subtree).\n\n**Example**\n\n```\nroot = [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5], p = 2, q = 8\n# ->  6\n#\n#            6\n#          /   \\\n#         2     8\n#        / \\   / \\\n#       0   4 7   9\n#          / \\\n#         3   5\n```",
+  "entry_point": "lca_bst",
+  "starter_code": "def lca_bst(root, p, q):\n    # root: level-order list of a BST with None for missing nodes.\n    # p, q: values guaranteed to exist in the tree.\n    # Return the value of their lowest common ancestor.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[6, 2, 8, 0, 4, 7, 9, null, null, 3, 5], 2, 8], "expected": 6},
+    {"args": [[6, 2, 8, 0, 4, 7, 9, null, null, 3, 5], 2, 4], "expected": 2},
+    {"args": [[2, 1], 1, 2], "expected": 2},
+    {"args": [[1], 1, 1], "expected": 1},
+    {"args": [[6, 2, 8, 0, 4, 7, 9, null, null, 3, 5], 3, 5], "expected": 4}
+  ],
+  "hints": ["A plain binary tree LCA needs to search both subtrees, but a BST's ordering tells you which single direction to go at each step -- no need to build parent pointers or search both sides.", "At the current node: if both p and q are smaller than its value, the LCA must be in the left subtree; if both are larger, it must be in the right subtree.", "The first node where p and q are NOT both on the same side (one is <= the node's value and the other is >=) is the split point -- and that node IS the lowest common ancestor, since p and q live in different subtrees (or one of them equals the node itself)."],
+  "solutions": [
+    {"name": "Iterative BST descent using ordering", "explanation": "Rebuild the tree, then walk down from the root using the BST property instead of an unconstrained two-sided search. At each node, if both p and q are strictly less than the node's value, the split hasn't happened yet and both values live in the left subtree, so descend left. If both are strictly greater, descend right. The moment that's no longer true -- one value is <= the node's value and the other is >= it -- the paths to p and q have diverged (or the node itself is p or q), so this node is exactly the lowest common ancestor; return its value immediately.", "code": "from collections import deque\n\n\nclass _N:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, v): self.val = v; self.left = None; self.right = None\n\n\ndef _build(vals):\n    if not vals or vals[0] is None: return None\n    root = _N(vals[0]); q = deque([root]); i = 1\n    while q and i < len(vals):\n        n = q.popleft()\n        if i < len(vals):\n            if vals[i] is not None: n.left = _N(vals[i]); q.append(n.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] is not None: n.right = _N(vals[i]); q.append(n.right)\n            i += 1\n    return root\n\n\ndef lca_bst(root, p, q):\n    node = _build(root)\n    while node:\n        if p < node.val and q < node.val:\n            node = node.left\n        elif p > node.val and q > node.val:\n            node = node.right\n        else:\n            return node.val\n    return None\n", "complexity": "Time O(h), Space O(1)"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "slug": "find-median-from-data-stream",
+  "title": "Find Median from Data Stream",
+  "difficulty": "Hard",
+  "concepts": ["heap", "design", "two-heaps"],
+  "source": "Blind75",
+  "description": "This is an operation-sequence problem: your function receives `operations`, a list where each element is itself a list `[method, *args]`. The first operation is always `[\"MedianFinder\"]`, the constructor. For each subsequent operation, call the named method with the given args on the same instance, in order. Return a list with one result per operation (constructor and void methods contribute `null`).\n\nImplement a running median tracker supporting:\n- `addNum(num)` — adds an integer to the data stream seen so far. Void (`null`).\n- `findMedian()` — returns the median of all numbers added so far, as a float. If the count is odd, it's the single middle value; if even, it's the average of the two middle values.\n\n**Example**\n\n```\noperations = [[\"MedianFinder\"],[\"addNum\",1],[\"findMedian\"],[\"addNum\",2],[\"findMedian\"],[\"addNum\",3],[\"findMedian\"]]\n->            [null,                  null,             1.0,      null,             1.5,      null,             2.0]\n```",
+  "entry_point": "median_ops",
+  "starter_code": "def median_ops(operations):\n    # operations: list of [method, *args]; operations[0] == [\"MedianFinder\"] is the constructor.\n    # addNum(num) is void; findMedian() returns the running median as a float.\n    # Return a list with one result per operation (null for constructor/addNum).\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[["MedianFinder"],["addNum",1],["findMedian"],["addNum",2],["findMedian"],["addNum",3],["findMedian"]]], "expected": [null, null, 1.0, null, 1.5, null, 2.0]},
+    {"args": [[["MedianFinder"],["addNum",5],["findMedian"]]], "expected": [null, null, 5.0]},
+    {"args": [[["MedianFinder"],["addNum",2],["addNum",2],["findMedian"],["addNum",2],["findMedian"]]], "expected": [null, null, null, 2.0, null, 2.0]},
+    {"args": [[["MedianFinder"],["addNum",-1],["addNum",-2],["findMedian"],["addNum",-3],["findMedian"],["addNum",-4],["findMedian"],["addNum",-5],["findMedian"]]], "expected": [null, null, null, -1.5, null, -2.0, null, -2.5, null, -3.0]},
+    {"args": [[["MedianFinder"],["addNum",6],["addNum",10],["addNum",2],["addNum",6],["addNum",5],["findMedian"]]], "expected": [null, null, null, null, null, null, 6.0]}
+  ],
+  "hints": [
+    "Keep two heaps: a max-heap for the smaller half of the numbers seen so far, and a min-heap for the larger half.",
+    "Python's heapq is a min-heap only, so simulate the max-heap by pushing negated values onto a regular heapq and negating again on pop/peek.",
+    "After every insertion, rebalance so the two heaps' sizes differ by at most 1 (push into one heap, then move its top into the other if it violates the ordering or size-balance invariant); the median is then either the top of the larger heap, or the average of both tops when sizes are equal."
+  ],
+  "solutions": [
+    {
+      "name": "Two heaps (max-heap for lower half, min-heap for upper half)",
+      "explanation": "The stream is split across two heaps: `lo`, a max-heap (implemented with negated values in a `heapq` min-heap) holding the smaller half of all numbers seen, and `hi`, a plain min-heap holding the larger half, maintained so that every value in `lo` is <= every value in `hi` and their sizes never differ by more than one. On `addNum`, the new value is pushed into `lo`, then its max is popped and pushed into `hi` to keep the cross-heap ordering correct; if that leaves `hi` larger than `lo`, `hi`'s min is popped back into `lo` to restore the size balance. This two-step push keeps both invariants (ordering and near-equal size) intact in O(log n) per insertion. `findMedian` then just inspects the tops: if `lo` has one more element than `hi`, the median is `lo`'s top (negated back to a real value); otherwise the counts are equal and the median is the average of both tops.",
+      "code": "def median_ops(operations):\n    import heapq\n\n    class MedianFinder:\n        def __init__(self):\n            self.lo = []  # max-heap via negation: holds the smaller half\n            self.hi = []  # min-heap: holds the larger half\n\n        def addNum(self, num):\n            heapq.heappush(self.lo, -num)\n            heapq.heappush(self.hi, -heapq.heappop(self.lo))\n            if len(self.hi) > len(self.lo):\n                heapq.heappush(self.lo, -heapq.heappop(self.hi))\n\n        def findMedian(self):\n            if len(self.lo) > len(self.hi):\n                return float(-self.lo[0])\n            return (-self.lo[0] + self.hi[0]) / 2.0\n\n    results = []\n    mf = None\n    for op in operations:\n        method, args = op[0], op[1:]\n        if method == \"MedianFinder\":\n            mf = MedianFinder()\n            results.append(None)\n        elif method == \"addNum\":\n            mf.addNum(*args)\n            results.append(None)\n        elif method == \"findMedian\":\n            results.append(mf.findMedian())\n    return results\n",
+      "complexity": "Time O(log n) per addNum, O(1) per findMedian, Space O(n)"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "slug": "reorder-list",
+  "title": "Reorder List",
+  "difficulty": "Medium",
+  "concepts": ["linked-list", "two-pointers"],
+  "source": "Blind75",
+  "description": "You're given `values`, the contents of a singly linked list listed from head to tail. Rearrange the nodes in place so that the sequence zig-zags inward from both ends at once: keep the original first node where it is, then place the original last node right after it, then the original second node, then the original second-to-last node, and so on, alternating front and back until every node has been placed exactly once. Return the resulting order of values.\n\n**Example**\n\n```\nvalues = [1, 2, 3, 4]        ->  [1, 4, 2, 3]\nvalues = [1, 2, 3, 4, 5]     ->  [1, 5, 2, 4, 3]\n```",
+  "entry_point": "reorder_list",
+  "starter_code": "def reorder_list(values):\n    # values: list of node values in original head-to-tail order.\n    # Return the values in the reordered (zig-zag from both ends) order.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 3, 4]], "expected": [1, 4, 2, 3]},
+    {"args": [[1, 2, 3, 4, 5]], "expected": [1, 5, 2, 4, 3]},
+    {"args": [[]], "expected": []},
+    {"args": [[1]], "expected": [1]},
+    {"args": [[1, 2]], "expected": [1, 2]},
+    {"args": [[9, 7, 5, 3, 1]], "expected": [9, 1, 7, 3, 5]}
+  ],
+  "hints": [
+    "Build the list as real nodes, then find the middle with a slow/fast pointer so you can split it into a first half and a second half.",
+    "Reverse the second half in place (same pointer-flip technique as Reverse Linked List), then merge the two halves by alternately splicing a node from each."
+  ],
+  "solutions": [
+    {
+      "name": "Find middle, reverse second half, merge alternately",
+      "explanation": "Build real nodes from values. Find the middle of the list using slow/fast pointers (slow ends at the start of the second half, using the convention that for even length the second half is the shorter or equal one). Split the list into two halves, reverse the second half with the standard iterative prev/curr pointer flip, then merge the two halves by alternately taking one node from the first half and one from the reversed second half. Finally read the values back out of the merged list.",
+      "code": "class _Node:\n    __slots__ = (\"val\", \"next\")\n    def __init__(self, val):\n        self.val = val\n        self.next = None\n\n\ndef _build(values):\n    head = None\n    tail = None\n    for v in values:\n        node = _Node(v)\n        if head is None:\n            head = tail = node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef _reverse(head):\n    prev = None\n    curr = head\n    while curr is not None:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    return prev\n\n\ndef reorder_list(values):\n    head = _build(values)\n    if head is None or head.next is None:\n        return values[:]\n\n    slow = fast = head\n    while fast.next is not None and fast.next.next is not None:\n        slow = slow.next\n        fast = fast.next.next\n\n    second = slow.next\n    slow.next = None\n    second = _reverse(second)\n\n    first = head\n    while second is not None:\n        first_next = first.next\n        second_next = second.next\n        first.next = second\n        second.next = first_next\n        first = first_next\n        second = second_next\n\n    out = []\n    node = head\n    while node is not None:\n        out.append(node.val)\n        node = node.next\n    return out\n",
+      "complexity": "Time O(n), Space O(1) (excluding the O(n) list construction)"
+    }
+  ]
+}

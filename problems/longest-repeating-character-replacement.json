@@ -1,0 +1,23 @@
+{
+  "slug": "longest-repeating-character-replacement",
+  "title": "Longest Repeating Character Replacement",
+  "difficulty": "Medium",
+  "concepts": ["sliding window", "strings"],
+  "source": "Blind75",
+  "description": "You're given an uppercase string `s` and an integer `k`. You may change up to `k` characters in `s` to any other uppercase letter. Return the length of the longest substring you can make consist of a single repeated letter after performing at most `k` such changes.\n\n**Example**\n\n```\ncharacter_replacement(\"ABAB\", 2)\n# -> 4   (change both 'A's or both 'B's -> \"AAAA\" or \"BBBB\")\n\ncharacter_replacement(\"AABABBA\", 1)\n# -> 4   (change one letter inside \"ABAB\" -> \"AABBBA\", giving a run of 4 B's)\n```",
+  "entry_point": "character_replacement",
+  "starter_code": "def character_replacement(s, k):\n    # Return the length of the longest single-letter run achievable with <= k replacements.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": ["ABAB", 2], "expected": 4},
+    {"args": ["AABABBA", 1], "expected": 4},
+    {"args": ["", 2], "expected": 0},
+    {"args": ["AAAA", 0], "expected": 4},
+    {"args": ["ABCDE", 0], "expected": 1},
+    {"args": ["A", 0], "expected": 1}
+  ],
+  "hints": ["Use a sliding window and track the count of the most frequent letter currently in the window.", "A window of length (end - start + 1) is achievable if (window length - count of most frequent letter) <= k; otherwise shrink from the left.", "The window never needs to shrink below its previous max size, so you can track the best length as you slide."],
+  "solutions": [
+    {"name": "Sliding window with max-frequency tracking", "explanation": "Expand a window to the right, keeping a frequency count of letters inside it. At each step, if the number of letters that are NOT the window's most frequent letter exceeds k, shrink the window from the left. The window size at any valid point is a candidate answer; track the maximum seen, which only grows since the window never truly shrinks in size once it reaches a length.", "code": "from collections import Counter\n\ndef character_replacement(s, k):\n    counts = Counter()\n    left = 0\n    max_freq = 0\n    best = 0\n    for right, ch in enumerate(s):\n        counts[ch] += 1\n        max_freq = max(max_freq, counts[ch])\n        window_len = right - left + 1\n        if window_len - max_freq > k:\n            counts[s[left]] -= 1\n            left += 1\n        else:\n            best = max(best, window_len)\n    return best\n", "complexity": "Time O(n), Space O(1) (bounded by 26 letters)"}
+  ]
+}

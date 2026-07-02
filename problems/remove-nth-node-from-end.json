@@ -1,0 +1,31 @@
+{
+  "slug": "remove-nth-node-from-end",
+  "title": "Remove Nth Node From End of List",
+  "difficulty": "Medium",
+  "concepts": ["linked-list", "two-pointers"],
+  "source": "Blind75",
+  "description": "A singly linked list is given as a plain list of values `values`, head-to-tail, along with an integer `n`. Remove the `n`th node from the end of the list (1-indexed, so `n = 1` removes the last node) and return the resulting list of values. Do it in a single pass over the list.\n\n**Example**\n\n```\nvalues = [1, 2, 3, 4, 5], n = 2   ->  [1, 2, 3, 5]\n```",
+  "entry_point": "remove_nth_from_end",
+  "starter_code": "def remove_nth_from_end(values, n):\n    # values: list of node values head-to-tail.\n    # n: remove the nth node counting from the end (1-indexed).\n    # Return the resulting list of values.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[1, 2, 3, 4, 5], 2], "expected": [1, 2, 3, 5]},
+    {"args": [[1], 1], "expected": []},
+    {"args": [[1, 2], 1], "expected": [1]},
+    {"args": [[1, 2], 2], "expected": [2]},
+    {"args": [[1, 2, 3, 4, 5], 5], "expected": [2, 3, 4, 5]},
+    {"args": [[1, 2, 3], 3], "expected": [2, 3]}
+  ],
+  "hints": [
+    "Use a dummy node before the head so removing the actual head (when n equals the list length) doesn't need special-casing.",
+    "Advance a fast pointer n steps ahead of a slow pointer (both starting at dummy), then move both forward together until fast reaches the last node; slow.next is now the node to remove."
+  ],
+  "solutions": [
+    {
+      "name": "Two pointers with n-node gap, dummy head",
+      "explanation": "Build real nodes from values with a dummy node in front of the head so the head itself can be removed uniformly. Advance a fast pointer n steps from dummy. Then advance both fast and a slow pointer (starting at dummy) one step at a time until fast reaches the last node. At that point slow.next is exactly the node that is n from the end, so unlink it: slow.next = slow.next.next. Read the values back out starting from dummy.next.",
+      "code": "class _Node:\n    __slots__ = (\"val\", \"next\")\n    def __init__(self, val):\n        self.val = val\n        self.next = None\n\n\ndef remove_nth_from_end(values, n):\n    dummy = _Node(None)\n    tail = dummy\n    for v in values:\n        tail.next = _Node(v)\n        tail = tail.next\n\n    fast = dummy\n    for _ in range(n):\n        fast = fast.next\n\n    slow = dummy\n    while fast.next is not None:\n        fast = fast.next\n        slow = slow.next\n\n    slow.next = slow.next.next\n\n    out = []\n    node = dummy.next\n    while node is not None:\n        out.append(node.val)\n        node = node.next\n    return out\n",
+      "complexity": "Time O(n), Space O(n) (excluding the O(1) extra pointer space, O(n) is for building/reading the list)"
+    }
+  ]
+}

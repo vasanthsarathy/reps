@@ -1,0 +1,22 @@
+{
+  "slug": "validate-bst",
+  "title": "Validate Binary Search Tree",
+  "difficulty": "Medium",
+  "concepts": ["trees", "bst", "recursion"],
+  "source": "Blind75",
+  "description": "A binary tree is given as a level-order list where `null` marks a missing child (root first, children filled in level by level, skipping subtrees under a `null`). Determine whether it's a valid binary search tree: every node's value must be strictly greater than ALL values in its left subtree and strictly less than ALL values in its right subtree, not merely greater/less than its immediate children. An empty tree counts as valid.\n\n**Example**\n\n```\nis_valid_bst([5, 1, 4, null, null, 3, 6])\n# -> false\n#\n#        5\n#       / \\\n#      1   4\n#         / \\\n#        3   6\n#\n# 4's left child 3 is fine locally, but 4 sits in 5's right subtree\n# where everything must exceed 5 -- and even so, 4 < 5 is already illegal\n# once you account for both children of 4 needing to stay above 4 itself.\n```",
+  "entry_point": "is_valid_bst",
+  "starter_code": "def is_valid_bst(root):\n    # root: level-order list with None for missing nodes.\n    # Return True if the tree is a valid BST, False otherwise.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [[2, 1, 3]], "expected": true},
+    {"args": [[5, 1, 4, null, null, 3, 6]], "expected": false},
+    {"args": [[]], "expected": true},
+    {"args": [[1]], "expected": true},
+    {"args": [[10, 5, 15, null, null, 6, 20]], "expected": false}
+  ],
+  "hints": ["Checking only that a node is greater than its left child and less than its right child is NOT enough -- a deeper descendant could still violate a bound set by a distant ancestor.", "Carry a valid (low, high) range down through the recursion: a node's value must fall strictly between them, and its subtrees inherit a narrowed range where one of the two bounds gets replaced by the node's own value.", "Start the root with unbounded (-infinity, infinity) range; going left tightens the upper bound to the current node's value, going right tightens the lower bound."],
+  "solutions": [
+    {"name": "Recursive min/max bound propagation", "explanation": "Rebuild the tree, then recursively validate each node against a strict (low, high) range inherited from its ancestors, rather than just comparing to its immediate children. The root starts with an unbounded range. When descending into a left child, the upper bound tightens to the parent's value (everything in a left subtree must stay below its parent); descending right tightens the lower bound the same way. At each node, first check its value falls strictly inside the current (low, high) range, then recurse into both children with the updated bounds -- the whole tree is valid only if every node passes this check.", "code": "from collections import deque\n\n\nclass _N:\n    __slots__ = (\"val\", \"left\", \"right\")\n    def __init__(self, v): self.val = v; self.left = None; self.right = None\n\n\ndef _build(vals):\n    if not vals or vals[0] is None: return None\n    root = _N(vals[0]); q = deque([root]); i = 1\n    while q and i < len(vals):\n        n = q.popleft()\n        if i < len(vals):\n            if vals[i] is not None: n.left = _N(vals[i]); q.append(n.left)\n            i += 1\n        if i < len(vals):\n            if vals[i] is not None: n.right = _N(vals[i]); q.append(n.right)\n            i += 1\n    return root\n\n\ndef is_valid_bst(root):\n    r = _build(root)\n\n    def valid(node, lo, hi):\n        if node is None:\n            return True\n        if not (lo < node.val < hi):\n            return False\n        return valid(node.left, lo, node.val) and valid(node.right, node.val, hi)\n\n    return valid(r, float('-inf'), float('inf'))\n", "complexity": "Time O(n), Space O(h)"}
+  ]
+}

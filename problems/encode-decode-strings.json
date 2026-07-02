@@ -1,0 +1,23 @@
+{
+  "slug": "encode-decode-strings",
+  "title": "Encode and Decode Strings",
+  "difficulty": "Medium",
+  "concepts": ["strings", "design"],
+  "source": "Blind75",
+  "description": "Design an encoding scheme that packs a list of strings into a single string, and a matching decoder that recovers the exact original list from that packed string. The strings may be empty and may contain any characters, including ones you might otherwise use as a delimiter -- your scheme must handle that safely.\n\nTo demonstrate both halves at once, implement a function that encodes a list to one string and then immediately decodes that string back, returning the recovered list (which must exactly equal the input).\n\n**Example**\n\n```\ncodec([\"hello\", \"world\"])\n# -> [\"hello\", \"world\"]\n\ncodec([\"\", \"a:b\", \"4#three\", \"\"])\n# -> [\"\", \"a:b\", \"4#three\", \"\"]\n```",
+  "entry_point": "codec",
+  "starter_code": "def codec(strs):\n    # Encode strs into one string, decode it back, and return the recovered list.\n    pass\n",
+  "compare": "exact",
+  "tests": [
+    {"args": [["hello", "world"]], "expected": ["hello", "world"]},
+    {"args": [["", "a:b", "4#three", ""]], "expected": ["", "a:b", "4#three", ""]},
+    {"args": [[]], "expected": []},
+    {"args": [[""]], "expected": [""]},
+    {"args": [["a", "", "b"]], "expected": ["a", "", "b"]},
+    {"args": [["4#2", "two"]], "expected": ["4#2", "two"]}
+  ],
+  "hints": ["A plain delimiter character breaks if that character can appear inside a string -- you need a scheme immune to that.", "Prefix each string with its length so the decoder always knows exactly how many characters to consume next, regardless of their content.", "Use a fixed separator (like '#') strictly between the length prefix and the string data, e.g. '5#hello', and read the length first to know where the next string starts."],
+  "solutions": [
+    {"name": "Length-prefixed encoding", "explanation": "Encode each string as its length, a '#' separator, and then the raw string data, concatenating these chunks for the whole list -- e.g. \"hello\" becomes \"5#hello\". Because the length is read before the string itself, the decoder always knows exactly how many characters belong to the current string, so any character (including '#' or digits) inside the string is handled safely. Decoding walks the encoded string, reading digits up to the next '#' to get the length, then slicing out exactly that many characters as the next string, repeating until the encoded string is exhausted.", "code": "def codec(strs):\n    def encode(lst):\n        return ''.join(f\"{len(s)}#{s}\" for s in lst)\n\n    def decode(data):\n        result = []\n        i = 0\n        while i < len(data):\n            j = i\n            while data[j] != '#':\n                j += 1\n            length = int(data[i:j])\n            start = j + 1\n            result.append(data[start:start + length])\n            i = start + length\n        return result\n\n    return decode(encode(strs))\n", "complexity": "Time O(total characters), Space O(total characters)"}
+  ]
+}
