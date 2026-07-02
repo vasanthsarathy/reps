@@ -1,10 +1,10 @@
 {
   "slug": "nb-pairwise-distances",
   "track": "ml",
-  "source": "NumpyBasics",
+  "source": "ML-Impl",
   "title": "Pairwise Euclidean Distances",
-  "difficulty": "Easy",
-  "concepts": ["numpy-basics", "linear-algebra"],
+  "difficulty": "Medium",
+  "concepts": ["linear-algebra"],
   "libraries": ["numpy"],
   "description": "Given a 2-D array $X$ with shape $(m, d)$ whose rows are $m$ points in $d$ dimensions, return an $(m, m)$ matrix $D$ where $D_{ij}$ is the Euclidean distance between row $i$ and row $j$: $D_{ij} = \\sqrt{\\sum_{t=1}^{d} (X_{it} - X_{jt})^2}$. Note $D_{ii} = 0$ and $D$ is symmetric.\n\n**Example**: `X = [[0, 0], [3, 4]]` -> `pairwise_distances(X) = [[0, 5], [5, 0]]` (the distance between the two points is $\\sqrt{3^2+4^2}=5$).\n\nImplement `pairwise_distances(X)`. **Shape**: `X`: (5, 3) -> returns (5, 5).",
   "entry_point": "pairwise_distances",
