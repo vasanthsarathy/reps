@@ -18,8 +18,25 @@ def client(tmp_path, monkeypatch):
 def test_list_problems(client):
     r = client.get("/api/problems")
     assert r.status_code == 200
-    slugs = [p["slug"] for p in r.json()]
+    body = r.json()
+    slugs = [p["slug"] for p in body]
     assert "two-sum" in slugs
+    for p in body:
+        assert "last_result" in p
+        assert "repetitions" in p
+        assert p["last_result"] is None
+        assert p["repetitions"] == 0
+
+
+def test_list_problems_reflects_last_attempt(client):
+    client.post("/api/attempt", json={
+        "slug": "two-sum", "code": "x=1", "elapsed_ms": 300000,
+        "result": "good", "notes": {},
+    })
+    r = client.get("/api/problems")
+    two = next(p for p in r.json() if p["slug"] == "two-sum")
+    assert two["last_result"] == "good"
+    assert two["repetitions"] == 1
 
 
 def test_get_problem(client):

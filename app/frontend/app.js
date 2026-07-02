@@ -104,6 +104,98 @@ function wire() {
   document.querySelectorAll("#rating-bar button[data-level]").forEach((b) =>
     b.onclick = () => finishAttempt(b.dataset.level));
   wireTimer();
+  $("#browse-btn").onclick = openBrowse;
+  $("#browse-close").onclick = closeBrowse;
+  $("#browse-search").oninput = (e) => renderBrowse(filterItems(e.target.value));
+  $("#browse-overlay").onclick = (e) => { if (e.target.id === "browse-overlay") closeBrowse(); };
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("#browse-overlay").hidden) closeBrowse();
+  });
+}
+
+// ---- Browse panel ----
+let browseItems = [];
+
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+async function openBrowse() {
+  browseItems = await api("/problems");
+  renderBrowse(browseItems);
+  $("#browse-overlay").hidden = false;
+  $("#browse-search").focus();
+}
+
+function closeBrowse() {
+  $("#browse-overlay").hidden = true;
+}
+
+function filterItems(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return browseItems;
+  return browseItems.filter((item) =>
+    item.title.toLowerCase().includes(q) ||
+    (item.concepts || []).some((c) => c.toLowerCase().includes(q)));
+}
+
+function shortDate(due) {
+  return new Date(due + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function browseRow(item) {
+  const row = document.createElement("div");
+  row.className = "browse-row";
+  const main = document.createElement("div");
+  main.className = "browse-row-main";
+  const title = document.createElement("div");
+  title.className = "browse-row-title";
+  title.textContent = item.title;
+  const sub = document.createElement("div");
+  sub.className = "browse-row-sub";
+  sub.textContent = item.difficulty + " · " + (item.concepts || []).join(", ");
+  main.appendChild(title); main.appendChild(sub);
+
+  const status = document.createElement("div");
+  status.className = "browse-row-status";
+  const badge = document.createElement("span");
+  if (!item.seen) {
+    badge.className = "badge new"; badge.textContent = "New";
+  } else if (item.due && item.due <= todayISO()) {
+    badge.className = "badge due"; badge.textContent = "Due";
+  } else {
+    badge.className = "badge sched"; badge.textContent = "next: " + shortDate(item.due);
+  }
+  status.appendChild(badge);
+  if (item.seen) {
+    const chip = document.createElement("span");
+    chip.className = "chip " + item.last_result;
+    chip.textContent = item.last_result + " ×" + item.repetitions;
+    status.appendChild(chip);
+  }
+
+  row.appendChild(main); row.appendChild(status);
+  row.onclick = () => { loadProblem(item.slug); clearNotes(); resetTimer(); closeBrowse(); };
+  return row;
+}
+
+function renderBrowse(items) {
+  const list = $("#browse-list");
+  list.innerHTML = "";
+  const today = todayISO();
+  const due = items.filter((i) => i.seen && i.due && i.due <= today)
+    .sort((a, b) => a.due < b.due ? -1 : a.due > b.due ? 1 : 0);
+  const isNew = items.filter((i) => !i.seen);
+  const scheduled = items.filter((i) => i.seen && !(i.due && i.due <= today))
+    .sort((a, b) => (a.due || "") < (b.due || "") ? -1 : (a.due || "") > (b.due || "") ? 1 : 0);
+
+  const groups = [["Due", due], ["New", isNew], ["Scheduled", scheduled]];
+  groups.forEach(([label, groupItems]) => {
+    if (groupItems.length === 0) return;
+    const header = document.createElement("div");
+    header.className = "browse-group";
+    header.textContent = label;
+    list.appendChild(header);
+    groupItems.forEach((item) => list.appendChild(browseRow(item)));
+  });
 }
 
 let timer = { total: 20 * 60, remaining: 20 * 60, id: null, startedAt: null, elapsedMs: 0 };
